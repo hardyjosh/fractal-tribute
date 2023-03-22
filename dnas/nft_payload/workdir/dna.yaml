@@ -1,0 +1,19 @@
+---
+manifest_version: "1"
+name: nft_payload
+integrity:
+  network_seed: ~
+  properties: ~
+  origin_time: 1679514897361719
+  zomes:
+    - name: nft_payload_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/nft_payload_integrity.wasm"
+      dependencies: ~
+coordinator:
+  zomes:
+    - name: nft_payload
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/nft_payload.wasm"
+      dependencies:
+        - name: nft_payload_integrity

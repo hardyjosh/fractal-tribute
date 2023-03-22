@@ -2,4 +2,17 @@
 manifest_version: "1"
 name: nft-payload
 description: ~
-roles: []
+roles:
+  - name: nft_payload
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dnas/nft_payload/workdir/nft_payload.dna"
+      modifiers:
+        network_seed: ~
+        properties: ~
+        origin_time: ~
+        quantum_time: ~
+      version: ~
+      clone_limit: 0
