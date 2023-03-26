@@ -1,9 +1,9 @@
-import type { 
-  Record, 
+import type {
+  Record,
   ActionHash,
   DnaHash,
   SignedActionHashed,
-  EntryHash, 
+  EntryHash,
   AgentPubKey,
   Create,
   Update,
@@ -36,13 +36,12 @@ export type NftPayloadSignal = {
 };
 
 export type EntryTypes =
- | ({ type: 'EvmKeyBinding'; } & EvmKeyBinding)
- | ({  type: 'Payload'; } & Payload);
+  | ({ type: 'EvmKeyBinding'; } & EvmKeyBinding)
+  | ({ type: 'Payload'; } & Payload);
 
 
 
-export interface Payload { 
-  creator: AgentPubKey;
+export interface Payload {
 
   name: string;
 
@@ -52,9 +51,9 @@ export interface Payload {
 
 
 
-export interface EvmKeyBinding { 
+export interface EvmKeyBinding {
   evm_key: number;
 
-  creator: AgentPubKey;
+  // creator: AgentPubKey;
 }
 
