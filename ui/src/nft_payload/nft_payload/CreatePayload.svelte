@@ -45,6 +45,7 @@
       dispatch("payload-created", {
         payloadHash: record.signed_action.hashed.hash,
       });
+      console.log(record.signed_action.hashed.hash);
     } catch (e) {
       errorSnackbar.labelText = `Error creating the payload: ${e.data.data}`;
       errorSnackbar.show();

@@ -24,10 +24,3 @@ pub fn create_payload(payload: Payload) -> ExternResult<Record> {
 pub fn get_payload(payload_hash: ActionHash) -> ExternResult<Option<Record>> {
     get(payload_hash, GetOptions::default())
 }
-
-#[hdk_extern]
-pub fn get_genesis(something: bool) -> ExternResult<Vec<Record>> {
-    let query_filter = ChainQueryFilter::new().sequence_range(ChainQueryFilterRange::ActionSeqRange(4, 4));
-    let records = query(query_filter)?;
-    return Ok(records);
-}

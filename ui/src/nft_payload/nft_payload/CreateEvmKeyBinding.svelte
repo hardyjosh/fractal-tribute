@@ -14,6 +14,8 @@
   import "@material/mwc-snackbar";
   import type { Snackbar } from "@material/mwc-snackbar";
   import "@material/mwc-slider";
+  import { utils } from "ethers";
+  import { signer, connected, signerAddress } from "svelte-ethers-store";
 
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
@@ -21,16 +23,20 @@
 
   // export let creator!: AgentPubKey;
 
-  let evmKey: number = 0;
+  let evmKey: string = "";
 
   let errorSnackbar: Snackbar;
 
   $: evmKey;
-  $: isEvmKeyBindingValid = true && true;
 
   async function createEvmKeyBinding() {
+    let sig = await $signer.signMessage("hello!");
+    let address = await $signer.getAddress();
+    console.log(sig);
+    const byteArray = utils.arrayify($signerAddress);
+    console.log(byteArray.length);
     const evmKeyBindingEntry: EvmKeyBinding = {
-      evm_key: evmKey!,
+      evm_key: byteArray,
       // creator: creator!,
     };
 
@@ -59,15 +65,17 @@
   <div style="margin-bottom: 16px">
     <div style="display: flex; flex-direction: row">
       <span style="margin-right: 4px">Evm Key</span>
-      <input bind:value={evmKey} type="number" />
+      <input bind:value={evmKey} type="text" />
       <!-- <mwc-slider value={ evmKey } on:input={e => { evmKey = e.detail.value; } } discrete></mwc-slider> -->
     </div>
   </div>
 
+  <div>connected = {$connected}, address = {$signerAddress}</div>
+
   <mwc-button
     raised
     label="Create EvmKeyBinding"
-    disabled={!isEvmKeyBindingValid}
+    disabled={!$connected}
     on:click={() => createEvmKeyBinding()}
   />
 </div>

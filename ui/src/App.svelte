@@ -8,6 +8,8 @@
   import CreateEvmKeyBinding from "./nft_payload/nft_payload/CreateEvmKeyBinding.svelte";
   import CreatePayload from "./nft_payload/nft_payload/CreatePayload.svelte";
   import GetEvmKey from "./nft_payload/nft_payload/GetEvmKey.svelte";
+  import ConnectWallet from "./lib/connect-wallet/ConnectWallet.svelte";
+  import Deploy from "./lib/deploy/Deploy.svelte";
 
   let client: AppAgentClient | undefined;
   let loading = true;
@@ -37,6 +39,8 @@
       <CreateEvmKeyBinding />
       <CreatePayload />
       <GetEvmKey />
+      <ConnectWallet />
+      <Deploy />
     </div>
   {/if}
 </main>

@@ -11,7 +11,7 @@
     DnaHash,
   } from "@holochain/client";
   import { clientContext } from "../../contexts";
-  import type { Payload } from "./types";
+  import type { EvmKeyBinding, Payload } from "./types";
   import "@material/mwc-circular-progress";
   import type { Snackbar } from "@material/mwc-snackbar";
   import "@material/mwc-snackbar";
@@ -39,15 +39,15 @@
         cap_secret: null,
         role_name: "nft_payload",
         zome_name: "nft_payload",
-        fn_name: "get_genesis",
+        fn_name: "get_evm_address",
         payload: true,
       });
       console.log("clicked");
       console.log(record);
-      // if (record) {
-      //   key = decode((record.entry as any).Present.entry);
-      //   console.log(key);
-      // }
+      if (record) {
+        key = decode((record.entry as any).Present.entry) as EvmKeyBinding;
+        console.log(key);
+      }
     } catch (e) {
       console.log(e);
       error = e;

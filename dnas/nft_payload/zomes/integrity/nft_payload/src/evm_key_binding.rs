@@ -1,14 +1,21 @@
 use hdi::prelude::*;
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct ByteArray(#[serde(with = "serde_bytes")] Vec<u8>);
+
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct EvmKeyBinding {
-    pub evm_key: u32,
+    pub evm_key: ByteArray,
     // pub creator: AgentPubKey,
 }
+
 pub fn validate_create_evm_key_binding(
     _action: EntryCreationAction,
     _evm_key_binding: EvmKeyBinding,
 ) -> ExternResult<ValidateCallbackResult> {
+
+
     if *_action.action_seq() != 4u32 {
         return Ok(
             ValidateCallbackResult::Invalid(

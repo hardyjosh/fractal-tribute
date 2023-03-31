@@ -52,7 +52,7 @@ export interface Payload {
 
 
 export interface EvmKeyBinding {
-  evm_key: number;
+  evm_key: Uint8Array;
 
   // creator: AgentPubKey;
 }

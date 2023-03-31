@@ -1,10 +1,12 @@
 use hdk::prelude::*;
 use nft_payload_integrity::*;
+
 #[hdk_extern]
 pub fn create_evm_key_binding(evm_key_binding: EvmKeyBinding) -> ExternResult<Record> {
     let evm_key_binding_hash = create_entry(
         &EntryTypes::EvmKeyBinding(evm_key_binding.clone()),
     )?;
+
     // create_link(
     //     evm_key_binding.creator.clone(),
     //     evm_key_binding_hash.clone(),
@@ -19,6 +21,22 @@ pub fn create_evm_key_binding(evm_key_binding: EvmKeyBinding) -> ExternResult<Re
         )?;
     Ok(record)
 }
+
+#[hdk_extern]
+pub fn get_evm_address(_:()) -> ExternResult<Record> {
+    return get_evm_binding_entry();
+}
+
+pub fn get_evm_binding_entry() -> Result<Record, WasmError> {
+    let query_filter = ChainQueryFilter::new().include_entries(true);
+    let records = query(query_filter)?;
+    let record = records.get(4).cloned();
+    let result = record.ok_or( wasm_error!(
+        WasmErrorInner::Guest(String::from("Record not found"))
+    ),);
+    return result;
+}
+
 // #[hdk_extern]
 // pub fn get_evm_key_binding(
 //     evm_key_binding_hash: ActionHash,
