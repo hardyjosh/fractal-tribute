@@ -10,6 +10,7 @@
   import GetEvmKey from "./nft_payload/nft_payload/GetEvmKey.svelte";
   import ConnectWallet from "./lib/connect-wallet/ConnectWallet.svelte";
   import Deploy from "./lib/deploy/Deploy.svelte";
+  import Mint from "./lib/mint/Mint.svelte";
 
   let client: AppAgentClient | undefined;
   let loading = true;
@@ -41,6 +42,7 @@
       <GetEvmKey />
       <ConnectWallet />
       <Deploy />
+      <Mint />
     </div>
   {/if}
 </main>

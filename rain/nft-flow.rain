@@ -1,1 +1,36 @@
-_:add(2 3);
+/* variables */
+sentinel: 0xfea74d0c9bf4a3c28f0dd0674db22a3d7f8bf259c56af19f4ac1e735b156974f,
+sentinel721: 0xfe90d819490b07580877ce7c3005704048c62af96c6745886d7e356e0b63924a,
+you: context<0 0>(),
+tokenid: 0,
+
+/**
+ * erc1155 transfers
+ */
+transfererc1155slist: sentinel,
+
+/**
+ * erc721 transfers
+ */
+transfererc721slist: sentinel,
+
+/**
+ * er20 transfers
+ */
+transfererc20slist: sentinel,
+
+/**
+ * native (gas) token transfers
+ */
+transfernativeslist: sentinel,
+
+/**
+ * burns of this erc721 token
+ */
+burnslist: sentinel721,
+
+/**
+ * mints of this erc721 token
+ */
+mintslist: sentinel721,
+mint-account mint-id: you tokenid;
