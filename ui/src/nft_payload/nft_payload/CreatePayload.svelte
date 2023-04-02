@@ -17,6 +17,7 @@
 
   import "@material/mwc-textfield";
   import { hexlify } from "ethers/lib/utils";
+  import { decode, encode } from "@msgpack/msgpack";
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
   const dispatch = createEventDispatcher();
@@ -29,9 +30,14 @@
   $: name, description;
 
   async function createPayload() {
+    const payload_bytes = encode({ name, description });
     const payloadEntry: Payload = {
-      payload_bytes: Uint8Array.from([1, 2, 3, 4]),
+      payload_bytes,
     };
+
+    console.log("payload bytes", payload_bytes);
+    console.log(decode(payload_bytes));
+    console.log("payload bytes as hex", hexlify(payload_bytes));
 
     try {
       const record: any = await client.callZome({
@@ -45,8 +51,8 @@
       // dispatch("payload-created", {
       //   payloadHash: record.signed_action.hashed.hash,
       // });
-      console.log(record);
-      console.log(hexlify(record));
+      // console.log(record);
+      // console.log(hexlify(record));
       // console.log(record.signed_action.hashed.hash);
       // console.log(record.entry);
     } catch (e) {

@@ -11,6 +11,7 @@
   import ConnectWallet from "./lib/connect-wallet/ConnectWallet.svelte";
   import Deploy from "./lib/deploy/Deploy.svelte";
   import Mint from "./lib/mint/Mint.svelte";
+  import GetOnchainNfTs from "./nft_payload/nft_payload/GetOnchainNFTs.svelte";
 
   let client: AppAgentClient | undefined;
   let loading = true;
@@ -43,6 +44,7 @@
       <ConnectWallet />
       <Deploy />
       <Mint />
+      <GetOnchainNfTs />
     </div>
   {/if}
 </main>
