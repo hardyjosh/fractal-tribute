@@ -34,7 +34,7 @@
     let address = await $signer.getAddress();
     console.log(sig);
     const byteArray = utils.arrayify($signerAddress);
-    console.log(byteArray.length);
+    console.log("address bytes", byteArray);
     const evmKeyBindingEntry: EvmKeyBinding = {
       evm_key: byteArray,
       // creator: creator!,
@@ -52,6 +52,7 @@
         evmKeyBindingHash: record.signed_action.hashed.hash,
       });
     } catch (e) {
+      console.log(e);
       errorSnackbar.labelText = `Error creating the evm key binding: ${e.data.data}`;
       errorSnackbar.show();
     }

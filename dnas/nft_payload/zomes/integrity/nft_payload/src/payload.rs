@@ -1,9 +1,10 @@
 use hdi::prelude::*;
+
+use crate::ByteArray;
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct Payload {
-    pub name: String,
-    pub description: String,
+    pub payload_bytes: ByteArray,
 }
 pub fn validate_create_payload(
     _action: EntryCreationAction,

@@ -23,18 +23,26 @@ pub fn create_evm_key_binding(evm_key_binding: EvmKeyBinding) -> ExternResult<Re
 }
 
 #[hdk_extern]
-pub fn get_evm_address(_:()) -> ExternResult<Record> {
-    return get_evm_binding_entry();
+pub fn get_evm_address(_:()) -> ExternResult<ByteArray> {
+    // let evm_key_entry = get_evm_binding_entry().ok().unwrap().entry.as_option().unwrap().as_app_entry().unwrap().clone().into_sb();
+    // let try_into_evm_key_binding: Result<EvmKeyBinding, SerializedBytesError> = evm_key_entry.try_into();
+    // let res = try_into_evm_key_binding.ok().unwrap();
+    // let key = res.evm_key;
+    return Ok(_get_evm_address());
+    // return get_evm_binding_entry();
 }
 
-pub fn get_evm_binding_entry() -> Result<Record, WasmError> {
+pub fn _get_evm_address() -> ByteArray {
     let query_filter = ChainQueryFilter::new().include_entries(true);
-    let records = query(query_filter)?;
+    let records = query(query_filter).ok().unwrap();
     let record = records.get(4).cloned();
     let result = record.ok_or( wasm_error!(
         WasmErrorInner::Guest(String::from("Record not found"))
     ),);
-    return result;
+    let sb = result.ok().unwrap().entry.as_option().unwrap().as_app_entry().unwrap().clone().into_sb();
+    let evm_key_binding: EvmKeyBinding = sb.try_into().ok().unwrap();
+    let key = evm_key_binding.evm_key;
+    return key;
 }
 
 // #[hdk_extern]
@@ -47,7 +55,7 @@ pub fn get_evm_binding_entry() -> Result<Record, WasmError> {
 // pub fn get_evm_key_bindings_for_creator(
 //     creator: AgentPubKey,
 // ) -> ExternResult<Vec<Record>> {
-//     let links = get_links(creator, LinkTypes::CreatorToEvmKeyBindings, None)?;
+    // let links = get_links(creator, LinkTypes::CreatorToEvmKeyBindings, None)?;
 //     let get_input: Vec<GetInput> = links
 //         .into_iter()
 //         .map(|link| GetInput::new(

@@ -39,21 +39,11 @@ export type EntryTypes =
   | ({ type: 'EvmKeyBinding'; } & EvmKeyBinding)
   | ({ type: 'Payload'; } & Payload);
 
-
-
 export interface Payload {
-
-  name: string;
-
-  description: string;
+  payload_bytes: Uint8Array;
 }
-
-
-
 
 export interface EvmKeyBinding {
   evm_key: Uint8Array;
-
-  // creator: AgentPubKey;
 }
 

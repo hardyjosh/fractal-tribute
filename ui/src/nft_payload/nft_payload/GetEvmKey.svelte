@@ -16,6 +16,7 @@
   import type { Snackbar } from "@material/mwc-snackbar";
   import "@material/mwc-snackbar";
   import "@material/mwc-icon-button";
+  import { concat, hexlify } from "ethers/lib/utils";
 
   const dispatch = createEventDispatcher();
 
@@ -24,7 +25,7 @@
   let loading = true;
   let error: any = undefined;
 
-  let record: Record | undefined;
+  let record: any;
   let key;
 
   $: error, loading, record, key;
@@ -35,19 +36,22 @@
     record = undefined;
 
     try {
+      console.log("clicked");
       record = await client.callZome({
         cap_secret: null,
         role_name: "nft_payload",
         zome_name: "nft_payload",
         fn_name: "get_evm_address",
-        payload: true,
+        payload: null,
       });
-      console.log("clicked");
-      console.log(record);
-      if (record) {
-        key = decode((record.entry as any).Present.entry) as EvmKeyBinding;
-        console.log(key);
-      }
+      console.log("returned evm byte", record);
+      key = record as Uint8Array;
+      const content = concat([key, Uint8Array.from([1, 2, 3, 4])]);
+      console.log("key and content as hex", hexlify(content));
+      // if (record) {
+      //   key = decode((record.entry as any).Present.entry) as EvmKeyBinding;
+      //   console.log(key);
+      // }
     } catch (e) {
       console.log(e);
       error = e;

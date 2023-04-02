@@ -4,8 +4,10 @@
   import config from "../../../../rain/contracts.config.json";
   import FlowERC721Artifact from "../../../../rain/FlowERC721.json";
 
-  const flowAddress = "0x5154d78f89fd638cd2888427cebf44e90e9df62a";
-  const expressionAddress = "0x3543e079b2d49e9f8dd9aacaaff6c40433f04ce3";
+  const flowAddress = "0x25001c6b219b88af3d35fdfbd9a0ae7397f9c6f3";
+  const expressionAddress = "0xb4184c372461247fc3511a03f62892dfe359821a";
+
+  let tokenId: string;
 
   type Evaluable = {
     interpreter: string;
@@ -25,10 +27,15 @@
       store: config.store,
       expression: expressionAddress,
     };
-    const tx = await flowERC721.flow(flowConfig, [], []);
+    const tx = await flowERC721.flow(
+      flowConfig,
+      [ethers.BigNumber.from(tokenId)],
+      []
+    );
     const receipt = await tx.wait();
     console.log(receipt);
   };
 </script>
 
+<input bind:value={tokenId} type="text" />
 <button on:click={mint}>Mint!</button>

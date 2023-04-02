@@ -58,7 +58,6 @@
       [flowERC721Config]
     );
 
-    console.log(ethers.utils.hexlify(encodedConfig));
     const cloneFactory = new ethers.Contract(
       config.cloneFactory,
       CloneFactoryArtifact.abi,

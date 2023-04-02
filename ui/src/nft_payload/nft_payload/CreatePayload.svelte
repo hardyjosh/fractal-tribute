@@ -16,6 +16,7 @@
   import "@material/mwc-textarea";
 
   import "@material/mwc-textfield";
+  import { hexlify } from "ethers/lib/utils";
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
   const dispatch = createEventDispatcher();
@@ -26,29 +27,32 @@
   let errorSnackbar: Snackbar;
 
   $: name, description;
-  $: isPayloadValid = true && name !== "" && description !== "";
 
   async function createPayload() {
     const payloadEntry: Payload = {
-      name: name!,
-      description: description!,
+      payload_bytes: Uint8Array.from([1, 2, 3, 4]),
     };
 
     try {
-      const record: Record = await client.callZome({
+      const record: any = await client.callZome({
         cap_secret: null,
         role_name: "nft_payload",
         zome_name: "nft_payload",
         fn_name: "create_payload",
         payload: payloadEntry,
       });
-      dispatch("payload-created", {
-        payloadHash: record.signed_action.hashed.hash,
-      });
-      console.log(record.signed_action.hashed.hash);
+
+      // dispatch("payload-created", {
+      //   payloadHash: record.signed_action.hashed.hash,
+      // });
+      console.log(record);
+      console.log(hexlify(record));
+      // console.log(record.signed_action.hashed.hash);
+      // console.log(record.entry);
     } catch (e) {
-      errorSnackbar.labelText = `Error creating the payload: ${e.data.data}`;
-      errorSnackbar.show();
+      console.log(e);
+      // errorSnackbar.labelText = `Error creating the payload: ${e.data.data}`;
+      // errorSnackbar.show();
     }
   }
 </script>
@@ -81,10 +85,5 @@
     />
   </div>
 
-  <mwc-button
-    raised
-    label="Create Payload"
-    disabled={!isPayloadValid}
-    on:click={() => createPayload()}
-  />
+  <mwc-button raised label="Create Payload" on:click={() => createPayload()} />
 </div>

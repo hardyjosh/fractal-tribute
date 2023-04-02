@@ -1,7 +1,5 @@
 use hdi::prelude::*;
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct ByteArray(#[serde(with = "serde_bytes")] Vec<u8>);
+use crate::ByteArray;
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]

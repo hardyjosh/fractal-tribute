@@ -22,6 +22,7 @@
     "@msgpack/msgpack": "^2.7.2",
     "@vaadin/date-time-picker": "^23.2.8",
     "@walletconnect/web3-provider": "^1.8.0",
+    "alchemy-sdk": "^2.6.2",
     "cbor": "^8.1.0",
     "ethers": "^5.4.0",
     "svelte-ethers-store": "^2.5.8",

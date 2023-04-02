@@ -20,6 +20,14 @@ pub enum LinkTypes {
     // PayloadsByCreator,
     // CreatorToEvmKeyBindings,
 }
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct ByteArray(#[serde(with = "serde_bytes")] Vec<u8>);
+impl ByteArray {
+    // Add a public method to convert ByteArray into a Vec<u8>
+    pub fn into_vec(self) -> Vec<u8> {
+        self.0
+    }
+}
 #[hdk_extern]
 pub fn genesis_self_check(
     _data: GenesisSelfCheckData,
