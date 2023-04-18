@@ -12,7 +12,6 @@
 
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
-  // Optional Config object, but defaults to demo api-key and eth-mainnet.
   const settings = {
     apiKey: import.meta.env.VITE_ALCHEMY_KEY_MUMBAI, // Replace with your Alchemy API Key.
     network: Network.MATIC_MUMBAI, // Replace with your network.
@@ -44,9 +43,15 @@
         fn_name: "get_payload_from_link",
         payload: linkBase,
       });
-      console.log(records);
-      // let hashes = records.map(r => r.signed_action.hashed.hash);
-      if (records?.length) {
+      if (!records?.length) {
+        return {
+          contents: [],
+          decodedContents: [],
+          tokenIdAsHex,
+          linkBase,
+          linkBaseAsBase64,
+        };
+      } else {
         const contents = records.map((record) => {
           return decode((record.entry as any).Present.entry) as Payload;
         });
@@ -61,7 +66,6 @@
             };
           }
         });
-        console.log(contents);
         return {
           contents,
           decodedContents,
@@ -70,12 +74,10 @@
           linkBaseAsBase64,
         };
       }
-      //   console.log(records);
     } catch (e) {
       console.log(e);
       // error = e;
     }
-    //   loading = false;
   };
 
   onMount(() => {
@@ -95,16 +97,20 @@
         <span>TokenID as hex: {details.tokenIdAsHex}</span>
         <span>Link base: {hexlify(details.linkBase)}</span>
         <span>Link base as base64: {details.linkBaseAsBase64}</span>
-        <span>Content from the hApp that has this base:</span>
-        {#each details.decodedContents as content}
-          {#if content?.err}
-            <span>{content.err}</span>
-            <span>Raw bytes: {content.payload_bytes}</span>
-          {:else}
-            <span>Name: {content.name}</span>
-            <span>Description: {content.description}</span>
-          {/if}
-        {/each}
+        {#if details.decodedContents.length}
+          <span>Content from the hApp that has this base:</span>
+          {#each details.decodedContents as content}
+            {#if content?.err}
+              <span>{content.err}</span>
+              <span>Raw bytes: {content.payload_bytes}</span>
+            {:else}
+              <span>Name: {content.name}</span>
+              <span>Description: {content.description}</span>
+            {/if}
+          {/each}
+        {:else}
+          <span>No content found in the hApp that has this base.</span>
+        {/if}
       {/await}
       <!-- {console.log(fetchPayloadsForTokenId(nft.tokenId))} -->
     {/each}

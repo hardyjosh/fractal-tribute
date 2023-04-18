@@ -1,7 +1,10 @@
 <script lang="ts">
-  import { connectWallet, disconectWallet } from "./";
+  import { connected, signerAddress } from "svelte-ethers-store";
+  import { connectWallet } from "./";
 </script>
 
-<button on:click={connectWallet}>Connect Wallet</button>
-
-<button on:click={disconectWallet}>Disconnect Wallet</button>
+{#if !$connected}
+  <button on:click={connectWallet}>Connect Wallet</button>
+{:else}
+  <span>Connected: {$signerAddress}</span>
+{/if}

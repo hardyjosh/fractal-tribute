@@ -49,17 +49,13 @@
         payload: payloadEntry,
       });
 
-      // dispatch("payload-created", {
-      //   payloadHash: record.signed_action.hashed.hash,
-      // });
-      // console.log(record);
-      console.log("content hash", hexlify(record));
-      // console.log(record.signed_action.hashed.hash);
-      // console.log(record.entry);
+      dispatch("payload-created", {
+        payloadHash: record.signed_action.hashed.hash,
+      });
     } catch (e) {
       console.log("response", e);
-      // errorSnackbar.labelText = `Error creating the payload: ${e.data.data}`;
-      // errorSnackbar.show();
+      errorSnackbar.labelText = `Error creating the payload: ${e.data.data}`;
+      errorSnackbar.show();
     }
   }
 </script>

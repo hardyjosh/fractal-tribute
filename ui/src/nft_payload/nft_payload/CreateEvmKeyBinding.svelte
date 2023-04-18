@@ -16,6 +16,7 @@
   import "@material/mwc-slider";
   import { utils } from "ethers";
   import { signer, connected, signerAddress } from "svelte-ethers-store";
+  import { hexlify } from "ethers/lib/utils";
 
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
@@ -30,9 +31,7 @@
   $: evmKey;
 
   async function createEvmKeyBinding() {
-    let sig = await $signer.signMessage("hello!");
-    let address = await $signer.getAddress();
-    console.log(sig);
+    // let sig = await $signer.signMessage("hello!");
     const byteArray = utils.arrayify($signerAddress);
     console.log("address bytes", byteArray);
     const evmKeyBindingEntry: EvmKeyBinding = {
@@ -60,22 +59,13 @@
 </script>
 
 <mwc-snackbar bind:this={errorSnackbar} leading />
+
 <div style="display: flex; flex-direction: column">
-  <span style="font-size: 18px">Create EvmKeyBinding</span>
-
-  <div style="margin-bottom: 16px">
-    <div style="display: flex; flex-direction: row">
-      <span style="margin-right: 4px">Evm Key</span>
-      <input bind:value={evmKey} type="text" />
-      <!-- <mwc-slider value={ evmKey } on:input={e => { evmKey = e.detail.value; } } discrete></mwc-slider> -->
-    </div>
-  </div>
-
-  <div>connected = {$connected}, address = {$signerAddress}</div>
-
+  <div>You are linking EVM account {$signerAddress}</div>
+  <div>to Holochain agent {hexlify(client.myPubKey)}</div>
   <mwc-button
     raised
-    label="Create EvmKeyBinding"
+    label="Link EVM wallet to Holochain agent"
     disabled={!$connected}
     on:click={() => createEvmKeyBinding()}
   />

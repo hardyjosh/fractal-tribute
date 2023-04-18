@@ -1,4 +1,6 @@
 <script lang="ts">
+  import BrowseNFTs from "./routes/BrowseNFTs.svelte";
+  import MintNFT from "./routes/MintNFT.svelte";
   import { onMount, setContext } from "svelte";
   import type { ActionHash, AppAgentClient } from "@holochain/client";
   import { AppAgentWebsocket } from "@holochain/client";
@@ -15,6 +17,13 @@
 
   let client: AppAgentClient | undefined;
   let loading = true;
+
+  enum Routes {
+    MintNFT = "mint-nft",
+    ViewNFTs = "view-nfts",
+  }
+
+  let activeRoute = Routes.MintNFT;
 
   $: client, loading;
 
@@ -38,13 +47,31 @@
     </div>
   {:else}
     <div id="content" style="display: flex; flex-direction: column; flex: 1;">
-      <CreateEvmKeyBinding />
-      <CreatePayload />
-      <GetEvmKey />
-      <ConnectWallet />
-      <Deploy />
-      <Mint />
-      <GetOnchainNfTs />
+      <div
+        style="display: flex; flex-direction: row; justify-content: space-between;"
+      >
+        <div style="display: flex; flex-direction: row;">
+          <span>Holochain/EVM POC</span>
+          <div>
+            <button
+              on:click={() => {
+                activeRoute = Routes.MintNFT;
+              }}>Mint an NFT</button
+            >
+            <button
+              on:click={() => {
+                activeRoute = Routes.ViewNFTs;
+              }}>View all NFTs</button
+            >
+          </div>
+        </div>
+        <ConnectWallet />
+      </div>
+      {#if activeRoute == Routes.MintNFT}
+        <MintNFT />
+      {:else if activeRoute == Routes.ViewNFTs}
+        <BrowseNFTs />
+      {/if}
     </div>
   {/if}
 </main>
