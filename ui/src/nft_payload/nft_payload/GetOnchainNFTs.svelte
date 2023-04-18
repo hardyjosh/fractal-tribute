@@ -89,31 +89,60 @@
   Fetching NFTs...
 {:then resp}
   {#if resp?.nfts}
-    {#each resp.nfts as nft}
-      <span>TokenID: {nft.tokenId}</span>
-      {#await fetchPayloadsForTokenId(nft.tokenId)}
-        Getting details from Holochain...
-      {:then details}
-        <span>TokenID as hex: {details.tokenIdAsHex}</span>
-        <span>Link base: {hexlify(details.linkBase)}</span>
-        <span>Link base as base64: {details.linkBaseAsBase64}</span>
-        {#if details.decodedContents.length}
-          <span>Content from the hApp that has this base:</span>
-          {#each details.decodedContents as content}
-            {#if content?.err}
-              <span>{content.err}</span>
-              <span>Raw bytes: {content.payload_bytes}</span>
+    <div
+      style="
+      display: flex;
+      flex-wrap: wrap;
+      margin-left: -10px;
+      margin-right: -10px;
+      "
+    >
+      {#each resp.nfts as nft}
+        <div
+          style="
+          background-color: #f1f1f1;
+          padding: 10px;
+          border: 1px solid #ccc;
+          box-sizing: border-box;
+          flex: 0 0 25%;
+          max-width: 25%;
+          margin-left: 10px;
+          margin-right: 10px;
+          margin-bottom: 20px;
+          "
+        >
+          <span
+            style="
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          ">TokenID: {nft.tokenId}</span
+          >
+          {#await fetchPayloadsForTokenId(nft.tokenId)}
+            Getting details from Holochain...
+          {:then details}
+            <!-- <span>TokenID as hex: {details.tokenIdAsHex}</span> -->
+            <!-- <span>Link base: {hexlify(details.linkBase)}</span>
+        <span>Link base as base64: {details.linkBaseAsBase64}</span> -->
+            {#if details.decodedContents.length}
+              <span>Content from the hApp that has this base:</span>
+              {#each details.decodedContents as content}
+                {#if content?.err}
+                  <span>{content.err}</span>
+                  <span>Raw bytes: {content.payload_bytes}</span>
+                {:else}
+                  <span>Name: {content.name}</span>
+                  <span>Description: {content.description}</span>
+                {/if}
+              {/each}
             {:else}
-              <span>Name: {content.name}</span>
-              <span>Description: {content.description}</span>
+              <span>No content found in the hApp that has this base.</span>
             {/if}
-          {/each}
-        {:else}
-          <span>No content found in the hApp that has this base.</span>
-        {/if}
-      {/await}
-      <!-- {console.log(fetchPayloadsForTokenId(nft.tokenId))} -->
-    {/each}
+          {/await}
+        </div>
+        <!-- {console.log(fetchPayloadsForTokenId(nft.tokenId))} -->
+      {/each}
+    </div>
   {/if}
 {/await}
 

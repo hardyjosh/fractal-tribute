@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { signer } from "svelte-ethers-store";
   import { createEventDispatcher, getContext, onMount } from "svelte";
   import type {
     AppAgentClient,
@@ -18,6 +19,7 @@
   import "@material/mwc-textfield";
   import { hexlify, keccak256 } from "ethers/lib/utils";
   import { decode, encode } from "@msgpack/msgpack";
+  import { mint } from "../../lib/mint/mint";
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
   const dispatch = createEventDispatcher();
@@ -35,10 +37,7 @@
       payload_bytes,
     };
 
-    console.log("payload bytes", payload_bytes);
-    console.log(decode(payload_bytes));
-    console.log("payload bytes as hex", hexlify(payload_bytes));
-    console.log("hashed payload bytes", hexlify(keccak256(payload_bytes)));
+    const hashedPayload = hexlify(keccak256(payload_bytes));
 
     try {
       const record: any = await client.callZome({
@@ -48,6 +47,10 @@
         fn_name: "create_payload",
         payload: payloadEntry,
       });
+
+      if (record) {
+        const receipt = await mint(hashedPayload, $signer);
+      }
 
       dispatch("payload-created", {
         payloadHash: record.signed_action.hashed.hash,

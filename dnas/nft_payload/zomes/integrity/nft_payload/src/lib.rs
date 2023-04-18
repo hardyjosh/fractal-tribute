@@ -19,6 +19,11 @@ pub enum LinkTypes {
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct ByteArray(#[serde(with = "serde_bytes")] Vec<u8>);
 impl ByteArray {
+    // Add a public method to create a new ByteArray from a Vec<u8>
+    pub fn new(vec: Vec<u8>) -> Self {
+        ByteArray(vec)
+    }
+    
     // Add a public method to convert ByteArray into a Vec<u8>
     pub fn into_vec(self) -> Vec<u8> {
         self.0

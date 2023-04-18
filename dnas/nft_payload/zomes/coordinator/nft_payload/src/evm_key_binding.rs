@@ -27,8 +27,9 @@ pub fn _get_evm_address() -> ByteArray {
     let result = record.ok_or( wasm_error!(
         WasmErrorInner::Guest(String::from("Record not found"))
     ),);
-    let sb = result.ok().unwrap().entry.as_option().unwrap().as_app_entry().unwrap().clone().into_sb();
-    let evm_key_binding: EvmKeyBinding = sb.try_into().ok().unwrap();
-    let key = evm_key_binding.evm_key;
-    return key;
+    let empty_byte_array = ByteArray::new(vec![]);
+    // let sb = result.ok().unwrap().entry.as_option().unwrap().as_app_entry().unwrap().clone().into_sb();
+    // let evm_key_binding: EvmKeyBinding = sb.try_into().ok().unwrap();
+    // let key = evm_key_binding.evm_key;
+    return empty_byte_array;
 }
