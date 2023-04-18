@@ -16,7 +16,7 @@
   import "@material/mwc-textarea";
 
   import "@material/mwc-textfield";
-  import { hexlify } from "ethers/lib/utils";
+  import { hexlify, keccak256 } from "ethers/lib/utils";
   import { decode, encode } from "@msgpack/msgpack";
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
@@ -38,6 +38,7 @@
     console.log("payload bytes", payload_bytes);
     console.log(decode(payload_bytes));
     console.log("payload bytes as hex", hexlify(payload_bytes));
+    console.log("hashed payload bytes", hexlify(keccak256(payload_bytes)));
 
     try {
       const record: any = await client.callZome({
@@ -52,11 +53,11 @@
       //   payloadHash: record.signed_action.hashed.hash,
       // });
       // console.log(record);
-      // console.log(hexlify(record));
+      console.log("content hash", hexlify(record));
       // console.log(record.signed_action.hashed.hash);
       // console.log(record.entry);
     } catch (e) {
-      console.log(e);
+      console.log("response", e);
       // errorSnackbar.labelText = `Error creating the payload: ${e.data.data}`;
       // errorSnackbar.show();
     }

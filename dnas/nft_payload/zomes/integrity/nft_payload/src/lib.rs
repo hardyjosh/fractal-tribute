@@ -15,10 +15,6 @@ pub enum EntryTypes {
 #[hdk_link_types]
 pub enum LinkTypes {
     TokenIdToPayload
-    // CreatorToPayloads,
-    // AllPayloads,
-    // PayloadsByCreator,
-    // CreatorToEvmKeyBindings,
 }
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct ByteArray(#[serde(with = "serde_bytes")] Vec<u8>);

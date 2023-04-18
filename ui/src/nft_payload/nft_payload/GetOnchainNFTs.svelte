@@ -44,6 +44,7 @@
         fn_name: "get_payload_from_link",
         payload: linkBase,
       });
+      console.log(records);
       // let hashes = records.map(r => r.signed_action.hashed.hash);
       if (records?.length) {
         const contents = records.map((record) => {

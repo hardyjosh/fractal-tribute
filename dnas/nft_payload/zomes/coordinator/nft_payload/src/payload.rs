@@ -3,7 +3,7 @@ use nft_payload_integrity::*;
 use crate::evm_key_binding::{_get_evm_address};
 
 #[hdk_extern]
-pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
+pub fn create_payload(payload: Payload) -> ExternResult<Record> {
     let payload_hash = create_entry(&EntryTypes::Payload(payload.clone()))?;
     let record = get(payload_hash.clone(), GetOptions::default())?
         .ok_or(
@@ -11,8 +11,6 @@ pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
                 WasmErrorInner::Guest(String::from("Could not find the newly created Payload"))
             ),
         )?;
-
-    // let my_agent_pub_key = agent_info()?.agent_latest_pubkey; // this should be hash of evm pubkey + payload_hash.clone()
 
     // add the extra 12 empty bytes so it matches the Solidty uint256
     let key = _get_evm_address();
@@ -22,9 +20,8 @@ pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
     // hash the content bytes
     let content_bytes = payload.payload_bytes.into_vec();
     let content_hash = hash_keccak256(content_bytes)?;
-    // let payload_bytes = record.entry.as_option().unwrap().as_app_entry().unwrap().bytes();
-    // let payload_bytes = record.entry.to_app_option::<EvmKeyBinding>().ok().unwrap().unwrap();
 
+    // create the final bytes for hashing - EVM key as 32 bytes + content hash
     let mut hash_input = key_bytes.to_vec();
     hash_input.extend_from_slice(&content_hash);
     let mut hash = hash_keccak256(hash_input).ok().unwrap();
@@ -35,13 +32,15 @@ pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
     let link_base = ExternalHash::from_raw_36(hash);
     let return_link = link_base.clone();
 
+    // create the link from the hashed key + content hash to the payload
     create_link(
         link_base,
         payload_hash.clone(),
         LinkTypes::TokenIdToPayload,
         (),
     )?;
-    Ok(return_link.get_raw_39().to_vec())
+
+    Ok(record)
 }
 
 #[hdk_extern]
