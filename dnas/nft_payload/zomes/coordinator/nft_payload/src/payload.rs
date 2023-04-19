@@ -3,7 +3,7 @@ use nft_payload_integrity::*;
 use crate::evm_key_binding::{_get_evm_address};
 
 #[hdk_extern]
-pub fn create_payload(payload: Payload) -> ExternResult<Record> {
+pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
     let payload_hash = create_entry(&EntryTypes::Payload(payload.clone()))?;
     let record = get(payload_hash.clone(), GetOptions::default())?
         .ok_or(
@@ -13,9 +13,23 @@ pub fn create_payload(payload: Payload) -> ExternResult<Record> {
         )?;
 
     // add the extra 12 empty bytes so it matches the Solidty uint256
-    let key = _get_evm_address();
+    let key_result = _get_evm_address();
     let mut key_bytes = vec![0; 12];
-    key_bytes.append(&mut key.into_vec());
+    match key_result {
+        Ok(key) => {
+            match key {
+                Some(key) => {
+                    key_bytes.append(&mut key.into_vec());
+                },
+                None => {
+                    return Err(wasm_error!("No EVM key found"));
+                }
+            }
+        },
+        Err(e) => {
+            return Err(wasm_error!(e.to_string()));
+        }
+    }
 
     // hash the content bytes
     let content_bytes = payload.payload_bytes.into_vec();
@@ -30,7 +44,6 @@ pub fn create_payload(payload: Payload) -> ExternResult<Record> {
     // @todo the extra 4 bytes should be a derived location for sharding
     hash.resize(36, 0);
     let link_base = ExternalHash::from_raw_36(hash);
-    let return_link = link_base.clone();
 
     // create the link from the hashed key + content hash to the payload
     create_link(
@@ -40,7 +53,7 @@ pub fn create_payload(payload: Payload) -> ExternResult<Record> {
         (),
     )?;
 
-    Ok(record)
+    Ok(key_bytes)
 }
 
 #[hdk_extern]

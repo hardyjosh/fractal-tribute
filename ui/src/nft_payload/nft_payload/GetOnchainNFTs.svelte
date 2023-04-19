@@ -131,12 +131,16 @@
                   <span>{content.err}</span>
                   <span>Raw bytes: {content.payload_bytes}</span>
                 {:else}
-                  <span>Name: {content.name}</span>
-                  <span>Description: {content.description}</span>
+                  <span style="color: green;">Name: {content.name}</span>
+                  <span style="color:green;"
+                    >Description: {content.description}</span
+                  >
                 {/if}
               {/each}
             {:else}
-              <span>No content found in the hApp that has this base.</span>
+              <span style="color: red;"
+                >No content found in the hApp that has this base.</span
+              >
             {/if}
           {/await}
         </div>

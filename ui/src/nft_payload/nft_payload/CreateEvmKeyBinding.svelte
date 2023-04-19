@@ -22,8 +22,6 @@
 
   const dispatch = createEventDispatcher();
 
-  // export let creator!: AgentPubKey;
-
   let evmKey: string = "";
 
   let errorSnackbar: Snackbar;

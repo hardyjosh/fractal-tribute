@@ -13,7 +13,10 @@ const providerOptions = {
     walletconnect: {
         package: WalletConnectProvider,
         options: {
-            infuraId: '0f270373e0934beda174c537257386b0'
+            infuraId: '0f270373e0934beda174c537257386b0',
+            rpc: {
+                80001: 'https://rpc-mumbai.maticvigil.com'
+            }
         }
     }
 };
