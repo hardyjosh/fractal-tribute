@@ -160,30 +160,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
-                // LinkTypes::AllPayloads => {
-                //     validate_create_link_all_payloads(
-                //         action,
-                //         base_address,
-                //         target_address,
-                //         tag,
-                //     )
-                // }
-                // LinkTypes::PayloadsByCreator => {
-                //     validate_create_link_payloads_by_creator(
-                //         action,
-                //         base_address,
-                //         target_address,
-                //         tag,
-                //     )
-                // }
-                // LinkTypes::CreatorToEvmKeyBindings => {
-                //     validate_create_link_creator_to_evm_key_bindings(
-                //         action,
-                //         base_address,
-                //         target_address,
-                //         tag,
-                //     )
-                // }
             }
         }
         OpType::RegisterDeleteLink {
@@ -204,42 +180,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
-                // LinkTypes::CreatorToPayloads => {
-                //     validate_delete_link_creator_to_payloads(
-                //         action,
-                //         original_action,
-                //         base_address,
-                //         target_address,
-                //         tag,
-                //     )
-                // }
-                // LinkTypes::AllPayloads => {
-                //     validate_delete_link_all_payloads(
-                //         action,
-                //         original_action,
-                //         base_address,
-                //         target_address,
-                //         tag,
-                //     )
-                // }
-                // LinkTypes::PayloadsByCreator => {
-                //     validate_delete_link_payloads_by_creator(
-                //         action,
-                //         original_action,
-                //         base_address,
-                //         target_address,
-                //         tag,
-                //     )
-                // }
-                // LinkTypes::CreatorToEvmKeyBindings => {
-                //     validate_delete_link_creator_to_evm_key_bindings(
-                //         action,
-                //         original_action,
-                //         base_address,
-                //         target_address,
-                //         tag,
-                //     )
-                // }
             }
         }
         OpType::StoreRecord(store_record) => {
@@ -429,38 +369,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 tag,
                             )
                         }
-                        // LinkTypes::CreatorToPayloads => {
-                        //     validate_create_link_creator_to_payloads(
-                        //         action,
-                        //         base_address,
-                        //         target_address,
-                        //         tag,
-                        //     )
-                        // }
-                        // LinkTypes::AllPayloads => {
-                        //     validate_create_link_all_payloads(
-                        //         action,
-                        //         base_address,
-                        //         target_address,
-                        //         tag,
-                        //     )
-                        // }
-                        // LinkTypes::PayloadsByCreator => {
-                        //     validate_create_link_payloads_by_creator(
-                        //         action,
-                        //         base_address,
-                        //         target_address,
-                        //         tag,
-                        //     )
-                        // }
-                        // LinkTypes::CreatorToEvmKeyBindings => {
-                        //     validate_create_link_creator_to_evm_key_bindings(
-                        //         action,
-                        //         base_address,
-                        //         target_address,
-                        //         tag,
-                        //     )
-                        // }
                     }
                 }
                 OpRecord::DeleteLink { original_action_hash, base_address, action } => {
@@ -495,42 +403,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.tag,
                             )
                         }
-                        // LinkTypes::CreatorToPayloads => {
-                        //     validate_delete_link_creator_to_payloads(
-                        //         action,
-                        //         create_link.clone(),
-                        //         base_address,
-                        //         create_link.target_address,
-                        //         create_link.tag,
-                        //     )
-                        // }
-                        // LinkTypes::AllPayloads => {
-                        //     validate_delete_link_all_payloads(
-                        //         action,
-                        //         create_link.clone(),
-                        //         base_address,
-                        //         create_link.target_address,
-                        //         create_link.tag,
-                        //     )
-                        // }
-                        // LinkTypes::PayloadsByCreator => {
-                        //     validate_delete_link_payloads_by_creator(
-                        //         action,
-                        //         create_link.clone(),
-                        //         base_address,
-                        //         create_link.target_address,
-                        //         create_link.tag,
-                        //     )
-                        // }
-                        // LinkTypes::CreatorToEvmKeyBindings => {
-                        //     validate_delete_link_creator_to_evm_key_bindings(
-                        //         action,
-                        //         create_link.clone(),
-                        //         base_address,
-                        //         create_link.target_address,
-                        //         create_link.tag,
-                        //     )
-                        // }
                     }
                 }
                 OpRecord::CreatePrivateEntry { .. } => Ok(ValidateCallbackResult::Valid),

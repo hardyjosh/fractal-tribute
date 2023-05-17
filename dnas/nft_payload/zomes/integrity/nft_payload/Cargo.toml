@@ -8,6 +8,11 @@ crate-type = ["cdylib", "rlib"]
 name = "nft_payload_integrity"
 
 [dependencies]
+ethers-core = "2.0.4"
 hdi = { workspace = true }
+hdk = { workspace = true }
 
 serde = { workspace = true }
+
+[features]
+mock = ["hdk/mock", "hdk/test_utils"]

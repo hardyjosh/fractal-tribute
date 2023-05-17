@@ -14,13 +14,12 @@ pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
 
     // add the extra 12 empty bytes so it matches the Solidty uint256
     let key_result = _get_evm_address();
-    let mut key_bytes = vec![0; 12];
-    match key_result {
+    let key_bytes = match key_result {
         Ok(key) => {
             match key {
-                Some(key) => {
-                    key_bytes.append(&mut key.into_vec());
-                },
+                Some(key) => 
+                    key.into_vec()
+                ,
                 None => {
                     return Err(wasm_error!("No EVM key found"));
                 }
@@ -29,21 +28,11 @@ pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
         Err(e) => {
             return Err(wasm_error!(e.to_string()));
         }
-    }
+    };
 
-    // hash the content bytes
     let content_bytes = payload.payload_bytes.into_vec();
-    let content_hash = hash_keccak256(content_bytes)?;
 
-    // create the final bytes for hashing - EVM key as 32 bytes + content hash
-    let mut hash_input = key_bytes.to_vec();
-    hash_input.extend_from_slice(&content_hash);
-    let mut hash = hash_keccak256(hash_input).ok().unwrap();
-
-    // resize the 32 byte keccak hash to 36 bytes so we can use it as a Holohash
-    // @todo the extra 4 bytes should be a derived location for sharding
-    hash.resize(36, 0);
-    let link_base = ExternalHash::from_raw_36(hash);
+    let link_base = create_link_base(key_bytes.clone(), content_bytes.clone())?;
 
     // create the link from the hashed key + content hash to the payload
     create_link(

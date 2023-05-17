@@ -13,3 +13,6 @@ hdk = { workspace = true }
 serde = { workspace = true }
 
 nft_payload_integrity = { workspace = true } 
+
+[features]
+mock = ["hdk/mock", "hdk/test_utils"]
