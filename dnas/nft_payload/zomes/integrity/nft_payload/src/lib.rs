@@ -29,6 +29,13 @@ impl ByteArray {
         self.0
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LinkBaseInput {
+    pub evm_key: Vec<u8>,
+    pub content_bytes: Vec<u8>,
+}
+
 #[hdk_extern]
 pub fn genesis_self_check(
     _data: GenesisSelfCheckData,

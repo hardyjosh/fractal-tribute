@@ -5,7 +5,7 @@ use crate::evm_key_binding::{_get_evm_address};
 #[hdk_extern]
 pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
     let payload_hash = create_entry(&EntryTypes::Payload(payload.clone()))?;
-    let record = get(payload_hash.clone(), GetOptions::default())?
+    let _record = get(payload_hash.clone(), GetOptions::default())?
         .ok_or(
             wasm_error!(
                 WasmErrorInner::Guest(String::from("Could not find the newly created Payload"))
@@ -66,4 +66,14 @@ pub fn get_payload_from_link(base: ExternalHash) -> ExternResult<Vec<Record>> {
         .filter_map(|r| r)
         .collect();
     Ok(records)
+}
+
+#[hdk_extern]
+pub fn extern_create_link_base(input: LinkBaseInput) -> ExternResult<ExternalHash> {
+    nft_payload_integrity::create_link_base(input.evm_key, input.content_bytes)
+}
+
+#[hdk_extern]
+pub fn hash(hash: Vec<u8>) -> ExternResult<Vec<u8>> {
+    Ok(hash_keccak256(hash).unwrap())
 }
