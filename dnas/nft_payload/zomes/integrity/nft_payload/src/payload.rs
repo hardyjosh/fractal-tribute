@@ -140,12 +140,12 @@ pub mod tests {
             alice: &SweetCell,
             evm_key: Vec<u8>, 
             content_bytes: Vec<u8>
-        ) -> Result<ExternalHash, WasmError> {
+        ) -> ExternalHash {
             let link_base_input = LinkBaseInput {
                 evm_key: evm_key,
                 content_bytes: content_bytes,
             };
-            let link_base: Result<ExternalHash, WasmError> = conductor
+            let link_base: ExternalHash = conductor
                 .call(
                     &alice.zome("nft_payload"), 
                     "extern_create_link_base", 
@@ -180,12 +180,11 @@ pub mod tests {
 
             let evm_key = vec![0; 21];
             let content_bytes = vec![1; 100];
-            let link_base = _create_link_base(conductor, alice, evm_key, content_bytes).await;
+            let _link_base = _create_link_base(conductor, alice, evm_key, content_bytes).await;
         }
 
         // test that the content bytes can be of any length and the function won't panic
         #[tokio::test(flavor = "multi_thread")]
-        #[ignore]
         async fn test_create_link_base_content_bytes_length() {
             let (conductors, _agents, apps) = setup_conductors(1).await;
             let conductor: &SweetConductor = &conductors[0];
@@ -205,7 +204,6 @@ pub mod tests {
         }
 
         #[tokio::test(flavor = "multi_thread")]
-        #[ignore]
         async fn test_create_link_base() {
             let (conductors, _agents, apps) = setup_conductors(1).await;
             let conductor: &SweetConductor = &conductors[0];
@@ -229,8 +227,8 @@ pub mod tests {
             let expected_link_base = ExternalHash::from_raw_36(final_hash);
 
             let link_base = _create_link_base(conductor, alice, rand_evm_key.clone(), content_bytes.clone()).await;
-
-            // assert_eq!(link_base, expected_link_base);
+  
+            assert_eq!(link_base, expected_link_base);
         }
     }
 
