@@ -45,5 +45,6 @@ export interface Payload {
 
 export interface EvmKeyBinding {
   evm_key: Uint8Array;
+  signature_bytes: Uint8Array;
 }
 

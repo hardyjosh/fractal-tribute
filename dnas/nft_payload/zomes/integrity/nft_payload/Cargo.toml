@@ -12,6 +12,7 @@ hdi = { workspace = true }
 hdk = { workspace = true }
 
 serde = { workspace = true }
+ethers-core = { version = "2.0.4"}
 
 [features]
 mock = ["hdk/mock", "hdk/test_utils"]
@@ -24,3 +25,6 @@ holochain = { workspace = true, default-features = false, features = [
   "test_utils",
 ] }
 tokio = { version = "1.3", features = ["full"] }
+
+[patch.crates-io]
+ethers-core = { path = "/Users/joshuahardy/ethers-rs/ethers-core" }

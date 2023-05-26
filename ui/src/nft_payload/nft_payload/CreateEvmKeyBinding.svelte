@@ -16,7 +16,7 @@
   import "@material/mwc-slider";
   import { utils } from "ethers";
   import { signer, connected, signerAddress } from "svelte-ethers-store";
-  import { hexlify } from "ethers/lib/utils";
+  import { arrayify, hexlify } from "ethers/lib/utils";
 
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
@@ -29,12 +29,11 @@
   $: evmKey;
 
   async function createEvmKeyBinding() {
-    // let sig = await $signer.signMessage("hello!");
-    const byteArray = utils.arrayify($signerAddress);
-    console.log("address bytes", byteArray);
+    let sig = await $signer.signMessage(client.myPubKey);
+
     const evmKeyBindingEntry: EvmKeyBinding = {
-      evm_key: byteArray,
-      // creator: creator!,
+      evm_key: utils.arrayify($signerAddress),
+      signature_bytes: utils.arrayify(sig),
     };
 
     try {
