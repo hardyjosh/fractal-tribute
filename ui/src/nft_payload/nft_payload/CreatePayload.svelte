@@ -20,6 +20,8 @@
   import { hexlify, keccak256 } from "ethers/lib/utils";
   import { decode, encode } from "@msgpack/msgpack";
   import { mint } from "../../lib/mint/mint";
+  import { Button } from "flowbite-svelte";
+  import type { TransactionReceipt } from "alchemy-sdk";
 
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
@@ -38,6 +40,9 @@
   let description: string = "";
 
   let errorSnackbar: Snackbar;
+
+  let receipt: TransactionReceipt;
+
   $: buttonDisabled = txStatus == TransactionStatus.Pending;
 
   async function createPayload() {
@@ -60,7 +65,7 @@
       if (record) {
         txStatus = TransactionStatus.Pending;
         try {
-          const receipt = await mint(hashedPayload, $signer);
+          receipt = await mint(hashedPayload, $signer);
           txStatus = TransactionStatus.Success;
           dispatch("payload-created");
         } catch (e) {
@@ -78,44 +83,43 @@
 </script>
 
 <mwc-snackbar bind:this={errorSnackbar} leading />
-<div style="display: flex; flex-direction: column">
-  <span style="font-size: 18px">Create Payload</span>
+<div class="flex flex-col items-center justify-center pt-36">
+  <div
+    class="bg-white rounded-2xl p-6 max-w-lg w-full gap-y-4 flex flex-col break-words justify-stretch"
+  >
+    <span class="text-xl font-bold">Mint</span>
 
-  <div style="margin-bottom: 16px">
-    <mwc-textfield
-      outlined
-      label="Name"
-      value={name}
-      on:input={(e) => {
-        name = e.target.value;
-      }}
-      required
-    />
+    {#if txStatus == TransactionStatus.None}
+      <mwc-textfield
+        outlined
+        label="Name"
+        value={name}
+        on:input={(e) => {
+          name = e.target.value;
+        }}
+        required
+      />
+      <mwc-textarea
+        outlined
+        label="Description"
+        value={description}
+        on:input={(e) => {
+          description = e.target.value;
+        }}
+        required
+      />
+      <Button on:click={createPayload}>Create Payload</Button>
+    {:else if txStatus == TransactionStatus.Pending}
+      <span>Transaction pending... check your wallet to confirm.</span>
+    {:else if txStatus == TransactionStatus.Success}
+      <span>Transaction successful!</span>
+      <a
+        class="underline"
+        href={`https://mumbai.polygonscan.com/tx/${receipt.transactionHash}`}
+        >View transaction</a
+      >
+    {:else if txStatus == TransactionStatus.Failure}
+      <span>Transaction failed!</span>
+    {/if}
   </div>
-
-  <div style="margin-bottom: 16px">
-    <mwc-textarea
-      outlined
-      label="Description"
-      value={description}
-      on:input={(e) => {
-        description = e.target.value;
-      }}
-      required
-    />
-  </div>
-
-  <mwc-button
-    disabled={buttonDisabled}
-    raised
-    label="Create Payload"
-    on:click={createPayload}
-  />
-  {#if txStatus == TransactionStatus.Pending}
-    <span>Transaction pending... check your wallet to confirm.</span>
-  {:else if txStatus == TransactionStatus.Success}
-    <span>Transaction successful!</span>
-  {:else if txStatus == TransactionStatus.Failure}
-    <span>Transaction failed!</span>
-  {/if}
 </div>

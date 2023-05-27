@@ -7,6 +7,7 @@
   import { getAgentEvmKey } from "../lib/evm-binding/get-evm-key";
   import type { AppAgentClient } from "@holochain/client";
   import { clientContext } from "../contexts";
+  import ConnectWallet from "../lib/connect-wallet/ConnectWallet.svelte";
 
   let evmKey, error;
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
@@ -21,7 +22,7 @@
 </script>
 
 {#if !$connected}
-  <button on:click={connectWallet}>Connect your wallet</button>
+  <ConnectWallet />
 {:else if $connected && !evmKey}
   <CreateEvmKeyBinding on:evm-key-binding-created={refreshAgentEvmKey} />
 {:else}

@@ -9,6 +9,9 @@
   import { getContext, onMount } from "svelte";
   import { clientContext } from "../../contexts";
   import type { Payload } from "./types";
+  import { Toggle, Spinner } from "flowbite-svelte";
+  import { fade, fly } from "svelte/transition";
+  import { ArrowPath } from "svelte-heros-v2";
 
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
@@ -19,12 +22,35 @@
 
   const alchemy = new Alchemy(settings);
 
+  const collectionAddress = "0x25001c6b219b88af3d35fdfbd9a0ae7397f9c6f3";
   let fetchNFTsPromise;
 
-  const fetchNFTs = () => {
-    fetchNFTsPromise = alchemy.nft.getNftsForContract(
-      "0x25001c6b219b88af3d35fdfbd9a0ae7397f9c6f3"
+  let payloadsOnly = true,
+    refresh = 1;
+
+  $: if (payloadsOnly || refresh) fetchNFTsPromise = fetchPayloadsForNFTs();
+
+  const fetchPayloadsForNFTs = async () => {
+    const resp = await alchemy.nft.getNftsForContract(collectionAddress);
+
+    if (!resp?.nfts?.length) {
+      return [];
+    }
+
+    const nfts = await Promise.all(
+      resp.nfts.map(async (nft) => {
+        const payloads = await fetchPayloadsForTokenId(nft.tokenId);
+        return {
+          ...nft,
+          ...payloads,
+        };
+      })
     );
+
+    if (payloadsOnly) {
+      return nfts.filter((nft) => nft.decodedContents.length > 0);
+    }
+    return nfts;
   };
 
   const fetchPayloadsForTokenId = async (tokenId: string) => {
@@ -79,75 +105,80 @@
       // error = e;
     }
   };
-
-  onMount(() => {
-    fetchNFTs();
-  });
 </script>
 
-{#await fetchNFTsPromise}
-  Fetching NFTs...
-{:then resp}
-  {#if resp?.nfts}
-    <div
-      style="
-      display: flex;
-      flex-wrap: wrap;
-      margin-left: -10px;
-      margin-right: -10px;
-      "
+<div class="flex justify-between items-center">
+  <div>
+    <span class="text-white"
+      >Collection adddress: <a
+        target="_blank"
+        rel="noopener noreferrer"
+        class="underline"
+        href={`https://mumbai.polygonscan.com/address/${collectionAddress}`}
+        >{collectionAddress}</a
+      ></span
     >
-      {#each resp.nfts as nft}
+  </div>
+  <div class="flex flex-row gap-x-4">
+    <div class="flex flex-row gap-x-2 items-center">
+      <span>
+        <span class="text-white">Show tokens with payloads only</span>
+      </span>
+      <Toggle bind:checked={payloadsOnly} />
+    </div>
+    <button
+      on:click={() => {
+        refresh++;
+      }}><ArrowPath class="text-white" /></button
+    >
+  </div>
+</div>
+
+{#await fetchNFTsPromise}
+  <div class="flex flex-col min-h-screen w-full items-center mt-48 gap-y-4">
+    <Spinner color="gray" />
+    <span class="text-white text-2xl font-bold">
+      Getting all NFTs in this collection...
+    </span>
+  </div>
+{:then nfts}
+  {#if nfts.length}
+    <div in:fade={{ duration: 150 }} class="grid grid-cols-4 w-full gap-4 mt-4">
+      {#each nfts as nft}
         <div
-          style="
-          background-color: #f1f1f1;
-          padding: 10px;
-          border: 1px solid #ccc;
-          box-sizing: border-box;
-          flex: 0 0 25%;
-          max-width: 25%;
-          margin-left: 10px;
-          margin-right: 10px;
-          margin-bottom: 20px;
-          "
+          class="bg-gray-100 rounded-xl p-4 overflow-hidden flex flex-col text-lg"
         >
-          <span
-            style="
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          ">TokenID: {nft.tokenId}</span
+          <span class="break-words">TokenID: {nft.tokenId}</span>
+          <!-- <span>TokenID as hex: {details.tokenIdAsHex}</span> -->
+          <!-- <span>Link base: {hexlify(details.linkBase)}</span> -->
+          <span class="break-words"
+            >Link base as base64: u{nft.linkBaseAsBase64}</span
           >
-          {#await fetchPayloadsForTokenId(nft.tokenId)}
-            Getting details from Holochain...
-          {:then details}
-            <!-- <span>TokenID as hex: {details.tokenIdAsHex}</span> -->
-            <!-- <span>Link base: {hexlify(details.linkBase)}</span>
-        <span>Link base as base64: {details.linkBaseAsBase64}</span> -->
-            {#if details.decodedContents.length}
-              <span>Content from the hApp that has this base:</span>
-              {#each details.decodedContents as content}
-                {#if content?.err}
-                  <span>{content.err}</span>
-                  <span>Raw bytes: {content.payload_bytes}</span>
-                {:else}
-                  <span style="color: green;">Name: {content.name}</span>
-                  <span style="color:green;"
-                    >Description: {content.description}</span
-                  >
-                {/if}
-              {/each}
-            {:else}
-              <span style="color: red;"
-                >No content found in the hApp that has this base.</span
-              >
-            {/if}
-          {/await}
+          {#if nft.decodedContents.length}
+            <!-- <span>Content from the hApp that has this base:</span> -->
+            {#each nft.decodedContents as content}
+              {#if content?.err}
+                <span>{content.err}</span>
+                <span>Raw bytes: {content.payload_bytes}</span>
+              {:else}
+                <span style="color: green;">Name: {content.name}</span>
+                <span style="color:green;"
+                  >Description: {content.description}</span
+                >
+              {/if}
+            {/each}
+          {:else}
+            <span style="color: red;"
+              >No content found in the hApp that has this base.</span
+            >
+          {/if}
         </div>
         <!-- {console.log(fetchPayloadsForTokenId(nft.tokenId))} -->
       {/each}
     </div>
+  {:else}
+    <div class="flex flex-col min-h-screen w-full items-center mt-48 gap-y-4">
+      <span class="text-white text-2xl font-bold"> No NFTs found 😞 </span>
+    </div>
   {/if}
 {/await}
-
-<button on:click={fetchNFTs}>Refresh</button>

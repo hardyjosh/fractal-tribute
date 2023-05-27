@@ -74,6 +74,8 @@ pub mod tests {
 
     pub mod evm_key_binding_tests {
         use super::*;
+        use ethers_core::rand::thread_rng;
+        use ethers_signers::{LocalWallet, Signer};
 
         #[tokio::test(flavor = "multi_thread")]
         async fn test_create_evm_binding() {
@@ -82,8 +84,47 @@ pub mod tests {
             let cells = apps.cells_flattened();
             let alice = &cells[0];
 
+            let wallet = LocalWallet::new(&mut thread_rng());
+
+            // The wallet can be used to sign messages
+            let message = alice.agent_pubkey().get_raw_39();
+            let signature = wallet.sign_message(message).await.unwrap();
+            assert_eq!(signature.recover(&message[..]).unwrap(), wallet.address());
+
             let evm_key_binding = EvmKeyBinding {
-                evm_key: ByteArray(vec![0; 20]),
+                evm_key: ByteArray(wallet.address().as_bytes().to_vec()),
+                signature_bytes: ByteArray(signature.to_vec()),
+            };
+
+            let record: Record = conductor
+                .call(
+                    &alice.zome("nft_payload"), 
+                    "create_evm_key_binding", 
+                    evm_key_binding.clone()
+                ).await;
+
+            println!("{:#?}", record);
+        }
+
+        #[tokio::test(flavor = "multi_thread")]
+        #[should_panic(expected = "EVM pubkey binding signature is invalid")]        
+        async fn test_create_evm_binding_bad_sig() {
+            let (conductors, _agents, apps) = setup_conductors(2).await;
+            let conductor: &SweetConductor = &conductors[0];
+            let cells = apps.cells_flattened();
+            let alice = &cells[0];
+
+            let wallet = LocalWallet::new(&mut thread_rng());
+            let second_wallet = LocalWallet::new(&mut thread_rng());
+
+            // The wallet can be used to sign messages
+            let message = alice.agent_pubkey().get_raw_39();
+            let signature = wallet.sign_message(message).await.unwrap();
+            assert_eq!(signature.recover(&message[..]).unwrap(), wallet.address());
+
+            let evm_key_binding = EvmKeyBinding {
+                evm_key: ByteArray(second_wallet.address().as_bytes().to_vec()),
+                signature_bytes: ByteArray(signature.to_vec()),
             };
 
             let record: Record = conductor

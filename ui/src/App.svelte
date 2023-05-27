@@ -4,20 +4,16 @@
   import { onMount, setContext } from "svelte";
   import type { AppAgentClient } from "@holochain/client";
   import { AppAgentWebsocket } from "@holochain/client";
-  import "@material/mwc-circular-progress";
-
   import { clientContext } from "./contexts";
   import ConnectWallet from "./lib/connect-wallet/ConnectWallet.svelte";
+  import Header from "./lib/Header.svelte";
+  import { Routes } from "./lib/types";
+  import Home from "./routes/Home.svelte";
 
   let client: AppAgentClient | undefined;
   let loading = true;
 
-  enum Routes {
-    MintNFT = "mint-nft",
-    ViewNFTs = "view-nfts",
-  }
-
-  let activeRoute = Routes.MintNFT;
+  let activeRoute = Routes.Home;
 
   $: client, loading;
 
@@ -32,53 +28,21 @@
   });
 </script>
 
-<main style="display: flex; flex-direction: column; flex: 1; ">
+<main class="flex flex-col w-full p-4">
   {#if loading}
     <div
-      style="display: flex; flex: 1; align-items: center; justify-content: center"
+      class="display: flex; flex: 1; align-items: center; justify-content: center"
     >
-      <mwc-circular-progress indeterminate />
+      loading....
     </div>
   {:else}
-    <div
-      style="display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 1em; border-bottom: 1px solid black;"
-    >
-      <div style="display: flex; flex-direction: row;">
-        <span style="margin-right:20px;">Holochain/EVM POC</span>
-        <div>
-          <button
-            on:click={() => {
-              activeRoute = Routes.MintNFT;
-            }}>Mint an NFT</button
-          >
-          <button
-            on:click={() => {
-              activeRoute = Routes.ViewNFTs;
-            }}>View all NFTs</button
-          >
-        </div>
-      </div>
-      <ConnectWallet />
-    </div>
-    {#if activeRoute == Routes.MintNFT}
+    <Header bind:activeRoute />
+    {#if activeRoute == Routes.Home}
+      <Home />
+    {:else if activeRoute == Routes.MintNFT}
       <MintNFT />
     {:else if activeRoute == Routes.ViewNFTs}
       <BrowseNFTs />
     {/if}
   {/if}
 </main>
-
-<style>
-  main {
-    text-align: center;
-    padding: 1em;
-    max-width: 240px;
-    margin: 0 auto;
-  }
-
-  @media (min-width: 640px) {
-    main {
-      max-width: none;
-    }
-  }
-</style>

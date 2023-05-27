@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import config from "../../../../rain/contracts.config.json";
 import FlowERC721Artifact from "../../../../rain/FlowERC721.json";
+import type { TransactionReceipt } from "alchemy-sdk";
 
 const flowAddress = config.deployedFlow;
 const expressionAddress = config.deployedExpression;
@@ -11,7 +12,7 @@ type Evaluable = {
     expression: string;
 };
 
-export const mint = async (contentHash, signer) => {
+export const mint = async (contentHash, signer): Promise<TransactionReceipt> => {
     const flowERC721 = new ethers.Contract(
         flowAddress,
         FlowERC721Artifact.abi,

@@ -19,6 +19,3 @@ path = "dnas/nft_payload/zomes/coordinator/nft_payload"
 
 [workspace.dependencies.nft_payload_integrity]
 path = "dnas/nft_payload/zomes/integrity/nft_payload"
-
-[patch.crates-io]
-ethers-core = { path = "/Users/joshuahardy/ethers-rs/ethers-core" }
