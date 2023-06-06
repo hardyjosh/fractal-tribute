@@ -1,7 +1,7 @@
 <script lang="ts">
 </script>
 
-<div class="prose text-white">
+<div class="prose text-white mx-auto">
   <h2 class="text-white">
     This proof of concept is a simple Holochain application that allows users to
     mint NFTs and view their content inside this hApp.

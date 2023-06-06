@@ -13,7 +13,7 @@
       on:click={() => {
         activeRoute = Routes.Home;
       }}
-      class="logo mr-4 text-5xl">holomint</button
+      class="logo mr-4 text-5xl">mintme</button
     >
     <button
       on:click={() => {
