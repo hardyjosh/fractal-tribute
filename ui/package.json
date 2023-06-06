@@ -8,6 +8,7 @@
     "package": "npm run build && cd public && bestzip ../dist.zip *"
   },
   "dependencies": {
+    "@holochain-open-dev/file-storage": "^0.4.3",
     "@holochain/client": "^0.12.2",
     "@material/mwc-button": "^0.27.0",
     "@material/mwc-checkbox": "^0.27.0",

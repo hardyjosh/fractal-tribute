@@ -1771,6 +1771,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "file_storage"
+version = "0.0.1"
+dependencies = [
+ "file_storage_integrity",
+ "hc_zome_file_storage_coordinator",
+ "hdk",
+ "serde",
+]
+
+[[package]]
+name = "file_storage_integrity"
+version = "0.0.1"
+dependencies = [
+ "hc_zome_file_storage_integrity",
+ "hdi",
+ "serde",
+]
+
+[[package]]
 name = "filetime"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2223,6 +2242,28 @@ dependencies = [
  "serde",
  "serde_bytes",
  "sodoken",
+]
+
+[[package]]
+name = "hc_zome_file_storage_coordinator"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee087c1142646a0994267354ceaec60086165e8105e0f08b6a1a288492e8b3cc"
+dependencies = [
+ "hc_zome_file_storage_integrity",
+ "hdk",
+ "serde",
+]
+
+[[package]]
+name = "hc_zome_file_storage_integrity"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa2c07247b99362b3b4954f1337e50265a62719200f13417deb66ae9e2d6838c"
+dependencies = [
+ "chrono",
+ "hdi",
+ "serde",
 ]
 
 [[package]]

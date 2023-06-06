@@ -9,22 +9,26 @@
   import Header from "./lib/Header.svelte";
   import { Routes } from "./lib/types";
   import Home from "./routes/Home.svelte";
+  import { FileStorageClient } from "@holochain-open-dev/file-storage/dist/file-storage-client";
 
   let client: AppAgentClient | undefined;
+  let fileStorageClient: FileStorageClient | undefined;
   let loading = true;
 
   let activeRoute = Routes.Home;
 
-  $: client, loading;
+  $: client, loading, fileStorageClient;
 
   onMount(async () => {
     // We pass '' as url because it will dynamically be replaced in launcher environments
     client = await AppAgentWebsocket.connect("", "nft-payload");
+    fileStorageClient = new FileStorageClient(client, "nft_payload");
     loading = false;
   });
 
   setContext(clientContext, {
     getClient: () => client,
+    getFileStorageClient: () => fileStorageClient,
   });
 </script>
 

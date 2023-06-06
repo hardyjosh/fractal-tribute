@@ -23,7 +23,15 @@
   import { Button } from "flowbite-svelte";
   import type { TransactionReceipt } from "alchemy-sdk";
 
+  // This can be placed in the index.js, at the top level of your web-app.
+  import "@holochain-open-dev/file-storage/dist/elements/file-storage-context.js";
+  import "@holochain-open-dev/file-storage/dist/elements/upload-files.js";
+  import type { FileStorageClient } from "@holochain-open-dev/file-storage/dist/file-storage-client";
+
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
+  let fileStorageClient: FileStorageClient = (
+    getContext(clientContext) as any
+  ).getFileStorageClient();
 
   const dispatch = createEventDispatcher();
 
@@ -38,6 +46,7 @@
 
   let name: string = "";
   let description: string = "";
+  let fileHash: string;
 
   let errorSnackbar: Snackbar;
 
@@ -45,8 +54,17 @@
 
   $: buttonDisabled = txStatus == TransactionStatus.Pending;
 
+  const getFileHash = ({ detail }) => {
+    console.log(detail);
+    const {
+      file: { hash },
+    } = detail;
+    fileHash = hash; //hexlify(hash);
+    console.log(fileHash);
+  };
+
   async function createPayload() {
-    const payload_bytes = encode({ name, description });
+    const payload_bytes = encode({ name, description, fileHash });
     const payloadEntry: Payload = {
       payload_bytes,
     };
@@ -90,6 +108,16 @@
     <span class="text-xl font-bold">Mint</span>
 
     {#if txStatus == TransactionStatus.None}
+      <file-storage-context
+        client={fileStorageClient}
+        on:file-uploaded={getFileHash}
+      >
+        <upload-files />
+        {#if fileHash}
+          {console.log(fileHash)}
+          <show-image imageHash={fileHash} />
+        {/if}
+      </file-storage-context>
       <mwc-textfield
         outlined
         label="Name"

@@ -12,8 +12,12 @@
   import { Toggle, Spinner } from "flowbite-svelte";
   import { fade, fly } from "svelte/transition";
   import { ArrowPath } from "svelte-heros-v2";
+  import "@holochain-open-dev/file-storage/dist/elements/show-image.js";
 
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
+  let fileStorageClient: FileStorageClient = (
+    getContext(clientContext) as any
+  ).getFileStorageClient();
 
   const settings = {
     apiKey: import.meta.env.VITE_ALCHEMY_KEY_MUMBAI, // Replace with your Alchemy API Key.
@@ -92,6 +96,7 @@
             };
           }
         });
+        console.log(decodedContents);
         return {
           contents,
           decodedContents,
@@ -148,6 +153,9 @@
         <div
           class="bg-gray-100 rounded-xl p-4 overflow-hidden flex flex-col text-lg"
         >
+          <file-storage-context class="w-full" client={fileStorageClient}>
+            <show-image imageHash={nft.fileHash} />
+          </file-storage-context>
           <span class="break-words">TokenID: {nft.tokenId}</span>
           <!-- <span>TokenID as hex: {details.tokenIdAsHex}</span> -->
           <!-- <span>Link base: {hexlify(details.linkBase)}</span> -->

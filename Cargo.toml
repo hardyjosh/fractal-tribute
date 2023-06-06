@@ -11,8 +11,14 @@ resolver = "2"
 [workspace.dependencies]
 hdi = "=0.2.1"
 hdk = "=0.1.1"
-serde = "1"
 holochain = "0.1.0"
+serde = "1"
+
+[workspace.dependencies.file_storage]
+path = "dnas/nft_payload/zomes/coordinator/file_storage"
+
+[workspace.dependencies.file_storage_integrity]
+path = "dnas/nft_payload/zomes/integrity/file_storage"
 
 [workspace.dependencies.nft_payload]
 path = "dnas/nft_payload/zomes/coordinator/nft_payload"
