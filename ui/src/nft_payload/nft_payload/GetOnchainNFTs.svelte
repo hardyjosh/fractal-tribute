@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { AppAgentClient } from "@holochain/client";
+  import { encodeHashToBase64, type AppAgentClient } from "@holochain/client";
   import { decode } from "@msgpack/msgpack";
   // Github: https://github.com/alchemyplatform/alchemy-sdk-js
   // Setup: npm install alchemy-sdk
@@ -13,6 +13,7 @@
   import { fade, fly } from "svelte/transition";
   import { ArrowPath } from "svelte-heros-v2";
   import "@holochain-open-dev/file-storage/dist/elements/show-image.js";
+  import type { FileStorageClient } from "@holochain-open-dev/file-storage/dist/file-storage-client";
 
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
   let fileStorageClient: FileStorageClient = (
@@ -87,16 +88,23 @@
         });
         const decodedContents = contents.map((content) => {
           try {
-            return decode(content.payload_bytes);
+            const decoded = decode(content.payload_bytes);
+            if (decoded?.fileHash instanceof Uint8Array) {
+              return {
+                ...decoded,
+                fileHash: encodeHashToBase64(decoded.fileHash),
+              };
+            } else {
+              throw Error("Not a Uint8Array");
+            }
           } catch (err) {
-            console.log(err);
+            // console.log(err);
             return {
               err: "Couldn't decode",
               payload_bytes: content.payload_bytes,
             };
           }
         });
-        console.log(decodedContents);
         return {
           contents,
           decodedContents,
@@ -153,15 +161,12 @@
         <div
           class="bg-gray-100 rounded-xl p-4 overflow-hidden flex flex-col text-lg"
         >
-          <file-storage-context class="w-full" client={fileStorageClient}>
-            <show-image imageHash={nft.fileHash} />
-          </file-storage-context>
-          <span class="break-words">TokenID: {nft.tokenId}</span>
+          <!-- <span class="break-words">TokenID: {nft.tokenId}</span> -->
           <!-- <span>TokenID as hex: {details.tokenIdAsHex}</span> -->
           <!-- <span>Link base: {hexlify(details.linkBase)}</span> -->
-          <span class="break-words"
+          <!-- <span class="break-words"
             >Link base as base64: u{nft.linkBaseAsBase64}</span
-          >
+          > -->
           {#if nft.decodedContents.length}
             <!-- <span>Content from the hApp that has this base:</span> -->
             {#each nft.decodedContents as content}
@@ -169,10 +174,22 @@
                 <span>{content.err}</span>
                 <span>Raw bytes: {content.payload_bytes}</span>
               {:else}
-                <span style="color: green;">Name: {content.name}</span>
-                <span style="color:green;"
-                  >Description: {content.description}</span
-                >
+                <div class="rounded-lg overflow-hidden aspect-square">
+                  <file-storage-context
+                    class="w-full object-cover"
+                    client={fileStorageClient}
+                  >
+                    <show-image image-hash={content.fileHash} />
+                  </file-storage-context>
+                </div>
+                <div class="flex flex-col mt-4">
+                  <span class="uppercase text-xs font-semibold">Name</span>
+                  <span class="text-green-600">{content.name}</span>
+                  <span class="uppercase text-xs font-semibold mt-2"
+                    >Description</span
+                  >
+                  <span class="text-green-600">{content.description}</span>
+                </div>
               {/if}
             {/each}
           {:else}

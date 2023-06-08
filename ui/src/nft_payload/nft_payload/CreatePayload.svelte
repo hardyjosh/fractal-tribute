@@ -1,14 +1,7 @@
 <script lang="ts">
   import { signer } from "svelte-ethers-store";
-  import { createEventDispatcher, getContext, onMount } from "svelte";
-  import type {
-    AppAgentClient,
-    Record,
-    EntryHash,
-    AgentPubKey,
-    ActionHash,
-    DnaHash,
-  } from "@holochain/client";
+  import { createEventDispatcher, getContext } from "svelte";
+  import type { AppAgentClient, Record } from "@holochain/client";
   import { clientContext } from "../../contexts";
   import type { Payload } from "./types";
   import "@material/mwc-button";
@@ -22,6 +15,7 @@
   import { mint } from "../../lib/mint/mint";
   import { Button } from "flowbite-svelte";
   import type { TransactionReceipt } from "alchemy-sdk";
+  import { encodeHashToBase64 } from "@holochain/client";
 
   // This can be placed in the index.js, at the top level of your web-app.
   import "@holochain-open-dev/file-storage/dist/elements/file-storage-context.js";
@@ -46,7 +40,7 @@
 
   let name: string = "";
   let description: string = "";
-  let fileHash: string;
+  let fileHash: Uint8Array;
 
   let errorSnackbar: Snackbar;
 
@@ -114,8 +108,7 @@
       >
         <upload-files />
         {#if fileHash}
-          {console.log(fileHash)}
-          <show-image imageHash={fileHash} />
+          <show-image image-hash={encodeHashToBase64(fileHash)} />
         {/if}
       </file-storage-context>
       <mwc-textfield
