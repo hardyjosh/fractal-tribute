@@ -1,9 +1,10 @@
 pub mod evm_key_binding;
-// pub mod payloads_by_creator;
-// pub mod all_payloads;
-pub mod payload;
+pub mod game_move;
+pub mod board;
+pub mod all_game_moves;
+
 use hdk::prelude::*;
-use nft_payload_integrity::*;
+use fractal_tribute_integrity::*;
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Ok(InitCallbackResult::Pass)

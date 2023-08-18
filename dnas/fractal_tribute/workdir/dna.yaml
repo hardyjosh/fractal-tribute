@@ -1,0 +1,19 @@
+---
+manifest_version: "1"
+name: fractal_tribute
+integrity:
+  network_seed: ~
+  properties: ~
+  origin_time: 1679514897361719
+  zomes:
+    - name: fractal_tribute_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/fractal_tribute_integrity.wasm"
+      dependencies: ~
+coordinator:
+  zomes:
+    - name: fractal_tribute
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/fractal_tribute.wasm"
+      dependencies:
+        - name: fractal_tribute_integrity

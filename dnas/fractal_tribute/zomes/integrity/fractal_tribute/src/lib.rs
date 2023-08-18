@@ -1,20 +1,24 @@
 pub mod evm_key_binding;
 pub use evm_key_binding::*;
-pub mod payload;
-pub use payload::*;
+pub mod game_move;
+pub use game_move::*;
+pub mod board;
+pub use board::*;
+
 use hdi::prelude::*;
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
-    Payload(Payload),
+    GameMove(GameMove),
     EvmKeyBinding(EvmKeyBinding),
 }
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
-    TokenIdToPayload
+    TokenIdToGameMove,
+    AllGameMoves
 }
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct ByteArray(#[serde(with = "serde_bytes")] Vec<u8>);
@@ -55,10 +59,10 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             match store_entry {
                 OpEntry::CreateEntry { app_entry, action } => {
                     match app_entry {
-                        EntryTypes::Payload(payload) => {
-                            validate_create_payload(
+                        EntryTypes::GameMove(game_move) => {
+                            validate_create_game_move(
                                 EntryCreationAction::Create(action),
-                                payload,
+                                game_move,
                             )
                         }
                         EntryTypes::EvmKeyBinding(evm_key_binding) => {
@@ -71,10 +75,10 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
                 OpEntry::UpdateEntry { app_entry, action, .. } => {
                     match app_entry {
-                        EntryTypes::Payload(payload) => {
-                            validate_create_payload(
+                        EntryTypes::GameMove(game_move) => {
+                            validate_create_game_move(
                                 EntryCreationAction::Update(action),
-                                payload,
+                                game_move,
                             )
                         }
                         EntryTypes::EvmKeyBinding(evm_key_binding) => {
@@ -109,14 +113,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             )
                         }
                         (
-                            EntryTypes::Payload(payload),
-                            EntryTypes::Payload(original_payload),
+                            EntryTypes::GameMove(game_move),
+                            EntryTypes::GameMove(original_game_move),
                         ) => {
-                            validate_update_payload(
+                            validate_update_game_move(
                                 action,
-                                payload,
+                                game_move,
                                 original_action,
-                                original_payload,
+                                original_game_move,
                             )
                         }
                         _ => {
@@ -136,8 +140,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             match delete_entry {
                 OpDelete::Entry { original_action, original_app_entry, action } => {
                     match original_app_entry {
-                        EntryTypes::Payload(payload) => {
-                            validate_delete_payload(action, original_action, payload)
+                        EntryTypes::GameMove(game_move) => {
+                            validate_delete_game_move(action, original_action, game_move)
                         }
                         EntryTypes::EvmKeyBinding(evm_key_binding) => {
                             validate_delete_evm_key_binding(
@@ -159,8 +163,16 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
-                LinkTypes::TokenIdToPayload => {
-                    validate_create_link_tokenid_to_payloads(
+                LinkTypes::TokenIdToGameMove => {
+                    validate_create_link_tokenid_to_game_move(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::AllGameMoves => {
+                    validate_create_link_all_game_moves(
                         action,
                         base_address,
                         target_address,
@@ -178,8 +190,17 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
-                LinkTypes::TokenIdToPayload => {
-                    validate_delete_link_tokenid_to_payloads(
+                LinkTypes::TokenIdToGameMove => {
+                    validate_delete_link_tokenid_to_game_move(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::AllGameMoves => {
+                    validate_delete_link_all_game_moves(
                         action,
                         original_action,
                         base_address,
@@ -193,10 +214,10 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             match store_record {
                 OpRecord::CreateEntry { app_entry, action } => {
                     match app_entry {
-                        EntryTypes::Payload(payload) => {
-                            validate_create_payload(
+                        EntryTypes::GameMove(game_move) => {
+                            validate_create_game_move(
                                 EntryCreationAction::Create(action),
-                                payload,
+                                game_move,
                             )
                         }
                         EntryTypes::EvmKeyBinding(evm_key_binding) => {
@@ -228,18 +249,18 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match app_entry {
-                        EntryTypes::Payload(payload) => {
-                            let result = validate_create_payload(
+                        EntryTypes::GameMove(game_move) => {
+                            let result = validate_create_game_move(
                                 EntryCreationAction::Update(action.clone()),
-                                payload.clone(),
+                                game_move.clone(),
                             )?;
                             if let ValidateCallbackResult::Valid = result {
-                                let original_payload: Option<Payload> = original_record
+                                let original_game_move: Option<GameMove> = original_record
                                     .entry()
                                     .to_app_option()
                                     .map_err(|e| wasm_error!(e))?;
-                                let original_payload = match original_payload {
-                                    Some(payload) => payload,
+                                let original_game_move = match original_game_move {
+                                    Some(game_move) => game_move,
                                     None => {
                                         return Ok(
                                             ValidateCallbackResult::Invalid(
@@ -249,11 +270,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                         );
                                     }
                                 };
-                                validate_update_payload(
+                                validate_update_game_move(
                                     action,
-                                    payload,
+                                    game_move,
                                     original_action,
-                                    original_payload,
+                                    original_game_move,
                                 )
                             } else {
                                 Ok(result)
@@ -344,11 +365,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match original_app_entry {
-                        EntryTypes::Payload(original_payload) => {
-                            validate_delete_payload(
+                        EntryTypes::GameMove(original_game_move) => {
+                            validate_delete_game_move(
                                 action,
                                 original_action,
-                                original_payload,
+                                original_game_move,
                             )
                         }
                         EntryTypes::EvmKeyBinding(original_evm_key_binding) => {
@@ -368,8 +389,16 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     action,
                 } => {
                     match link_type {
-                        LinkTypes::TokenIdToPayload => {
-                            validate_create_link_tokenid_to_payloads(
+                        LinkTypes::TokenIdToGameMove => {
+                            validate_create_link_tokenid_to_game_move(
+                                action,
+                                base_address,
+                                target_address,
+                                tag,
+                            )
+                        }
+                        LinkTypes::AllGameMoves => {
+                            validate_create_link_all_game_moves(
                                 action,
                                 base_address,
                                 target_address,
@@ -401,8 +430,17 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match link_type {
-                        LinkTypes::TokenIdToPayload => {
-                            validate_delete_link_tokenid_to_payloads(
+                        LinkTypes::TokenIdToGameMove => {
+                            validate_delete_link_tokenid_to_game_move(
+                                action,
+                                create_link.clone(),
+                                base_address,
+                                create_link.target_address,
+                                create_link.tag,
+                            )
+                        }
+                        LinkTypes::AllGameMoves => {
+                            validate_delete_link_all_game_moves(
                                 action,
                                 create_link.clone(),
                                 base_address,

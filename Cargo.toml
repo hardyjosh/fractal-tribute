@@ -15,13 +15,13 @@ holochain = "0.1.0"
 serde = "1"
 
 [workspace.dependencies.file_storage]
-path = "dnas/nft_payload/zomes/coordinator/file_storage"
+path = "dnas/fractal_tribute/zomes/coordinator/file_storage"
 
 [workspace.dependencies.file_storage_integrity]
-path = "dnas/nft_payload/zomes/integrity/file_storage"
+path = "dnas/fractal_tribute/zomes/integrity/file_storage"
 
-[workspace.dependencies.nft_payload]
-path = "dnas/nft_payload/zomes/coordinator/nft_payload"
+[workspace.dependencies.fractal_tribute]
+path = "dnas/fractal_tribute/zomes/coordinator/fractal_tribute"
 
-[workspace.dependencies.nft_payload_integrity]
-path = "dnas/nft_payload/zomes/integrity/nft_payload"
+[workspace.dependencies.fractal_tribute_integrity]
+path = "dnas/fractal_tribute/zomes/integrity/fractal_tribute"

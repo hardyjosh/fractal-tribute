@@ -21,8 +21,8 @@
 
   onMount(async () => {
     // We pass '' as url because it will dynamically be replaced in launcher environments
-    client = await AppAgentWebsocket.connect("", "nft-payload");
-    fileStorageClient = new FileStorageClient(client, "nft_payload");
+    client = await AppAgentWebsocket.connect("", "fractal_tribute");
+    // fileStorageClient = new FileStorageClient(client, "nft_payload");
     loading = false;
   });
 

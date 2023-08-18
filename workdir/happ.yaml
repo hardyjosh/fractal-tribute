@@ -1,14 +1,14 @@
 ---
 manifest_version: "1"
-name: nft-payload
+name: fractal_tribute
 description: ~
 roles:
-  - name: nft_payload
+  - name: fractal_tribute
     provisioning:
       strategy: create
       deferred: false
     dna:
-      bundled: "../dnas/nft_payload/workdir/nft_payload.dna"
+      bundled: "../dnas/fractal_tribute/workdir/fractal_tribute.dna"
       modifiers:
         network_seed: ~
         properties: ~

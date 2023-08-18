@@ -1,16 +1,18 @@
 [package]
-name = "file_storage"
+name = "fractal_tribute"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "file_storage"
+name = "fractal_tribute"
 
 [dependencies]
 hdk = { workspace = true }
 
 serde = { workspace = true }
 
-file_storage_integrity = { workspace = true } 
-hc_zome_file_storage_coordinator = "0.1.0"
+fractal_tribute_integrity = { workspace = true } 
+
+[features]
+mock = ["hdk/mock", "hdk/test_utils"]

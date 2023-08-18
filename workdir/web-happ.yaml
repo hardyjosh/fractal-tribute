@@ -1,7 +1,7 @@
 ---
 manifest_version: "1"
-name: nft-payload
+name: fractal_tribute
 ui:
   bundled: "../ui/dist.zip"
 happ_manifest:
-  bundled: "./nft-payload.happ"
+  bundled: "./fractal_tribute.happ"

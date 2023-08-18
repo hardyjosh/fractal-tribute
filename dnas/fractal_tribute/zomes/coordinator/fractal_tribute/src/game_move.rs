@@ -1,14 +1,21 @@
 use hdk::prelude::*;
-use nft_payload_integrity::*;
-use crate::evm_key_binding::{_get_evm_address};
+use fractal_tribute_integrity::*;
+use crate::evm_key_binding::_get_evm_address;
 
 #[hdk_extern]
-pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
-    let payload_hash = create_entry(&EntryTypes::Payload(payload.clone()))?;
-    let _record = get(payload_hash.clone(), GetOptions::default())?
+pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Vec<u8>> {
+
+    let game_move_bytes_slice: &[u8; 40] = game_move_bytes.as_slice().try_into().map_err(|_| wasm_error!(
+        WasmErrorInner::Guest(String::from("Expected a slice of length 40"))
+    ))?;  
+
+    let game_move = GameMove::from_bytes(game_move_bytes_slice);
+    
+    let game_move_hash = create_entry(&EntryTypes::GameMove(game_move.clone()))?;
+    let _record = get(game_move_hash.clone(), GetOptions::default())?
         .ok_or(
             wasm_error!(
-                WasmErrorInner::Guest(String::from("Could not find the newly created Payload"))
+                WasmErrorInner::Guest(String::from("Could not find the newly created GameMove"))
             ),
         )?;
 
@@ -30,29 +37,32 @@ pub fn create_payload(payload: Payload) -> ExternResult<Vec<u8>> {
         }
     };
 
-    let content_bytes = payload.payload_bytes.into_vec();
+    let content_bytes = game_move_hash.clone().get_raw_39().to_vec();
 
     let link_base = create_link_base(key_bytes.clone(), content_bytes.clone())?;
 
-    // create the link from the hashed key + content hash to the payload
+    // create the link from the hashed key + content hash to the game_move
     create_link(
         link_base,
-        payload_hash.clone(),
-        LinkTypes::TokenIdToPayload,
+        game_move_hash.clone(),
+        LinkTypes::TokenIdToGameMove,
         (),
     )?;
+
+    let path = Path::from("all_game_moves");
+    create_link(path.path_entry_hash()?, game_move_hash.clone(), LinkTypes::AllGameMoves, ())?;
 
     Ok(key_bytes)
 }
 
 #[hdk_extern]
-pub fn get_payload(payload_hash: ActionHash) -> ExternResult<Option<Record>> {
-    get(payload_hash, GetOptions::default())
+pub fn get_game_move(game_move_hash: ActionHash) -> ExternResult<Option<Record>> {
+    get(game_move_hash, GetOptions::default())
 }
 
 #[hdk_extern]
-pub fn get_payload_from_link(base: ExternalHash) -> ExternResult<Vec<Record>> {
-    let links = get_links(base, LinkTypes::TokenIdToPayload, None)?;
+pub fn get_game_move_from_link(base: ExternalHash) -> ExternResult<Vec<Record>> {
+    let links = get_links(base, LinkTypes::TokenIdToGameMove, None)?;
         let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
@@ -70,7 +80,7 @@ pub fn get_payload_from_link(base: ExternalHash) -> ExternResult<Vec<Record>> {
 
 #[hdk_extern]
 pub fn extern_create_link_base(input: LinkBaseInput) -> ExternResult<ExternalHash> {
-    nft_payload_integrity::create_link_base(input.evm_key, input.content_bytes)
+    fractal_tribute_integrity::create_link_base(input.evm_key, input.content_bytes)
 }
 
 #[hdk_extern]

@@ -1,5 +1,5 @@
 use hdk::prelude::*;
-use nft_payload_integrity::*;
+use fractal_tribute_integrity::*;
 use std::convert::TryInto;
 use std::fmt;
 
