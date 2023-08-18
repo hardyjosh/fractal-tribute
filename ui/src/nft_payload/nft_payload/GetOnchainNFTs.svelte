@@ -65,7 +65,7 @@
       tokenIdAsHex,
       Uint8Array.from([0, 0, 0, 0]),
     ]);
-    const linkBaseAsBase64 = btoa(String.fromCharCode.apply(null, linkBase));
+    const linkBaseAsBase64 = encodeHashToBase64(linkBase);
     try {
       const records = await client.callZome({
         cap_secret: null,
@@ -159,14 +159,8 @@
     <div in:fade={{ duration: 150 }} class="grid grid-cols-4 w-full gap-4 mt-4">
       {#each nfts as nft}
         <div
-          class="bg-gray-100 rounded-xl p-4 overflow-hidden flex flex-col text-lg"
+          class="bg-gray-100 rounded-xl p-4 overflow-hidden flex flex-col text-lg gap-y-2 justify-between"
         >
-          <!-- <span class="break-words">TokenID: {nft.tokenId}</span> -->
-          <!-- <span>TokenID as hex: {details.tokenIdAsHex}</span> -->
-          <!-- <span>Link base: {hexlify(details.linkBase)}</span> -->
-          <!-- <span class="break-words"
-            >Link base as base64: u{nft.linkBaseAsBase64}</span
-          > -->
           {#if nft.decodedContents.length}
             <!-- <span>Content from the hApp that has this base:</span> -->
             {#each nft.decodedContents as content}
@@ -174,21 +168,23 @@
                 <span>{content.err}</span>
                 <span>Raw bytes: {content.payload_bytes}</span>
               {:else}
-                <div class="rounded-lg overflow-hidden aspect-square">
+              <div>
+                <div class="rounded-lg overflow-hidden aspect-square relative">
                   <file-storage-context
                     class="w-full object-cover"
                     client={fileStorageClient}
                   >
-                    <show-image image-hash={content.fileHash} />
+                    <show-image image-hash={content.fileHash} class="object-cover absolute inset-0" />
                   </file-storage-context>
                 </div>
                 <div class="flex flex-col mt-4">
-                  <span class="uppercase text-xs font-semibold">Name</span>
-                  <span class="text-green-600">{content.name}</span>
-                  <span class="uppercase text-xs font-semibold mt-2"
+                  <span class="uppercase text-xs font-semibold text-gray-400">Name</span>
+                  <span class="">{content.name}</span>
+                  <span class="uppercase text-xs font-semibold mt-2 text-gray-400"
                     >Description</span
                   >
-                  <span class="text-green-600">{content.description}</span>
+                  <span class="">{content.description}</span>
+                </div>
                 </div>
               {/if}
             {/each}
@@ -197,6 +193,14 @@
               >No content found in the hApp that has this base.</span
             >
           {/if}
+          <div class="text-xs flex flex-col gap-y-2">
+            <span class="break-words">TokenID: {nft.tokenId}</span>
+            <!-- <span>TokenID as hex: {nft.tokenIdAsHex}</span> -->
+            <!-- <span>Link base: {hexlify(details.linkBase)}</span> -->
+            <span class="break-words"
+              >Link base derived from tokenId: {nft.linkBaseAsBase64}</span
+            >
+          </div>
         </div>
         <!-- {console.log(fetchPayloadsForTokenId(nft.tokenId))} -->
       {/each}
@@ -207,3 +211,11 @@
     </div>
   {/if}
 {/await}
+
+<style lang="postcss">
+  show-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

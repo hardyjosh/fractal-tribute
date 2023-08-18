@@ -1,6 +1,7 @@
 /*op meta*/
 @0x47ed85f917e187757bff09371cedcf5c0eb277c27e4673feb2d3cc040c66c993
 
+#main
 /* variables */
 sentinel: 0xfea74d0c9bf4a3c28f0dd0674db22a3d7f8bf259c56af19f4ac1e735b156974f,
 sentinel721: 0xfe90d819490b07580877ce7c3005704048c62af96c6745886d7e356e0b63924a,
@@ -38,4 +39,4 @@ burnslist: sentinel721,
  * mints of this erc721 token
  */
 mintslist: sentinel721,
-mint-account mint-id: you tokenid;
+mint-account mint-id: you tokenid

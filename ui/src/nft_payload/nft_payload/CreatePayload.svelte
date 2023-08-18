@@ -107,9 +107,9 @@
         on:file-uploaded={getFileHash}
       >
         <upload-files />
-        {#if fileHash}
+        <!-- {#if fileHash}
           <show-image image-hash={encodeHashToBase64(fileHash)} />
-        {/if}
+        {/if} -->
       </file-storage-context>
       <mwc-textfield
         outlined
