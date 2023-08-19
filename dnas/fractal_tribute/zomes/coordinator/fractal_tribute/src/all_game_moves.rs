@@ -3,7 +3,7 @@ use fractal_tribute_integrity::*;
 
 #[hdk_extern]
 pub fn get_all_game_moves(_: ()) -> ExternResult<Vec<Record>> {
-    let path = Path::from("game_moves");
+    let path = Path::from("all_game_moves");
     let links = get_links(path.path_entry_hash()?, LinkTypes::AllGameMoves, None)?;
     let get_input: Vec<GetInput> = links
         .into_iter()
@@ -24,7 +24,7 @@ pub fn get_all_my_game_moves(_: ()) -> ExternResult<Vec<Record>> {
         .include_entries(true)
         .entry_type(EntryType::App(AppEntryDef::new(
             0.into(),
-            zome_info()?.id,
+            0.into(),
             EntryVisibility::Public,
         )));
 

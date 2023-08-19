@@ -3,7 +3,7 @@ use fractal_tribute_integrity::*;
 use crate::evm_key_binding::_get_evm_address;
 
 #[hdk_extern]
-pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Vec<u8>> {
+pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
 
     let game_move_bytes_slice: &[u8; 40] = game_move_bytes.as_slice().try_into().map_err(|_| wasm_error!(
         WasmErrorInner::Guest(String::from("Expected a slice of length 40"))
@@ -52,7 +52,7 @@ pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Vec<u8>> {
     let path = Path::from("all_game_moves");
     create_link(path.path_entry_hash()?, game_move_hash.clone(), LinkTypes::AllGameMoves, ())?;
 
-    Ok(key_bytes)
+    Ok(_record)
 }
 
 #[hdk_extern]

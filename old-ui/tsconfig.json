@@ -15,11 +15,10 @@
     "checkJs": true,
     "isolatedModules": true,
     // "importsNotUsedAsValues": "error"
-    "paths": {
-      "$lib/*": ["src/lib/*"],
-      "$routes/*": ["src/routes/*"]
-    }
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.node.json" }],
+  "paths": {
+    "$lib/*": ["src/lib/**/*"]
+  },
 }

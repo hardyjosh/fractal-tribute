@@ -1,52 +1,22 @@
 <script lang="ts">
-  import BrowseNFTs from "./routes/BrowseNFTs.svelte";
-  import MintNFT from "./routes/MintNFT.svelte";
-  import { onMount, setContext } from "svelte";
-  import type { AppAgentClient } from "@holochain/client";
+  import "./app.postcss";
+  import WalletContext from "$lib/contexts/WalletContext.svelte";
+  import Routes from "$routes/Routes.svelte";
+  import { onMount } from "svelte";
   import { AppAgentWebsocket } from "@holochain/client";
-  import { clientContext } from "./contexts";
-  import ConnectWallet from "./lib/connect-wallet/ConnectWallet.svelte";
-  import Header from "./lib/Header.svelte";
-  import { Routes } from "./lib/types";
-  import Home from "./routes/Home.svelte";
-  import { FileStorageClient } from "@holochain-open-dev/file-storage/dist/file-storage-client";
+  import { DnaInterface, initHapp, happ } from "$lib/stores";
 
-  let client: AppAgentClient | undefined;
-  let fileStorageClient: FileStorageClient | undefined;
-  let loading = true;
-
-  let activeRoute = Routes.Home;
-
-  $: client, loading, fileStorageClient;
+  let client: AppAgentWebsocket;
+  let dnaInterface: DnaInterface;
 
   onMount(async () => {
-    // We pass '' as url because it will dynamically be replaced in launcher environments
     client = await AppAgentWebsocket.connect("", "fractal_tribute");
-    // fileStorageClient = new FileStorageClient(client, "nft_payload");
-    loading = false;
-  });
-
-  setContext(clientContext, {
-    getClient: () => client,
-    getFileStorageClient: () => fileStorageClient,
+    initHapp(client);
   });
 </script>
 
-<main class="flex flex-col w-full p-4">
-  {#if loading}
-    <div
-      class="display: flex; flex: 1; align-items: center; justify-content: center"
-    >
-      loading....
-    </div>
-  {:else}
-    <Header bind:activeRoute />
-    {#if activeRoute == Routes.Home}
-      <Home />
-    {:else if activeRoute == Routes.MintNFT}
-      <MintNFT />
-    {:else if activeRoute == Routes.ViewNFTs}
-      <BrowseNFTs />
-    {/if}
-  {/if}
-</main>
+{#if $happ}
+  <WalletContext>
+    <Routes />
+  </WalletContext>
+{/if}
