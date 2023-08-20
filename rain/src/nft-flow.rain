@@ -1,14 +1,15 @@
 /*op meta*/
-@0x47ed85f917e187757bff09371cedcf5c0eb277c27e4673feb2d3cc040c66c993
+@0xe4c000f3728f30e612b34e401529ce5266061cc1233dc54a6a89524929571d8f
 
 #main
 /* variables */
 sentinel: 0xfea74d0c9bf4a3c28f0dd0674db22a3d7f8bf259c56af19f4ac1e735b156974f,
-sentinel721: 0xfe90d819490b07580877ce7c3005704048c62af96c6745886d7e356e0b63924a,
+sentinel1155: 0xf3d9dabdb0009f2a4a1d315a6b607c74e619b5620e01f1130e4142970ffaf767,
 
 you: context<0 0>(),
 content-hash: context<1 0 >(),
 tokenid: hash(you content-hash),
+amount: 1,
 
 /**
  * erc1155 transfers
@@ -28,15 +29,15 @@ transfererc20slist: sentinel,
 /**
  * native (gas) token transfers
  */
-transfernativeslist: sentinel,
+/* transfernativeslist: sentinel, */
 
 /**
  * burns of this erc721 token
  */
-burnslist: sentinel721,
+burnslist: sentinel1155,
 
 /**
  * mints of this erc721 token
  */
-mintslist: sentinel721,
-mint-account mint-id: you tokenid
+mintslist: sentinel1155,
+mint-account mint-id mint-amount: you tokenid amount

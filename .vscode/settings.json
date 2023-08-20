@@ -1,7 +1,6 @@
 {
-  "rainlang.opmeta": {
-    "deployerAddress": "0x0d41310D0EB1a0E1827D55C98F603263219F8A5d",
-    "source": 524289
-  },
-  "rust-analyzer.cargo.features": ["mock"]
+  "rust-analyzer.cargo.features": ["mock"],
+  "rainlang.autoCompile": {
+    "onSave": "./rain/expressions.json"
+  }
 }

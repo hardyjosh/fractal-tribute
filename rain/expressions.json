@@ -1,0 +1,7 @@
+[
+  {
+    "dotrain": "./rain/src/nft-flow.rain",
+    "json": "./rain/src/nft-flow.json",
+    "expressions": ["main"]
+  }
+]
