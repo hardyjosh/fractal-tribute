@@ -7,7 +7,6 @@
   import { DnaInterface, initHapp, happ } from "$lib/stores";
 
   let client: AppAgentWebsocket;
-  let dnaInterface: DnaInterface;
 
   onMount(async () => {
     client = await AppAgentWebsocket.connect("", "fractal_tribute");

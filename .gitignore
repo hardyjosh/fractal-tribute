@@ -11,3 +11,19 @@
 .hc
 .running
 ui/.env
+
+# Forge
+# Compiler files
+rain/cache/
+rain/out/
+
+# Ignores development broadcast logs
+!/rain/broadcast
+/rain/broadcast/*/31337/
+/rain/broadcast/**/dry-run/
+
+# Docs
+/rain/docs/
+
+# Dotenv file
+.env

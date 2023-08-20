@@ -1,0 +1,3 @@
+[submodule "rain/lib/forge-std"]
+	path = rain/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
