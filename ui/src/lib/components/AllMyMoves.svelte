@@ -1,10 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { generateRandomGameMove } from "$lib/game-move";
   import { happ } from "$lib/stores";
   import type { GameMoveWithActionHash } from "$lib/types";
-  import { Button } from "flowbite-svelte";
   import Board from "$lib/components/Board.svelte";
+  import MintMove from "$lib/components/MintMove.svelte";
 
   let gameMoves: GameMoveWithActionHash[];
 
@@ -20,6 +19,7 @@
         <p>loading...</p>
       {:then board}
         <Board {board} size="w-2 h-2" />
+        <MintMove move={gameMove.actionHash} />
       {:catch error}
         <p>{error.message}</p>
       {/await}

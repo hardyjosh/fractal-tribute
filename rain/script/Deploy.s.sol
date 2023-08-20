@@ -44,7 +44,7 @@ contract Deploy is Script {
         vm.broadcast();
         vm.recordLogs();
 
-        factory.clone(implementation, abi.encode(config));
+        address instance = factory.clone(implementation, abi.encode(config));
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
         (, address interpreter, address store, address deployedExpression) = abi.decode(entries[4].data, (address, address, address, address));
@@ -52,6 +52,7 @@ contract Deploy is Script {
         string memory obj = "log";
         vm.serializeAddress(obj, "interpreter", interpreter);
         vm.serializeAddress(obj, "store", store);
+        vm.serializeAddress(obj, "instance", instance);
         string memory output = vm.serializeAddress(obj, "expression", deployedExpression);
         uint256 blockNumber = block.number;
         string memory file = string.concat(root, "/addresses/flow-", blockNumber.toString(), ".json");

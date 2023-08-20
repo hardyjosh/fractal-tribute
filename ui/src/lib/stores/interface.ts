@@ -51,13 +51,18 @@ export class DnaInterface {
 
     // moves
     async createGameMove(gameMove: GameMove): Promise<Record> {
-        return await this.client.callZome({
-            cap_secret: null,
-            role_name,
-            zome_name,
-            fn_name: 'create_game_move',
-            payload: Array.from(gameMoveToBytes(gameMove)),
-        }) as Record
+        try {
+            return await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'create_game_move',
+                payload: Array.from(gameMoveToBytes(gameMove)),
+            }) as Record
+        } catch (e) {
+            console.log(e)
+            throw e
+        }
     }
 
     async getAllMyGameMoves(): Promise<GameMoveWithActionHash[]> {
