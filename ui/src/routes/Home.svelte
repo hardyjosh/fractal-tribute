@@ -3,7 +3,7 @@
   import AllNfts from "$lib/components/AllNfts.svelte";
   import BoardComp from "$lib/components/Board.svelte";
   import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
-  import { generateRandomGameMove } from "$lib/game-move";
+  import { generateRandomGameMove } from "$lib/helpers/game-move";
   import { happ } from "$lib/stores";
   import type { Board } from "$lib/types";
   import { Button } from "flowbite-svelte";

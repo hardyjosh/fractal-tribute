@@ -1,4 +1,4 @@
-import type { Color, GameMove, PixelChange } from "./types";
+import type { Color, GameMove, PixelChange } from "../types";
 
 export const gameMoveToBytes = (gameMove: GameMove): Uint8Array => {
     const bytes = new Uint8Array(40);

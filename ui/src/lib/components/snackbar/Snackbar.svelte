@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Alert } from "flowbite-svelte";
-  import { snackBars } from "./snackbar";
+  import { snackBars } from ".";
 </script>
 
 <div class="fixed bottom-0 left-0 right-0 p-4">

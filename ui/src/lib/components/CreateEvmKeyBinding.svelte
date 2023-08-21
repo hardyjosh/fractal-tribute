@@ -1,13 +1,12 @@
 <script lang="ts">
   import { happ } from "$lib/stores/";
-  import { createEventDispatcher, getContext, onMount } from "svelte";
   import type { Record } from "@holochain/client";
   import type { EvmKeyBinding } from "$lib/types";
   import { Button } from "flowbite-svelte";
-  import { formatAddress } from "$lib/utils";
+  import { formatAddress } from "$lib/helpers";
   import { account, walletClient } from "svelte-wagmi-stores";
   import { toBytes, toHex } from "viem";
-  import { addSnackBar } from "$lib/components/snackbar/snackbar";
+  import { addSnackBar } from "$lib/components/snackbar";
 
   enum EvmKeyBindingStatus {
     NotCreated,

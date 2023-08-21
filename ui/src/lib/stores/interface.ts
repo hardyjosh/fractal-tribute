@@ -1,10 +1,9 @@
 import type { Board, EvmKeyBinding, GameMove, GameMoveWithActionHash } from '$lib/types';
-import type { AppAgentClient, Record, AgentPubKeyB64, EntryHash, ActionHash, Action, encodeHashToBase64 } from '@holochain/client';
+import type { AppAgentClient, Record, ActionHash } from '@holochain/client';
 import { writable } from 'svelte/store';
-import { type Address, getAddress, bytesToHex, concat, numberToHex, numberToBytes } from 'viem'
-import { decode, encode } from "@msgpack/msgpack";
-import { gameMoveToBytes } from '$lib/game-move';
-import { parseBoardBytes } from '$lib/board';
+import { type Address, getAddress, bytesToHex, concat } from 'viem'
+import { decode } from "@msgpack/msgpack";
+import { gameMoveToBytes, parseBoardBytes } from '$lib/helpers';
 
 export const happ = writable<DnaInterface>()
 

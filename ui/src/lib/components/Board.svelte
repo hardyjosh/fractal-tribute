@@ -1,12 +1,9 @@
 <script lang="ts">
-  import { happ } from "$lib/stores";
   import type { Board } from "$lib/types";
-  import { Button } from "flowbite-svelte";
   import { twMerge } from "tailwind-merge";
 
   export let board: Board;
   export let size: string = "w-6 h-6";
-  console.log(board);
 </script>
 
 {#if board}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import Board from "$lib/components/Board.svelte";
-  import { fetchNftIds, happ } from "$lib/stores";
+  import { fetchNftIds } from "$lib/helpers";
+  import { happ } from "$lib/stores";
   import { onMount } from "svelte";
 
   let nftIds: Uint8Array[] = [];
