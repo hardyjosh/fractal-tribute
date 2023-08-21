@@ -1,7 +1,9 @@
 import { getAddress, hexToBytes } from "viem";
 import addresses from "$lib/addresses.json"
 
-export const mintEvaluable = [getAddress(addresses.interpreter), getAddress(addresses.store), getAddress(addresses.expression)]
+export const mintEvaluable = [getAddress(addresses.interpreter), getAddress(addresses.store), getAddress(addresses.mint)]
+export const snapshotEvaluable = [getAddress(addresses.interpreter), getAddress(addresses.store), getAddress(addresses.snapshot)]
+export const claimEvaluable = [getAddress(addresses.interpreter), getAddress(addresses.store), getAddress(addresses.claim)]
 
 export const fetchNftIds = async (): Promise<Uint8Array[]> => {
     const alchemyKey = import.meta.env.VITE_ALCHEMY_KEY;

@@ -3,7 +3,7 @@
   import { happ } from "$lib/stores";
   import type { GameMoveWithActionHash } from "$lib/types";
   import Board from "$lib/components/Board.svelte";
-  import MintMove from "$lib/components/MintMove.svelte";
+  import SnapshotMove from "$lib/components/SnapshotMove.svelte";
 
   let gameMoves: GameMoveWithActionHash[];
 
@@ -19,7 +19,7 @@
         <p>loading...</p>
       {:then board}
         <Board {board} size="w-2 h-2" />
-        <MintMove move={gameMove.actionHash} />
+        <SnapshotMove move={gameMove.actionHash} />
       {:catch error}
         <p>{error.message}</p>
       {/await}

@@ -21,14 +21,29 @@ contract Deploy is Script {
 
     function run() public {
 
-        string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/src/nft-flow.json");
-        string memory expression = vm.readFile(path);
+        EvaluableConfig memory snapshot;
+        string memory snapshotJson = vm.readFile(
+            string.concat(vm.projectRoot(), "/src/snapshot.json")
+        );
+        snapshot.sources = snapshotJson.readBytesArray('.sources');
+        snapshot.constants = snapshotJson.readUintArray('.constants');
+        snapshot.deployer = IExpressionDeployerV1(deployer);
 
-        EvaluableConfig memory flow;
-        flow.sources = expression.readBytesArray('.sources');
-        flow.constants = expression.readUintArray('.constants');
-        flow.deployer = IExpressionDeployerV1(deployer);
+        EvaluableConfig memory mint;
+        string memory mintJson = vm.readFile(
+            string.concat(vm.projectRoot(), "/src/mint.json")
+        );
+        mint.sources = mintJson.readBytesArray('.sources');
+        mint.constants = mintJson.readUintArray('.constants');
+        mint.deployer = IExpressionDeployerV1(deployer);
+
+        EvaluableConfig memory claim;
+        string memory claimJson = vm.readFile(
+            string.concat(vm.projectRoot(), "/src/claim.json")
+        );
+        claim.sources = claimJson.readBytesArray('.sources');
+        claim.constants = claimJson.readUintArray('.constants');
+        claim.deployer = IExpressionDeployerV1(deployer);
 
         EvaluableConfig memory canTransfer;
         canTransfer.sources = new bytes[](0);
@@ -38,8 +53,10 @@ contract Deploy is Script {
         FlowERC1155Config memory config;
         config.uri = "";
         config.evaluableConfig = canTransfer;
-        config.flowConfig = new EvaluableConfig[](1);
-        config.flowConfig[0] = flow;
+        config.flowConfig = new EvaluableConfig[](3);
+        config.flowConfig[0] = snapshot;
+        config.flowConfig[1] = mint;
+        config.flowConfig[2] = claim;
 
         vm.broadcast();
         vm.recordLogs();
@@ -47,18 +64,22 @@ contract Deploy is Script {
         address instance = factory.clone(implementation, abi.encode(config));
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        (, address interpreter, address store, address deployedExpression) = abi.decode(entries[4].data, (address, address, address, address));
+        (, address interpreter, address store, address snapshotExp) = abi.decode(entries[4].data, (address, address, address, address));
+        (, , , address mintExp) = abi.decode(entries[7].data, (address, address, address, address));
+        (, , , address claimExp) = abi.decode(entries[10].data, (address, address, address, address));
 
-        string memory obj = "log";
+        string memory obj = "snpashot";
         vm.serializeAddress(obj, "interpreter", interpreter);
         vm.serializeAddress(obj, "store", store);
         vm.serializeAddress(obj, "instance", instance);
-        string memory output = vm.serializeAddress(obj, "expression", deployedExpression);
+        vm.serializeAddress(obj, "snapshot", snapshotExp);
+        vm.serializeAddress(obj, "mint", mintExp);
+        string memory output = vm.serializeAddress(obj, "claim", claimExp);
         uint256 blockNumber = block.number;
-        string memory file = string.concat(root, "/addresses/flow-", blockNumber.toString(), ".json");
+        string memory file = string.concat(vm.projectRoot(), "/addresses/flow-", blockNumber.toString(), ".json");
         vm.writeJson(output, file);
     }
 }
 
 
-// forge script script/Deploy.s.sol:Deploy --fork-url $RPC_URL --private-key $PRIVATE_KEY --broadcast
+// source .env && forge script script/Deploy.s.sol:Deploy --fork-url $RPC_URL --private-key $PRIVATE_KEY --broadcast

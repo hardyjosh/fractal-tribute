@@ -1,7 +1,17 @@
 [
   {
     "dotrain": "./rain/src/nft-flow.rain",
-    "json": "./rain/src/nft-flow.json",
-    "expressions": ["main"]
+    "json": "./rain/src/snapshot.json",
+    "expressions": ["snapshot"]
+  },
+  {
+    "dotrain": "./rain/src/nft-flow.rain",
+    "json": "./rain/src/mint.json",
+    "expressions": ["mint"]
+  },
+  {
+    "dotrain": "./rain/src/nft-flow.rain",
+    "json": "./rain/src/claim.json",
+    "expressions": ["claim"]
   }
 ]

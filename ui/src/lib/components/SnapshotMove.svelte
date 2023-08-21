@@ -1,29 +1,24 @@
 <script lang="ts">
   import addresses from "$lib/addresses.json";
   import { account } from "svelte-wagmi-stores";
+  import { paymentToken } from "./../stores/token.ts";
   import { type ActionHash } from "@holochain/client";
-  import { nftContract, paymentToken } from "$lib/stores";
+  import { nftContract } from "$lib/stores";
   import { Button } from "flowbite-svelte";
   import { hexToBigInt, keccak256, type Address, parseEther } from "viem";
-  import {
-    claimEvaluable,
-    mintEvaluable,
-    snapshotEvaluable,
-  } from "$lib/helpers";
+  import { mintEvaluable, snapshotEvaluable } from "$lib/helpers";
 
-  export let tokenId: bigint;
+  export let move: ActionHash;
+  const _move = hexToBigInt(keccak256(move));
+
+  const price = parseEther("1");
 
   let allowance: bigint, balance: bigint;
-  const price = parseEther("1");
 
   $: ({ write, status, error } = $nftContract.write({
     functionName: "flow",
-    args: [mintEvaluable, [tokenId, 1n], []],
+    args: [snapshotEvaluable, [_move], []],
   }));
-
-  const mintMove = async () => {
-    await write();
-  };
 
   $: ({
     write: allowanceWrite,
@@ -33,6 +28,10 @@
     functionName: "approve",
     args: [addresses.instance as Address, price],
   }));
+
+  const snapshotMove = async () => {
+    await write();
+  };
 
   $: $paymentToken
     .read({
@@ -66,5 +65,5 @@
 {/if}
 
 {#if balanceOk && allowanceOk}
-  <Button on:click={mintMove}>Snapshot my move</Button>
+  <Button on:click={snapshotMove}>Snapshot my move</Button>
 {/if}

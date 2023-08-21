@@ -1,43 +1,119 @@
 /*op meta*/
 @0xe4c000f3728f30e612b34e401529ce5266061cc1233dc54a6a89524929571d8f
+#sentinel 0xfea74d0c9bf4a3c28f0dd0674db22a3d7f8bf259c56af19f4ac1e735b156974f
+#sentinel1155 0xf3d9dabdb0009f2a4a1d315a6b607c74e619b5620e01f1130e4142970ffaf767
 
-#main
-/* variables */
-sentinel: 0xfea74d0c9bf4a3c28f0dd0674db22a3d7f8bf259c56af19f4ac1e735b156974f,
-sentinel1155: 0xf3d9dabdb0009f2a4a1d315a6b607c74e619b5620e01f1130e4142970ffaf767,
+/* constants */
+#game-master-address 0x0000000
+#payment-token 0x2Eb1D24aB0eC5FD0058ab5073F1EA2d8A59783E5
+#snapshot-price 1e18
+#mint-price 1e18
 
+#snapshot
 you: context<0 0>(),
+me: context<0 1>(),
 content-hash: context<1 0 >(),
 tokenid: hash(you content-hash),
 amount: 1,
 
-/**
- * erc1155 transfers
- */
+/* ensure that the tokenid is not already minted */
+:ensure(not(get(tokenid))),
+
+/* if it isn't, we can mint it and set the key to true */
+/* future mints will need to happen via the other flow */
+:set(tokenid 1),
+
 transfererc1155slist: sentinel,
+transfererc721slist: sentinel,
+/**
+ * er20 transfers
+ * token, from, to, amount
+ */
+transfererc20slist: sentinel,
+_ _ _ _: payment-token you me snapshot-price,
+
+burnslist: sentinel1155,
 
 /**
- * erc721 transfers
+ * mints of this erc1155 token
  */
+mintslist: sentinel1155,
+mint-account mint-id mint-amount: you tokenid amount
+
+
+#mint
+you: context<0 0>(),
+me: context<0 1>(),
+tokenid: context<1 0 >(),
+amount: context<1 1>(),
+
+/* ensure that this tokenid has been minted at least once */
+:ensure(get(tokenid)),
+
+transfererc1155slist: sentinel,
+transfererc721slist: sentinel,
+/**
+ * er20 transfers
+ * token, from, to, amount
+ */
+transfererc20slist: sentinel,
+_ _ _ _: payment-token you me mint-price,
+
+burnslist: sentinel1155,
+
+/**
+ * mints of this erc1155 token
+ */
+mintslist: sentinel1155,
+mint-account mint-id mint-amount: you tokenid amount
+
+
+#claim
+/**
+ * for claiming, users will use a signed coupon by the game master,
+ * each coupon can only be used once.
+ * 
+ * the coupon will be a signed message with the following fields:
+ * [0] the address of the claimant
+ * [1] amount
+ * [2] the token address
+ * [3] the address of this contract
+ * 
+ */
+you: context<0 0>(),
+me: context<0 1>(),
+
+coupon-signer: context<5 0>(),
+claimant: context<6 0>(),
+amount: context<6 1>(),
+token: context<6 2>(),
+contract: context<6 3>(),
+
+/* ensure that the coupon is signed by the game master */
+:ensure(eq(coupon-signer game-master-address)),
+
+/* ensure that the coupon is for the caller */
+:ensure(eq(claimant you)),
+
+/* ensure that the token in the coupon is the payment token */
+:ensure(eq(token payment-token)),
+
+/* ensure that the coupon is for this contract */
+:ensure(eq(contract me)),   
+
+transfererc1155slist: sentinel,
 transfererc721slist: sentinel,
 
 /**
  * er20 transfers
+ * token, from, to, amount
  */
 transfererc20slist: sentinel,
+_ _ _ _: payment-token me you amount,
 
-/**
- * native (gas) token transfers
- */
-/* transfernativeslist: sentinel, */
-
-/**
- * burns of this erc721 token
- */
 burnslist: sentinel1155,
+mintslist: sentinel1155
 
-/**
- * mints of this erc721 token
- */
-mintslist: sentinel1155,
-mint-account mint-id mint-amount: you tokenid amount
+
+
+
