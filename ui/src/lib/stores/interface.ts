@@ -1,7 +1,7 @@
 import type { Board, EvmKeyBinding, GameMove, GameMoveWithActionHash } from '$lib/types';
 import type { AppAgentClient, Record, AgentPubKeyB64, EntryHash, ActionHash, Action, encodeHashToBase64 } from '@holochain/client';
 import { writable } from 'svelte/store';
-import { type Address, getAddress, bytesToHex } from 'viem'
+import { type Address, getAddress, bytesToHex, concat, numberToHex, numberToBytes } from 'viem'
 import { decode, encode } from "@msgpack/msgpack";
 import { gameMoveToBytes } from '$lib/game-move';
 import { parseBoardBytes } from '$lib/board';
@@ -100,6 +100,22 @@ export class DnaInterface {
             zome_name,
             fn_name: 'get_board_at_move',
             payload: actionHash,
+        })
+        return parseBoardBytes(boardBytes)
+    }
+
+    async getBoardFromTokenId(tokenId: Uint8Array): Promise<Board> {
+        const linkBase = concat([
+            Uint8Array.from([132, 47, 36]),
+            tokenId,
+            Uint8Array.from([0, 0, 0, 0]),
+        ]);
+        const boardBytes = await this.client.callZome({
+            cap_secret: null,
+            role_name,
+            zome_name,
+            fn_name: 'get_board_from_link',
+            payload: linkBase,
         })
         return parseBoardBytes(boardBytes)
     }

@@ -6,6 +6,7 @@
 
   export let board: Board;
   export let size: string = "w-6 h-6";
+  console.log(board);
 </script>
 
 {#if board}

@@ -181,7 +181,7 @@ pub fn create_link_base(evm_key: Vec<u8>, content_bytes: Vec<u8>) -> Result<Exte
     if evm_key.len() != 20 {
         return Err(wasm_error!(WasmErrorInner::Guest("EVM key must be 20 bytes".to_string())));
     }
-    debug!("hash byte should be {:?}", content_bytes);
+    debug!("actionhash bytes: {:?}", content_bytes);
     
     // EVM key as 32 bytes
     let mut hash_input:Vec<u8> = vec![0; 12];
@@ -189,6 +189,7 @@ pub fn create_link_base(evm_key: Vec<u8>, content_bytes: Vec<u8>) -> Result<Exte
 
     // hash the content bytes and append to the key bytes
     let content_hash = hash_keccak256(content_bytes).unwrap();
+    debug!("hashed actionhash {:?}", content_hash);
     hash_input.extend_from_slice(&content_hash);
 
     // hash the key + content hash

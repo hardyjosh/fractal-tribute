@@ -49,6 +49,9 @@ pub fn get_board_at_move(move_action_hash: ActionHash) -> ExternResult<Vec<u8>> 
 #[hdk_extern]
 pub fn get_board_from_link(base: ExternalHash) -> ExternResult<Vec<u8>> {
     let links = get_links(base, LinkTypes::TokenIdToGameMove, None)?;
+    if let 0 = links.len() {
+        return Err(wasm_error!("No game moves found for that token id"));
+    }
     let action_hash = links[0].target.clone();
     let board_bytes = get_board_at_move(action_hash.into())?;
     Ok(board_bytes)

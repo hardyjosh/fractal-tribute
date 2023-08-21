@@ -3,7 +3,7 @@ import type { ActionHash } from "@holochain/client";
 import { makeContractStore } from "svelte-wagmi-stores";
 import { get } from "svelte/store";
 import type { Address } from "viem";
-import { getAddress } from "viem";
+import { getAddress, hexToBytes } from "viem";
 
 const addresses = {
     "expression": "0x0046eAC07579c27185CFBB044721f85174382170",
@@ -15,15 +15,29 @@ export const evaluable = [getAddress(addresses.interpreter), getAddress(addresse
 
 export const token = makeContractStore(IFlowERC1155V3, addresses.instance as Address)
 
-// export const mintToken = (hash: ActionHash) => {
-//     console.log(hash)
-//     const _token = get(token)
-//     return _token.write({
-//         functionName: "flow",
-//         args: [
-//             [addresses.interpreter, getAddress(addresses.store), getAddress(addresses.expression)],
-//             [hash],
-//             []
-//         ]
-//     })
-// }
+export const fetchNftIds = async (): Promise<Uint8Array[]> => {
+    const alchemyKey = import.meta.env.VITE_ALCHEMY_KEY;
+    const url = `https://polygon-mumbai.g.alchemy.com/nft/v2/${alchemyKey}/getNFTsForCollection?contractAddress=${addresses.instance}&withMetadata=false&limit=1000`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data && data?.nfts) {
+            return data.nfts.map((nft: any) => {
+                return hexToBytes(nft.id.tokenId)
+            })
+        }
+    } catch (error) {
+        console.error("There was an error fetching the data", error);
+    }
+}

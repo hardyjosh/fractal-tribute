@@ -1,5 +1,6 @@
 <script lang="ts">
   import AllMyMoves from "$lib/components/AllMyMoves.svelte";
+  import AllNfts from "$lib/components/AllNfts.svelte";
   import BoardComp from "$lib/components/Board.svelte";
   import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
   import { generateRandomGameMove } from "$lib/game-move";
@@ -27,3 +28,5 @@
 <BoardComp {board} />
 
 <AllMyMoves />
+
+<AllNfts />
