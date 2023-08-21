@@ -1,8 +1,9 @@
 <script lang="ts">
   import { type ActionHash } from "@holochain/client";
-  import { evaluable, token } from "$lib/stores";
+  import { token } from "$lib/stores";
   import { Button } from "flowbite-svelte";
   import { hexToBigInt, keccak256 } from "viem";
+  import { mintEvaluable } from "$lib/helpers";
 
   export let move: ActionHash;
 
@@ -10,7 +11,7 @@
 
   $: ({ write, status, error } = $token.write({
     functionName: "flow",
-    args: [evaluable, [_move], []],
+    args: [mintEvaluable, [_move], []],
   }));
 
   const mintMove = async () => {
