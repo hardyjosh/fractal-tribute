@@ -15,8 +15,10 @@ import {Token} from "./contracts/Token.sol";
 import 'forge-std/StdJson.sol';
 import { Strings } from 'openzeppelin-contracts/contracts/utils/Strings.sol';
 import 'forge-std/StdCheats.sol';
+import { IERC1155 } from 'openzeppelin-contracts/contracts/token/ERC1155/IERC1155.sol';
+import { SignContext } from './contracts/SignContext.sol';
 
-contract NftTest is Test {
+contract NftTest is Test, SignContext {
     using stdJson for string;
     using Strings for uint256;
 
@@ -33,6 +35,7 @@ contract NftTest is Test {
     IExpressionDeployerV1 public deployer = IExpressionDeployerV1(0x0a2392aB861834305dB90A8825af102C02B6929C);
 
     IFlowERC1155V3 public instance;
+    IERC1155 public instanceAs1155;
 
     IInterpreterStoreV1 store;
     IInterpreterV1 interpreter;
@@ -90,6 +93,7 @@ contract NftTest is Test {
         (, , , address _claimExp) = abi.decode(entries[10].data, (address, address, address, address));
 
         instance = IFlowERC1155V3(_instance);
+        instanceAs1155 = IERC1155(_instance);
         interpreter = IInterpreterV1(_interpreter);
         store = IInterpreterStoreV1(_store);
         
@@ -114,7 +118,7 @@ contract NftTest is Test {
         // we can calculate what the nft is
         uint256 nftId = uint256(keccak256(abi.encodePacked(uint256(uint160(alice)), contentHash)));
 
-        assertEq(instance.balanceOf(address(alice), nftId), 1);
+        assertEq(instanceAs1155.balanceOf(address(alice), nftId), 1);
 
         // joe buys a bunch
         vm.startPrank(joe);
@@ -124,6 +128,29 @@ contract NftTest is Test {
         joeContext[1] = 10;
         instance.flow(mintEvaluable, joeContext, new SignedContextV1[](0));
 
-        assertEq(instance.balanceOf(address(instance), nftId), 10);
+        assertEq(instanceAs1155.balanceOf(joe, nftId), 10);
+        assertEq(paymentToken.balanceOf(address(instance)), 11e18);
+        vm.stopPrank();
+
+        // now create a coupon
+        // the coupon will be a signed message with the following fields:
+        // [0] the address of the claimant
+        // [1] percentage of the pool to claim, as an 18 decimal number
+        // [2] the token address
+        // [3] the address of this contract
+
+        uint256[] memory couponContext = new uint256[](4);
+        couponContext[0] = uint256(uint160(joe));
+        couponContext[1] = 5e17; // 50%
+        couponContext[2] = uint256(uint160(address(paymentToken))); 
+        couponContext[3] = uint256(uint160(address(instance)));
+
+        uint256 stewardKey = vm.envUint("STEWARD_KEY");
+        SignedContextV1[] memory signedContext = new SignedContextV1[](1);
+        signedContext[0] = signContext(stewardKey, couponContext);
+
+        // now joe can claim
+        vm.startPrank(joe);
+        instance.flow(claimEvaluable, new uint256[](0), signedContext);
     }
 }

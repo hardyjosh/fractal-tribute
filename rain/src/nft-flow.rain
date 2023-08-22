@@ -1,3 +1,9 @@
+/**
+ * @TODO 
+ * - Add cut off times for minting, then lock the pool amount and allow any other tokens to be claimed in separate flow
+ * - What happens if the pool amount is not enough to cover the claim due to rounding errors?
+ **/ 
+
 /*op meta*/
 @0xe4c000f3728f30e612b34e401529ce5266061cc1233dc54a6a89524929571d8f
 #sentinel 0xfea74d0c9bf4a3c28f0dd0674db22a3d7f8bf259c56af19f4ac1e735b156974f
@@ -8,6 +14,8 @@
 #payment-token 0x2Eb1D24aB0eC5FD0058ab5073F1EA2d8A59783E5
 #snapshot-price 1e18
 #mint-price 1e18
+#pool-amount 0x7dcc3e0b65d87abfb19508b671b26139dbe32871289b025ab4df45ad2f5481dd /* keccack256('pool-amount') */ 
+#total-claimed-key 0xc6b7deb4e2f8b011c443c5ec0687465fc0468b096ad0fc5cb8e2f1a302a1a73b /* keccack256('total-claimed') */
 
 #snapshot
 you: context<0 0>(),
@@ -22,6 +30,10 @@ amount: 1,
 /* if it isn't, we can mint it and set the key to true */
 /* future mints will need to happen via the other flow */
 :set(tokenid 1),
+
+/* update the pool accounting */
+prev-amount: get(pool-amount),
+:set(pool-amount add(prev-amount snapshot-price)),
 
 transfererc1155slist: sentinel,
 transfererc721slist: sentinel,
@@ -45,7 +57,13 @@ mint-account mint-id mint-amount: you tokenid amount
 you: context<0 0>(),
 me: context<0 1>(),
 tokenid: context<1 0 >(),
-amount: context<1 1>(),
+mint-amount: context<1 1>(),
+
+amount: mul(mint-amount mint-price),
+
+/* update the pool accounting */
+prev-amount: get(pool-amount),
+:set(pool-amount add(prev-amount amount)),
 
 /* ensure that this tokenid has been minted at least once */
 :ensure(get(tokenid)),
@@ -57,15 +75,16 @@ transfererc721slist: sentinel,
  * token, from, to, amount
  */
 transfererc20slist: sentinel,
-_ _ _ _: payment-token you me mint-price,
+_ _ _ _: payment-token you me amount,
 
 burnslist: sentinel1155,
 
 /**
  * mints of this erc1155 token
+ * to, id, amount
  */
 mintslist: sentinel1155,
-mint-account mint-id mint-amount: you tokenid amount
+_ _ _: you tokenid mint-amount
 
 
 #claim
@@ -83,11 +102,16 @@ mint-account mint-id mint-amount: you tokenid amount
 you: context<0 0>(),
 me: context<0 1>(),
 
-coupon-signer: context<1 0>(),
-claimant: context<2 0>(),
-percentage: context<2 1>(),
-token: context<2 2>(),
-contract: context<2 3>(),
+coupon-signer: context<2 0>(),
+claimant: context<3 0>(),
+percentage: context<3 1>(),
+token: context<3 2>(),
+contract: context<3 3>(),
+
+/* ensure that the coupon has not been used before */
+coupon-hash: context-column-hash<3>(),
+:ensure(not(get(coupon-hash))),
+:set(coupon-hash 1),
 
 /* ensure that the coupon is signed by the game master */
 :ensure(eq(coupon-signer game-master-address)),
@@ -101,11 +125,12 @@ contract: context<2 3>(),
 /* ensure that the coupon is for this contract */
 :ensure(eq(contract me)),
 
-/* ensure that the percentage is less than 1e18 */
-:ensure(lt(percentage 1e18)),
-
 /* calculate the amount to be claimed */
-amount: decimal18-mul(percentage erc-20-balance-of(me payment-token)),
+pool-total: get(pool-amount),
+total-claimed: get(total-claimed-key),
+
+amount: min(decimal18-mul(percentage pool-total) sub(pool-total total-claimed)),
+:set(total-claimed-key add(total-claimed amount)),
 
 transfererc1155slist: sentinel,
 transfererc721slist: sentinel,
