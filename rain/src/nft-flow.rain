@@ -4,7 +4,7 @@
 #sentinel1155 0xf3d9dabdb0009f2a4a1d315a6b607c74e619b5620e01f1130e4142970ffaf767
 
 /* constants */
-#game-master-address 0x0000000
+#game-master-address 0x74423442CEA6B5c90d13C2d7C21B0FcE723ECe6d
 #payment-token 0x2Eb1D24aB0eC5FD0058ab5073F1EA2d8A59783E5
 #snapshot-price 1e18
 #mint-price 1e18
@@ -83,11 +83,11 @@ mint-account mint-id mint-amount: you tokenid amount
 you: context<0 0>(),
 me: context<0 1>(),
 
-coupon-signer: context<5 0>(),
-claimant: context<6 0>(),
-amount: context<6 1>(),
-token: context<6 2>(),
-contract: context<6 3>(),
+coupon-signer: context<1 0>(),
+claimant: context<2 0>(),
+percentage: context<2 1>(),
+token: context<2 2>(),
+contract: context<2 3>(),
 
 /* ensure that the coupon is signed by the game master */
 :ensure(eq(coupon-signer game-master-address)),
@@ -99,7 +99,13 @@ contract: context<6 3>(),
 :ensure(eq(token payment-token)),
 
 /* ensure that the coupon is for this contract */
-:ensure(eq(contract me)),   
+:ensure(eq(contract me)),
+
+/* ensure that the percentage is less than 1e18 */
+:ensure(lt(percentage 1e18)),
+
+/* calculate the amount to be claimed */
+amount: decimal18-mul(percentage erc-20-balance-of(me payment-token)),
 
 transfererc1155slist: sentinel,
 transfererc721slist: sentinel,
