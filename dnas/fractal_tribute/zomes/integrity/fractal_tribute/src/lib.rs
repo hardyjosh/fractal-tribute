@@ -4,6 +4,8 @@ pub mod game_move;
 pub use game_move::*;
 pub mod board;
 pub use board::*;
+pub mod participation_proof;
+pub use participation_proof::*;
 
 use hdi::prelude::*;
 #[derive(Serialize, Deserialize)]
@@ -13,25 +15,14 @@ use hdi::prelude::*;
 pub enum EntryTypes {
     GameMove(GameMove),
     EvmKeyBinding(EvmKeyBinding),
+    ParticipationProof(ParticipationProof)
 }
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
     TokenIdToGameMove,
-    AllGameMoves
-}
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct ByteArray(#[serde(with = "serde_bytes")] Vec<u8>);
-impl ByteArray {
-    // Add a public method to create a new ByteArray from a Vec<u8>
-    pub fn new(vec: Vec<u8>) -> Self {
-        ByteArray(vec)
-    }
-    
-    // Add a public method to convert ByteArray into a Vec<u8>
-    pub fn into_vec(self) -> Vec<u8> {
-        self.0
-    }
+    AllGameMoves,
+    AgentToEvmKeyBinding
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -50,7 +41,7 @@ pub fn validate_agent_joining(
     _agent_pub_key: AgentPubKey,
     _membrane_proof: &Option<MembraneProof>,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid("No new agents allowed".into()))
+    Ok(ValidateCallbackResult::Valid)
 }
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
@@ -71,6 +62,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 evm_key_binding,
                             )
                         }
+                        EntryTypes::ParticipationProof(participation_proof) => {
+                            validate_create_participation_proof(
+                                EntryCreationAction::Create(action),
+                                participation_proof,
+                            )
+                        }
                     }
                 }
                 OpEntry::UpdateEntry { app_entry, action, .. } => {
@@ -85,6 +82,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             validate_create_evm_key_binding(
                                 EntryCreationAction::Update(action),
                                 evm_key_binding,
+                            )
+                        }
+                        EntryTypes::ParticipationProof(participation_proof) => {
+                            validate_create_participation_proof(
+                                EntryCreationAction::Update(action),
+                                participation_proof,
                             )
                         }
                     }
@@ -123,6 +126,17 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 original_game_move,
                             )
                         }
+                        (
+                            EntryTypes::ParticipationProof(participation_proof),
+                            EntryTypes::ParticipationProof(original_participation_proof),
+                        ) => {
+                            validate_update_participation_proof(
+                                action,
+                                participation_proof,
+                                original_action,
+                                original_participation_proof,
+                            )
+                        }
                         _ => {
                             Ok(
                                 ValidateCallbackResult::Invalid(
@@ -150,6 +164,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 evm_key_binding,
                             )
                         }
+                        EntryTypes::ParticipationProof(participation_proof) => {
+                            validate_delete_participation_proof(
+                                action,
+                                original_action,
+                                participation_proof,
+                            )
+                        }
                     }
                 }
                 _ => Ok(ValidateCallbackResult::Valid),
@@ -173,6 +194,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
                 LinkTypes::AllGameMoves => {
                     validate_create_link_all_game_moves(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::AgentToEvmKeyBinding => {
+                    validate_create_link_agent_to_evm_key_binding(
                         action,
                         base_address,
                         target_address,
@@ -208,6 +237,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
+                LinkTypes::AgentToEvmKeyBinding => {
+                    validate_delete_link_agent_to_evm_key_binding(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
             }
         }
         OpType::StoreRecord(store_record) => {
@@ -224,6 +262,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             validate_create_evm_key_binding(
                                 EntryCreationAction::Create(action),
                                 evm_key_binding,
+                            )
+                        }
+                        EntryTypes::ParticipationProof(participation_proof) => {
+                            validate_create_participation_proof(
+                                EntryCreationAction::Create(action),
+                                participation_proof,
                             )
                         }
                     }
@@ -311,6 +355,37 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 Ok(result)
                             }
                         }
+                        EntryTypes::ParticipationProof(participation_proof) => {
+                            let result = validate_create_participation_proof(
+                                EntryCreationAction::Update(action.clone()),
+                                participation_proof.clone(),
+                            )?;
+                            if let ValidateCallbackResult::Valid = result {
+                                let original_participation_proof: Option<ParticipationProof> = original_record
+                                    .entry()
+                                    .to_app_option()
+                                    .map_err(|e| wasm_error!(e))?;
+                                let original_participation_proof = match original_participation_proof {
+                                    Some(participation_proof) => participation_proof,
+                                    None => {
+                                        return Ok(
+                                            ValidateCallbackResult::Invalid(
+                                                "The updated entry type must be the same as the original entry type"
+                                                    .to_string(),
+                                            ),
+                                        );
+                                    }
+                                };
+                                validate_update_participation_proof(
+                                    action,
+                                    participation_proof,
+                                    original_action,
+                                    original_participation_proof,
+                                )
+                            } else {
+                                Ok(result)
+                            }
+                        }
                     }
                 }
                 OpRecord::DeleteEntry { original_action_hash, action, .. } => {
@@ -379,6 +454,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 original_evm_key_binding,
                             )
                         }
+                        EntryTypes::ParticipationProof(original_participation_proof) => {
+                            validate_delete_participation_proof(
+                                action,
+                                original_action,
+                                original_participation_proof,
+                            )
+                        }
                     }
                 }
                 OpRecord::CreateLink {
@@ -399,6 +481,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::AllGameMoves => {
                             validate_create_link_all_game_moves(
+                                action,
+                                base_address,
+                                target_address,
+                                tag,
+                            )
+                        }
+                        LinkTypes::AgentToEvmKeyBinding => {
+                            validate_create_link_agent_to_evm_key_binding(
                                 action,
                                 base_address,
                                 target_address,
@@ -441,6 +531,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::AllGameMoves => {
                             validate_delete_link_all_game_moves(
+                                action,
+                                create_link.clone(),
+                                base_address,
+                                create_link.target_address,
+                                create_link.tag,
+                            )
+                        }
+                        LinkTypes::AgentToEvmKeyBinding => {
+                            validate_delete_link_agent_to_evm_key_binding(
                                 action,
                                 create_link.clone(),
                                 base_address,

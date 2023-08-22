@@ -1,4 +1,4 @@
-import type { ActionHash } from '@holochain/client'
+import type { ActionHash, AgentPubKey } from '@holochain/client'
 
 // EVM key binding
 export type EvmKeyBinding = {
@@ -7,7 +7,6 @@ export type EvmKeyBinding = {
 }
 
 // Game moves
-
 export type Color = {
   r: number,
   g: number,
@@ -36,3 +35,19 @@ export type Tile = {
 };
 
 export type Board = Tile[][];
+
+// Participation proof
+export type AgentParticipation = {
+  agent: AgentPubKey;
+  evm_key: Uint8Array;
+  pixels_changed: number;
+  percentage_of_total_pixels_changed: number;
+  rank: number;
+  message_bytes: Uint8Array;
+  signature_bytes: Uint8Array;
+}
+
+export type ParticipationProof = {
+  total_pixels_changed: number;
+  agent_participations: AgentParticipation[];
+}

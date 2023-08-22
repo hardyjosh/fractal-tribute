@@ -5,11 +5,14 @@ use crate::evm_key_binding::_get_evm_address;
 #[hdk_extern]
 pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
 
-    let game_move_bytes_slice: &[u8; 40] = game_move_bytes.as_slice().try_into().map_err(|_| wasm_error!(
-        WasmErrorInner::Guest(String::from("Expected a slice of length 40"))
-    ))?;  
+    let game_move_bytes_slice = game_move_bytes.as_slice();
 
-    let game_move = GameMove::from_bytes(game_move_bytes_slice);
+    let game_move = match GameMove::from_bytes(game_move_bytes_slice) {
+        Ok(game_move) => game_move,
+        Err(e) => {
+            return Err(wasm_error!(e.to_string()));
+        }
+    };
     
     let game_move_hash = create_entry(&EntryTypes::GameMove(game_move.clone()))?;
     let _record = get(game_move_hash.clone(), GetOptions::default())?
@@ -25,7 +28,7 @@ pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
         Ok(key) => {
             match key {
                 Some(key) => 
-                    key.into_vec()
+                    key
                 ,
                 None => {
                     return Err(wasm_error!("No EVM key found"));

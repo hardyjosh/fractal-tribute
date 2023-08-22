@@ -1,4 +1,4 @@
-import type { Board, EvmKeyBinding, GameMove, GameMoveWithActionHash } from '$lib/types';
+import type { Board, EvmKeyBinding, GameMove, GameMoveWithActionHash, ParticipationProof } from '$lib/types';
 import type { AppAgentClient, Record, ActionHash } from '@holochain/client';
 import { writable } from 'svelte/store';
 import { type Address, getAddress, bytesToHex, concat } from 'viem'
@@ -28,12 +28,15 @@ export class DnaInterface {
     }
     // evm key binding
     async createEvmKeyBinding(evmKeyBindingEntry: EvmKeyBinding): Promise<Record> {
+        let _evmKeyBinding: any = {}
+        _evmKeyBinding.evm_key = Array.from(evmKeyBindingEntry.evm_key)
+        _evmKeyBinding.signature_bytes = Array.from(evmKeyBindingEntry.signature_bytes)
         return await this.client.callZome({
             cap_secret: null,
             role_name,
             zome_name,
             fn_name: 'create_evm_key_binding',
-            payload: evmKeyBindingEntry,
+            payload: _evmKeyBinding,
         }) as Record
     }
 
@@ -119,14 +122,15 @@ export class DnaInterface {
         return parseBoardBytes(boardBytes)
     }
 
-    // async getSnapshotAt(bucketIndex: number): Promise<Snapshot | undefined> {
-    //     console.log("getSnapshotAt called at bucketIndex: " + bucketIndex);
-    //     return this.client.callZome({
-    //         cap_secret: null,
-    //         role_name: 'place_nft',
-    //         zome_name: 'place',
-    //         fn_name: 'get_snapshot_at',
-    //         payload: bucketIndex,
-    //     });
-    // }
+    // participation proof
+    async buildAgentParticipation(): Promise<ParticipationProof> {
+        const record = await this.client.callZome({
+            cap_secret: null,
+            role_name,
+            zome_name,
+            fn_name: 'build_agent_participation',
+            payload: null,
+        }) as Record
+        return record as any as ParticipationProof
+    }
 }

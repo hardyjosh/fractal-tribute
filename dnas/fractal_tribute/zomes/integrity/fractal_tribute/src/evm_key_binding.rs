@@ -1,12 +1,11 @@
 use hdi::prelude::*;
-use crate::ByteArray;
 use ethers_core::types::*;
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct EvmKeyBinding {
-    pub evm_key: ByteArray,
-    pub signature_bytes: ByteArray,
+    pub evm_key: Vec<u8>,
+    pub signature_bytes: Vec<u8>,
 }
 
 pub fn validate_create_evm_key_binding(
@@ -15,9 +14,9 @@ pub fn validate_create_evm_key_binding(
 ) -> ExternResult<ValidateCallbackResult> {
 
     let mut address_array = [0u8; 20];
-    address_array.copy_from_slice(_evm_key_binding.evm_key.into_vec().as_slice());
+    address_array.copy_from_slice(_evm_key_binding.evm_key.as_slice());
     let address = H160::from(address_array);
-    let signature: ethers_core::types::Signature = _evm_key_binding.signature_bytes.into_vec().as_slice().try_into().unwrap();
+    let signature: ethers_core::types::Signature = _evm_key_binding.signature_bytes.as_slice().try_into().unwrap();
 
     let message: RecoveryMessage = _action.author().get_raw_39().try_into().ok().unwrap();
 
@@ -64,6 +63,37 @@ pub fn validate_delete_evm_key_binding(
     )
 }
 
+pub fn validate_create_link_agent_to_evm_key_binding(
+    _action: CreateLink,
+    _base_address: AnyLinkableHash,
+    target_address: AnyLinkableHash,
+    _tag: LinkTag,
+) -> ExternResult<ValidateCallbackResult> {
+    // Check the entry type for the given action hash
+    let action_hash = ActionHash::from(target_address);
+    let record = must_get_valid_record(action_hash)?;
+    let _evm_key_binding: crate::EvmKeyBinding = record
+        .entry()
+        .to_app_option()
+        .map_err(|e| wasm_error!(e))?
+        .ok_or(
+            wasm_error!(
+                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
+            ),
+        )?;
+    // TODO: add the appropriate validation rules
+    Ok(ValidateCallbackResult::Valid)
+}
+
+pub fn validate_delete_link_agent_to_evm_key_binding(
+    _action: DeleteLink,
+    _original_action: CreateLink,
+    _base: AnyLinkableHash,
+    _target: AnyLinkableHash,
+    _tag: LinkTag,
+) -> ExternResult<ValidateCallbackResult> {
+    Ok(ValidateCallbackResult::Invalid(String::from("All game moves links cannot be deleted")))
+}
 // #[cfg(test)]
 // pub mod tests {
 //     use super::*;

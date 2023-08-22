@@ -1873,6 +1873,7 @@ dependencies = [
 name = "fractal_tribute"
 version = "0.0.1"
 dependencies = [
+ "ethers-core",
  "fractal_tribute_integrity",
  "hdk",
  "serde",

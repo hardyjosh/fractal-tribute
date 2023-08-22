@@ -1,7 +1,8 @@
 import type { Color, GameMove, PixelChange } from "../types";
 
 export const gameMoveToBytes = (gameMove: GameMove): Uint8Array => {
-    const bytes = new Uint8Array(40);
+    const numOfChanges = gameMove.changes.length;
+    const bytes = new Uint8Array(numOfChanges * 4);
 
     gameMove.changes.forEach((change, i) => {
         const start = i * 4;
@@ -35,8 +36,9 @@ const getRandomColor = (): Color => {
 };
 
 export const generateRandomGameMove = (): GameMove => {
+    const numOfChanges = getRandomInt(10);
     const changes: PixelChange[] = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < numOfChanges; i++) {
         changes.push({
             x: getRandomInt(BOARD_SIZE),
             y: getRandomInt(BOARD_SIZE),

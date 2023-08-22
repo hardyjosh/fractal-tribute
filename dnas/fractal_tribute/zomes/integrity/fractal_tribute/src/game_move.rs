@@ -32,50 +32,66 @@ pub struct Tile {
 }
 
 impl GameMove {
-    // Parse a game_move from raw bytes. 
-    // This example assumes each game_move is 40 bytes.
-    pub fn from_bytes(bytes: &[u8; 40]) -> Self {
-        let mut changes = Vec::with_capacity(10);
-        for i in 0..10 {
+    // Method to count the number of changes
+    pub fn count_changes(&self) -> usize {
+        self.changes.len()
+    }
+
+    // Parsing a game_move from a dynamic-length byte array.
+    // If the byte array's length is not a multiple of 4, we'll return an error.
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, &'static str> {
+        if bytes.len() % 4 != 0 {
+            return Err("Invalid length");
+        }
+
+        let num_changes = bytes.len() / 4;
+
+        if (num_changes > 10) {
+            return Err("Maximum of 10 pixel changes per move")
+        }
+
+        let mut changes = Vec::with_capacity(num_changes);
+
+        for i in 0..num_changes {
             let start = i * 4;
             
             // Extracting x and y
             let x = (bytes[start] & 0b11111) as usize;
             let y = (bytes[start + 1] >> 3) as usize;
-            
+
             // Extracting color values based on our encoding scheme
             let r = ((bytes[start + 1] & 0b00000111) << 5) | (bytes[start + 2] >> 3);
             let g = ((bytes[start + 2] & 0b00000111) << 5) | (bytes[start + 3] >> 3);
             let b = bytes[start + 3] & 0b00000111;
-
             let color = Color { r, g, b };
             
             // Extracting graphic option
-            let graphic_option = bytes[start] >> 5;  // Assuming the first 3 bits of the first byte
-            
+            let graphic_option = bytes[start] >> 5; // Assuming the first 3 bits of the first byte
+
             changes.push(PixelChange { x, y, color, graphic_option });
         }
-        
-        GameMove { changes }
+
+        Ok(GameMove { changes })
     }
     
-    pub fn to_bytes(&self) -> [u8; 40] {
-        let mut bytes = [0; 40];
+    // Returns a dynamic-length byte array.
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::with_capacity(self.changes.len() * 4);
 
-        for (i, change) in self.changes.iter().enumerate() {
-            let start = i * 4;
+        for change in &self.changes {
+            let start = bytes.len();
 
             // Encoding x and graphic option
-            bytes[start] = (change.x as u8 & 0b11111) | (change.graphic_option << 5);
-            
+            bytes.push((change.x as u8 & 0b11111) | (change.graphic_option << 5));
+
             // Encoding y and a part of red
-            bytes[start + 1] = ((change.y as u8 & 0b11111) << 3) | (change.color.r >> 5);
-            
+            bytes.push(((change.y as u8 & 0b11111) << 3) | (change.color.r >> 5));
+
             // Continuing with red and then encoding green
-            bytes[start + 2] = ((change.color.r & 0b00000111) << 3) | (change.color.g >> 5);
-            
+            bytes.push(((change.color.r & 0b00000111) << 3) | (change.color.g >> 5));
+
             // Continuing with green and then encoding blue
-            bytes[start + 3] = ((change.color.g & 0b00000111) << 3) | (change.color.b >> 5);
+            bytes.push(((change.color.g & 0b00000111) << 3) | (change.color.b >> 5));
         }
 
         bytes
@@ -148,7 +164,7 @@ pub fn validate_create_link_tokenid_to_game_move(
                 WasmErrorInner::Guest(String::from("Couldn't convert entry #4 to EVM key binding"))
             ),
         )?;
-    let evm_key_bytes = evm_key_binding.evm_key.into_vec();
+    let evm_key_bytes = evm_key_binding.evm_key;
 
     let valid_link_base = create_link_base(evm_key_bytes, game_move_bytes).unwrap();
     
@@ -230,7 +246,7 @@ pub fn validate_delete_link_all_game_moves(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from("AllPosts links cannot be deleted")))
+    Ok(ValidateCallbackResult::Invalid(String::from("All game moves links cannot be deleted")))
 }
 
 // #[cfg(test)]
