@@ -113,17 +113,21 @@ coupon-hash: context-column-hash<3>(),
 :ensure(not(get(coupon-hash))),
 :set(coupon-hash 1),
 
-/* ensure that the coupon is signed by the game master */
-:ensure(eq(coupon-signer game-master-address)),
+:ensure(
+    every(
+        /* ensure that the coupon is signed by the game master */
+        eq(coupon-signer game-master-address)
 
-/* ensure that the coupon is for the caller */
-:ensure(eq(claimant you)),
+        /* ensure that the coupon is for the caller */
+        eq(claimant you)
 
-/* ensure that the token in the coupon is the payment token */
-:ensure(eq(token payment-token)),
+        /* ensure that the token in the coupon is the payment token */
+        eq(token payment-token)
 
-/* ensure that the coupon is for this contract */
-:ensure(eq(contract me)),
+        /* ensure that the coupon is for this contract */
+        eq(contract me)
+    )
+),
 
 /* calculate the amount to be claimed */
 pool-total: get(pool-amount),
