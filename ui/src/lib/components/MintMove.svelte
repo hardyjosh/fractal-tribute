@@ -48,12 +48,12 @@
     })
     .then((r) => (balance = r));
 
-  $: console.log($error);
+  // $: console.log($error);
 
   $: balanceOk = balance >= price;
   $: allowanceOk = allowance >= price;
 
-  $: console.log({ allowance, balance, price });
+  // $: console.log({ allowance, balance, price });
 </script>
 
 {#if !balanceOk}
@@ -66,5 +66,5 @@
 {/if}
 
 {#if balanceOk && allowanceOk}
-  <Button on:click={mintMove}>Snapshot my move</Button>
+  <Button on:click={mintMove}>Mint</Button>
 {/if}

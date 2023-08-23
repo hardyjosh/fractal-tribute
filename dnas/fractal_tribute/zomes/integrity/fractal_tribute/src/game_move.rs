@@ -40,11 +40,11 @@ impl GameMove {
     // Parsing a game_move from a dynamic-length byte array.
     // If the byte array's length is not a multiple of 4, we'll return an error.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, &'static str> {
-        if bytes.len() % 4 != 0 {
+        if bytes.len() % 5 != 0 {
             return Err("Invalid length");
         }
 
-        let num_changes = bytes.len() / 4;
+        let num_changes = bytes.len() / 5;
 
         if (num_changes > 10) {
             return Err("Maximum of 10 pixel changes per move")
@@ -53,22 +53,19 @@ impl GameMove {
         let mut changes = Vec::with_capacity(num_changes);
 
         for i in 0..num_changes {
-            let start = i * 4;
+            let start = i * 5;
             
-            // Extracting x and y
-            let x = (bytes[start] & 0b11111) as usize;
-            let y = (bytes[start + 1] >> 3) as usize;
-
-            // Extracting color values based on our encoding scheme
-            let r = ((bytes[start + 1] & 0b00000111) << 5) | (bytes[start + 2] >> 3);
-            let g = ((bytes[start + 2] & 0b00000111) << 5) | (bytes[start + 3] >> 3);
-            let b = bytes[start + 3] & 0b00000111;
+            let r = bytes[start];
+            let g = bytes[start + 1];
+            let b = bytes[start + 2];
             let color = Color { r, g, b };
             
-            // Extracting graphic option
-            let graphic_option = bytes[start] >> 5; // Assuming the first 3 bits of the first byte
-
-            changes.push(PixelChange { x, y, color, graphic_option });
+            let x = bytes[start + 3] & 0b11111;
+            let graphic_option = bytes[start + 3] >> 5;
+            
+            let y = bytes[start + 4] & 0b11111;            
+            debug!("graphic_option: {}", graphic_option);
+            changes.push(PixelChange { x: x as usize, y: y as usize, color, graphic_option });
         }
 
         Ok(GameMove { changes })
@@ -197,7 +194,7 @@ pub fn create_link_base(evm_key: Vec<u8>, content_bytes: Vec<u8>) -> Result<Exte
     if evm_key.len() != 20 {
         return Err(wasm_error!(WasmErrorInner::Guest("EVM key must be 20 bytes".to_string())));
     }
-    debug!("actionhash bytes: {:?}", content_bytes);
+    // debug!("actionhash bytes: {:?}", content_bytes);
     
     // EVM key as 32 bytes
     let mut hash_input:Vec<u8> = vec![0; 12];
@@ -205,7 +202,7 @@ pub fn create_link_base(evm_key: Vec<u8>, content_bytes: Vec<u8>) -> Result<Exte
 
     // hash the content bytes and append to the key bytes
     let content_hash = hash_keccak256(content_bytes).unwrap();
-    debug!("hashed actionhash {:?}", content_hash);
+    // debug!("hashed actionhash {:?}", content_hash);
     hash_input.extend_from_slice(&content_hash);
 
     // hash the key + content hash

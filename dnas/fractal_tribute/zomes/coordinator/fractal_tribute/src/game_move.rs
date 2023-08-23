@@ -13,6 +13,14 @@ pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
             return Err(wasm_error!(e.to_string()));
         }
     };
+
+    if game_move.count_changes() == 0 {
+        return Err(wasm_error!("Must change at least one pixel"));
+    }
+    
+    if game_move.count_changes() > 10 {
+        return Err(wasm_error!("Max 10 changes allowed"));
+    }
     
     let game_move_hash = create_entry(&EntryTypes::GameMove(game_move.clone()))?;
     let _record = get(game_move_hash.clone(), GetOptions::default())?

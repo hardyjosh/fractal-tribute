@@ -53,6 +53,7 @@ export class DnaInterface {
 
     // moves
     async createGameMove(gameMove: GameMove): Promise<Record> {
+        console.log('creating move', gameMove)
         try {
             return await this.client.callZome({
                 cap_secret: null,
@@ -62,7 +63,7 @@ export class DnaInterface {
                 payload: Array.from(gameMoveToBytes(gameMove)),
             }) as Record
         } catch (e) {
-            console.log(e)
+            console.log(e.data.data)
             throw e
         }
     }

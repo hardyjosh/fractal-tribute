@@ -61,9 +61,9 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
             let percentage_uint: U128 = percentage_of_total_pixels_changed_eighteen_dec.into();
             let percentage_uint: U256 = percentage_uint.into();
 
-            debug!("percentage_of_total_pixels_changed_eighteen_dec: {:?}", percentage_of_total_pixels_changed_eighteen_dec);
-            debug!("percentage_of_total_pixels_changed: {:?}", percentage_of_total_pixels_changed);
-            debug!("percentage_uint: {:?}", percentage_uint);
+            // debug!("percentage_of_total_pixels_changed_eighteen_dec: {:?}", percentage_of_total_pixels_changed_eighteen_dec);
+            // debug!("percentage_of_total_pixels_changed: {:?}", percentage_of_total_pixels_changed);
+            // debug!("percentage_uint: {:?}", percentage_uint);
 
             let mut percentage_buf = [0; 32];
             percentage_uint.to_big_endian(&mut percentage_buf);
@@ -72,7 +72,7 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
             let mut token_address_buf = [0; 32];
             token_address.to_big_endian(&mut token_address_buf);
 
-            let contract_address: U256 = "0xD555D0cBF69016256a00Fe13d0305Ac3ed727459".parse().unwrap();
+            let contract_address: U256 = "0x6c10ca75f0eEfdefC7652F21633ae904038F16a9".parse().unwrap();
             let mut contract_address_buf = [0; 32];
             contract_address.to_big_endian(&mut contract_address_buf);
             let start = 32 - 256 / 8;
@@ -80,7 +80,7 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
             let message = encode_packed(&[Token::Bytes(evm_key_slice.to_vec()), Token::Bytes(percentage_buf[start..32].to_vec()), Token::Bytes(token_address_buf[start..32].to_vec()),Token::Bytes(contract_address_buf[start..32].to_vec())])
                 .map_err(|_| wasm_error!("Could not encode message"))?;
 
-            debug!("message: {:?}", message);
+            // debug!("message: {:?}", message);
 
             let message_bytes = hash_keccak256(message).map_err(|_| wasm_error!("Could not hash message"))?;
 

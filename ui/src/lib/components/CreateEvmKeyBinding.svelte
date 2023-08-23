@@ -41,7 +41,7 @@
 </script>
 
 {#if $account?.isConnected}
-  <div class="flex flex-col items-center justify-center pt-36">
+  <div class="flex flex-col items-center justify-center">
     <div
       class="bg-white rounded-2xl p-6 max-w-md gap-y-6 items-center flex flex-col break-words"
     >

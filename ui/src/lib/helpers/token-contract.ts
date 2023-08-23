@@ -28,6 +28,6 @@ export const fetchNftIds = async (): Promise<Uint8Array[]> => {
             })
         }
     } catch (error) {
-        console.error("There was an error fetching the data", error);
+        console.log("There was an error fetching the data", error);
     }
 }

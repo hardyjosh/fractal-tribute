@@ -1,4 +1,4 @@
-import type { Tile } from "../types";
+import type { Board, GameMove, Tile } from "../types";
 
 const BOARD_SIZE = 32;
 
@@ -32,3 +32,16 @@ export const parseBoardBytes = (bytes: Uint8Array): Tile[][] => {
 
     return board;
 };
+
+export const mergeGameMoveIntoBoard = (board: Board, gameMove: GameMove): Board => {
+
+    const newBoard = board.map((row) => row.map((tile) => ({ ...tile })));
+
+    gameMove.changes.forEach((change) => {
+        const { x, y, color, graphic_option } = change;
+        newBoard[y][x] = { color, graphic_option, changed: true };
+    });
+
+    return newBoard;
+
+}

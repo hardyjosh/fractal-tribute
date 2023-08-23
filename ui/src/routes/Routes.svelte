@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { web3modal } from "$lib/stores";
+  import { Button } from "flowbite-svelte";
   import Gallery from "./Gallery.svelte";
   import Home from "./Home.svelte";
 
@@ -29,6 +31,7 @@
       }}>{route.name}</span
     >
   {/each}
+  <Button on:click={$web3modal.openModal}>Connect wallet</Button>
 </div>
 
 <svelte:component this={currentRoute.component} />

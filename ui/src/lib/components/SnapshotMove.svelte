@@ -47,12 +47,12 @@
     })
     .then((r) => (balance = r));
 
-  $: console.log($error);
+  // $: console.log($error);
 
   $: balanceOk = balance >= price;
   $: allowanceOk = allowance >= price;
 
-  $: console.log({ allowance, balance, price });
+  // $: console.log({ allowance, balance, price });
 </script>
 
 {#if !balanceOk}

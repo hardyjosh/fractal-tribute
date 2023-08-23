@@ -32,6 +32,7 @@ export type GameMoveWithActionHash = {
 export type Tile = {
   color?: Color,
   graphic_option?: number
+  changed?: boolean
 };
 
 export type Board = Tile[][];
