@@ -2,7 +2,7 @@
   import ColorPicker from "svelte-awesome-color-picker";
 
   export let color: { r: number; g: number; b: number } = {
-    r: 256,
+    r: 255,
     g: 0,
     b: 0,
   };

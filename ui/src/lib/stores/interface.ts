@@ -92,6 +92,7 @@ export class DnaInterface {
                 const actionHash = r.signed_action.hashed.hash
                 return { gameMove, actionHash }
             })
+            console.log('all my game moves', records)
             return records
         } catch (e) {
             console.log(e?.data?.data)

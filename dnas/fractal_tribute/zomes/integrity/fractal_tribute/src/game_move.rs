@@ -64,7 +64,7 @@ impl GameMove {
             let graphic_option = bytes[start + 3] >> 5;
             
             let y = bytes[start + 4] & 0b11111;            
-            debug!("graphic_option: {}", graphic_option);
+            // debug!("graphic_option: {}", graphic_option);
             changes.push(PixelChange { x: x as usize, y: y as usize, color, graphic_option });
         }
 

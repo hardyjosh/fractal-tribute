@@ -15,7 +15,7 @@
 
   let board: Board;
   let mergedBoard: Board;
-  $: console.log(mergedBoard);
+  // $: console.log(mergedBoard);
 
   let color;
   let graphic_option;
@@ -65,6 +65,7 @@
 
   const getBoard = async () => {
     board = await $happ.getLatestBoard();
+    console.log("latest board from happ", board);
   };
 
   onMount(() => {
