@@ -6,7 +6,8 @@
     "start": "vite --clearScreen false --port $UI_PORT",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "package": "npm run build && cd dist && bestzip ../dist.zip *"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
@@ -29,6 +30,7 @@
     "@web3modal/ethereum": "^2.7.1",
     "@web3modal/html": "^2.7.1",
     "apexcharts": "^3.41.1",
+    "bestzip": "^2.2.0",
     "flowbite": "^1.8.1",
     "flowbite-svelte": "^0.44.2",
     "svelte-wagmi-stores": "^0.0.9",

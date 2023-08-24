@@ -14,12 +14,6 @@ hdk = "=0.1.1"
 holochain = "0.1.0"
 serde = "1"
 
-[workspace.dependencies.file_storage]
-path = "dnas/fractal_tribute/zomes/coordinator/file_storage"
-
-[workspace.dependencies.file_storage_integrity]
-path = "dnas/fractal_tribute/zomes/integrity/file_storage"
-
 [workspace.dependencies.fractal_tribute]
 path = "dnas/fractal_tribute/zomes/coordinator/fractal_tribute"
 

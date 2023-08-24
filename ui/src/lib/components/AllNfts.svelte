@@ -13,12 +13,11 @@
 
   onMount(async () => {
     nftIds = await fetchNftIds();
-    boards = await Promise.all(
-      nftIds.map(async (nftId) => {
-        const board = await $happ.getBoardFromTokenId(nftId);
-        return board;
-      })
-    );
+    boards = (
+      await Promise.all(
+        nftIds.map((id) => $happ.getBoardFromTokenId(id).catch((e) => null))
+      )
+    ).filter((b) => b) as BoardType[];
   });
 </script>
 

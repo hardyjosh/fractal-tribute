@@ -2,19 +2,22 @@
   import "./app.postcss";
   import WalletContext from "$lib/contexts/WalletContext.svelte";
   import Routes from "$routes/Routes.svelte";
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { AppAgentWebsocket } from "@holochain/client";
   import { initHapp, happ, initWeb3Modal } from "$lib/stores";
 
   let client: AppAgentWebsocket;
+  let ready = false;
 
   onMount(async () => {
     client = await AppAgentWebsocket.connect("", "fractal_tribute");
     initHapp(client);
     initWeb3Modal();
+    await tick();
+    ready = true;
   });
 </script>
 
-{#if $happ}
+{#if $happ && ready}
   <Routes />
 {/if}
