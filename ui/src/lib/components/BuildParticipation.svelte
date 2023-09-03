@@ -11,13 +11,14 @@
     constructSignedContext,
   } from "$lib/helpers/participation";
   import { happ, nftContract } from "$lib/stores";
-  import type { Board } from "$lib/types";
+  import type { Board, ParticipationProof } from "$lib/types";
   import { Button } from "flowbite-svelte";
   import { account } from "svelte-wagmi-stores";
   import { bytesToHex, getAddress } from "viem";
   import { writable } from "svelte/store";
 
   let board: Board;
+  let res: ParticipationProof;
 
   const getBoard = async () => {
     board = await $happ.getLatestBoard();
@@ -27,7 +28,10 @@
     write;
 
   const buildParticipation = async () => {
-    const res = await $happ.buildAgentParticipation();
+    res = await $happ.buildAgentParticipation();
+  };
+
+  const claim = async () => {
     const signedRes = await signParticipations(res);
     const myParticipation = signedRes.agent_participations.find(
       (p) => getAddress(bytesToHex(p.evm_key)) == $account?.address
@@ -45,4 +49,8 @@
   $: console.log($error);
 </script>
 
-<Button on:click={buildParticipation}>Build participation</Button>
+<Button on:click={buildParticipation}>Get participation</Button>
+{#if res}
+  <pre>{JSON.stringify(res, null, 2)}</pre>
+{/if}
+<Button on:click={claim}>Claim</Button>

@@ -25,7 +25,7 @@ export const initWeb3Modal = async () => {
 
     // except here we're using createConfig form this package instead of wagmi
     const wagmiConfig = createConfig({
-        autoConnect: true,
+        autoConnect: false,
         connectors: w3mConnectors({ projectId, chains }),
         publicClient,
     });

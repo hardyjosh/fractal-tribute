@@ -16,6 +16,21 @@ pub struct Tile {
     graphic_option: Option<u8>,
 }
 
+#[hdk_entry_helper]
+#[derive(Clone, PartialEq)]
+pub struct BoardWithMetadata {
+    pub bytes: Vec<u8>,
+    pub creator: AgentPubKey,
+    pub creationHash: ActionHash,
+}
+
+#[hdk_entry_helper]
+#[derive(Clone, PartialEq)]
+pub struct BoardWithMetadataAndId {
+    pub board: BoardWithMetadata,
+    pub id: Vec<u8>,
+}
+
 impl Board {
     fn new() -> Self {
         Board {

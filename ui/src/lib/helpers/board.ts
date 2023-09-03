@@ -1,4 +1,5 @@
-import type { Board, GameMove, Tile } from "../types";
+import { concat, bytesToHex, type Hex, keccak256, hexToBytes, pad } from "viem";
+import type { Board, BoardWithMetadataAndId, GameMove, IncomingBoardWithMetadataAndId, Tile, IncomingBoardWithMetadata, BoardWithMetadata } from "../types";
 
 const BOARD_SIZE = 32;
 
@@ -44,4 +45,34 @@ export const mergeGameMoveIntoBoard = (board: Board, gameMove: GameMove): Board 
 
     return newBoard;
 
+}
+
+export const tokenIdToLinkBase = (tokenId: Uint8Array): Uint8Array => {
+    return concat([
+        Uint8Array.from([132, 47, 36]),
+        tokenId,
+        Uint8Array.from([0, 0, 0, 0]),
+    ]);
+}
+
+export const actionHashAndAccountToTokenId = (actionHash: Uint8Array, account: Hex): Uint8Array => {
+    const accountBytes = pad(hexToBytes(account), { size: 32 });
+    const moveHash = hexToBytes(keccak256(actionHash));
+    const tokenId = keccak256(concat([accountBytes, moveHash]));
+    console.log(hexToBytes(tokenId))
+    return hexToBytes(tokenId)
+}
+
+
+export const parseIncomingBoardWithMetadataAndId = (incomingBoardWithMetadataAndId: IncomingBoardWithMetadataAndId): BoardWithMetadataAndId => {
+    const { board, id } = incomingBoardWithMetadataAndId;
+    const { bytes, creator, creationHash } = board;
+    const parsedBoard = parseBoardBytes(bytes);
+    return { boardWithMetadata: { board: parsedBoard, creator, creationHash }, id: bytesToHex(id) };
+}
+
+export const parseIncomingBoardWithMetadata = (incomingBoardWithMetadata: IncomingBoardWithMetadata): BoardWithMetadata => {
+    const { bytes, creator, creationHash } = incomingBoardWithMetadata;
+    const parsedBoard = parseBoardBytes(bytes);
+    return { board: parsedBoard, creator, creationHash };
 }

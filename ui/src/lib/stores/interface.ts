@@ -1,9 +1,9 @@
-import type { Board, EvmKeyBinding, GameMove, GameMoveWithActionHash, ParticipationProof } from '$lib/types';
+import type { Board, BoardWithMetadataAndId, EvmKeyBinding, GameMove, GameMoveWithActionHash, IncomingBoardWithMetadataAndId, ParticipationProof, BoardWithMetadata, IncomingBoardWithMetadata } from '$lib/types';
 import type { AppAgentClient, Record, ActionHash } from '@holochain/client';
 import { writable } from 'svelte/store';
 import { type Address, getAddress, bytesToHex, concat } from 'viem'
 import { decode } from "@msgpack/msgpack";
-import { gameMoveToBytes, parseBoardBytes } from '$lib/helpers';
+import { gameMoveToBytes, parseBoardBytes, parseIncomingBoardWithMetadata, parseIncomingBoardWithMetadataAndId, tokenIdToLinkBase } from '$lib/helpers';
 
 export const happ = writable<DnaInterface>()
 
@@ -135,26 +135,57 @@ export class DnaInterface {
 
     }
 
-    async getBoardFromTokenId(tokenId: Uint8Array): Promise<Board> {
+    async getBoardFromTokenId(tokenId: Uint8Array): Promise<BoardWithMetadataAndId> {
         try {
-            const linkBase = concat([
-                Uint8Array.from([132, 47, 36]),
-                tokenId,
-                Uint8Array.from([0, 0, 0, 0]),
-            ]);
-            const boardBytes = await this.client.callZome({
+            const linkBase = tokenIdToLinkBase(tokenId);
+            const incomingBoard = await this.client.callZome({
                 cap_secret: null,
                 role_name,
                 zome_name,
                 fn_name: 'get_board_from_link',
                 payload: linkBase,
-            })
-            return parseBoardBytes(boardBytes)
+            }) as IncomingBoardWithMetadataAndId
+
+            return parseIncomingBoardWithMetadataAndId(incomingBoard)
         } catch (e) {
             console.log(e?.data?.data)
             console.log(e)
         }
+    }
 
+    async getBoardsFromTokenIds(tokenIds: Uint8Array[]): Promise<BoardWithMetadataAndId[]> {
+        try {
+            const linkBases = tokenIds.map(tokenIdToLinkBase);
+            const incomingBoards = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_boards_from_links',
+                payload: linkBases,
+            }) as IncomingBoardWithMetadataAndId[]
+
+            return incomingBoards.map(parseIncomingBoardWithMetadataAndId)
+        } catch (e) {
+            console.log(e?.data?.data)
+            console.log(e)
+        }
+    }
+
+    async getBoardsFromAllMyMoves(): Promise<BoardWithMetadata[]> {
+        try {
+            const incomingBoards = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_boards_from_all_my_moves',
+                payload: null,
+            }) as IncomingBoardWithMetadata[]
+
+            return incomingBoards.map(parseIncomingBoardWithMetadata)
+        } catch (e) {
+            console.log(e?.data?.data)
+            console.log(e)
+        }
     }
 
     // participation proof

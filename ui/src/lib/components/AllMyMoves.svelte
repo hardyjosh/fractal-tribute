@@ -1,34 +1,72 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { happ } from "$lib/stores";
-  import type { GameMoveWithActionHash } from "$lib/types";
+  import type { BoardWithMetadata } from "$lib/types";
   import Board from "$lib/components/Board.svelte";
   import SnapshotMove from "$lib/components/SnapshotMove.svelte";
-  import { Heading } from "flowbite-svelte";
+  import { Heading, Button, Modal } from "flowbite-svelte";
+  import no_moves from "$lib/assets/no_moves.svg";
+  import type { ActionHash } from "@holochain/client";
+  import { fetchNftIds, actionHashAndAccountToTokenId } from "$lib/helpers";
+  import { bytesToHex, type Hex } from "viem";
 
-  let gameMoves: GameMoveWithActionHash[];
+  let boards: BoardWithMetadata[];
+  let nftIds: Uint8Array[];
+  let key: Hex;
 
   onMount(async () => {
-    gameMoves = await $happ.getAllMyGameMoves();
+    key = await $happ.getEvmAddress();
+    nftIds = await fetchNftIds();
+    boards = await $happ.getBoardsFromAllMyMoves();
+    console.log(nftIds);
   });
+
+  let creationHash: ActionHash;
+  let openModal = false;
+
+  const snapshotMove = (action: ActionHash) => {
+    creationHash = action;
+    openModal = true;
+  };
 </script>
 
-<Heading tag="h4">Your moves</Heading>
-{#if gameMoves?.length}
+<Heading tag="h4" class="font-pixel">Your moves</Heading>
+{#if boards?.length && key}
   <div class="flex flex-row gap-x-2 overflow-x-scroll snap-x">
-    {#each gameMoves as gameMove}
-      {#await $happ.getBoardAtMove(gameMove.actionHash)}
-        <p>loading...</p>
-      {:then board}
-        <div class="flex flex-col gap-y-4 snap-start">
-          <Board {board} size="w-2 h-2" />
-          <SnapshotMove move={gameMove.actionHash} />
-        </div>
-      {:catch error}
-        <p>{error.message}</p>
-      {/await}
+    {#each boards as board}
+      {@const tokenId = actionHashAndAccountToTokenId(board.creationHash, key)}
+      <div class="flex flex-col gap-y-4 snap-start">
+        <Board board={board.board} size="w-2 h-2" />
+        {#if nftIds.find((id) => bytesToHex(id) == bytesToHex(tokenId))}
+          <Button
+            on:click={() => {
+              snapshotMove(board.creationHash);
+            }}
+            disabled
+            class="bg-fractalorange border-2 border-black"
+            >Snapshot created</Button
+          >
+        {:else}
+          <Button
+            on:click={() => {
+              snapshotMove(board.creationHash);
+            }}
+            class="bg-fractalorange border-2 border-black"
+            >Create snapshot</Button
+          >
+        {/if}
+      </div>
     {/each}
   </div>
 {:else}
-  No moves yet.
-{/if}
+  <div
+    class="w-full rounded-lg border-2 border-black flex flex-col gap-y-2 items-center justify-center h-60"
+  >
+    <img src={no_moves} alt="no snapshots" />
+    <p class="text-2xl font-semibold">No moves yet</p>
+    <p>After you make your first move, it will appear here.</p>
+  </div>{/if}
+
+<Modal bind:open={openModal}>
+  <SnapshotMove move={creationHash} bind:open={openModal} />
+</Modal>

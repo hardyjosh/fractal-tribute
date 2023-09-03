@@ -33,6 +33,7 @@
     "bestzip": "^2.2.0",
     "flowbite": "^1.8.1",
     "flowbite-svelte": "^0.44.2",
+    "flowbite-svelte-icons": "^0.4.2",
     "svelte-wagmi-stores": "^0.0.9",
     "tailwind-merge": "^1.14.0",
     "viem": "^1.6.2"

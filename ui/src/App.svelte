@@ -5,6 +5,8 @@
   import { onMount, tick } from "svelte";
   import { AppAgentWebsocket } from "@holochain/client";
   import { initHapp, happ, initWeb3Modal } from "$lib/stores";
+  import { toasts } from "$lib/components/toasts";
+  import Toasts from "$lib/components/toasts/Toasts.svelte";
 
   let client: AppAgentWebsocket;
   let ready = false;
@@ -18,6 +20,10 @@
   });
 </script>
 
-{#if $happ && ready}
-  <Routes />
-{/if}
+<div class="min-w-screen min-h-screen p-4 container mx-auto">
+  {#if $happ && ready}
+    <Routes />
+  {/if}
+</div>
+
+<Toasts {toasts} />

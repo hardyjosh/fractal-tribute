@@ -6,7 +6,7 @@
   const dispatch = createEventDispatcher();
 
   export let board: Board;
-  export let size: string = "w-6 h-6";
+  export let size: string = "w-7 h-7";
   export let brush: {
     color: { r: number; g: number; b: number };
     graphic_option: number;
@@ -19,7 +19,7 @@
 </script>
 
 {#if board}
-  <div class="flex flex-row border border-gray-50">
+  <div class="flex flex-row border-black border-2 rounded-lg overflow-hidden">
     {#each board as row, x}
       <div class="row">
         {#each row as tile, y}

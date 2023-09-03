@@ -1,4 +1,5 @@
 import type { ActionHash, AgentPubKey } from '@holochain/client'
+import type { Hex } from 'viem';
 
 // EVM key binding
 export type EvmKeyBinding = {
@@ -36,6 +37,28 @@ export type Tile = {
 };
 
 export type Board = Tile[][];
+
+export type IncomingBoardWithMetadata = {
+  bytes: Uint8Array,
+  creator: AgentPubKey
+  creationHash: ActionHash
+}
+
+export type IncomingBoardWithMetadataAndId = {
+  board: IncomingBoardWithMetadata,
+  id: Uint8Array,
+}
+
+export type BoardWithMetadata = {
+  board: Board,
+  creator: AgentPubKey,
+  creationHash: ActionHash
+}
+
+export type BoardWithMetadataAndId = {
+  boardWithMetadata: BoardWithMetadata,
+  id: Hex
+}
 
 // Participation proof
 export type AgentParticipation = {

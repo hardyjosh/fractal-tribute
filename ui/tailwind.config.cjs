@@ -10,21 +10,25 @@ const config = {
   darkMode: "class",
 
   theme: {
+    fontFamily: {
+      pixel: ["'Press Start 2P'"],
+    },
     extend: {
       colors: {
         // flowbite-svelte
+        fractalorange: "#E94B2A",
         primary: {
-          50: "#edefff",
-          100: "#dfe0ff",
-          200: "#c5c6ff",
-          300: "#a2a1ff",
-          400: "#897cfd",
-          500: "#785df7",
-          600: "#6a3fec",
-          700: "#5c32d0",
-          800: "#4b2ba8",
-          900: "#3a277a",
-          950: "#26194d",
+          50: "#fef3ee",
+          100: "#fce4d8",
+          200: "#f8c6b0",
+          300: "#f39e7e",
+          400: "#ed6c4a",
+          500: "#e94b2a",
+          600: "#da301c",
+          700: "#b52119",
+          800: "#901e1c",
+          900: "#741c1a",
+          950: "#3f0b0c",
         },
       },
     },

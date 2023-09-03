@@ -18,4 +18,19 @@
     };
 </script>
 
-<ColorPicker bind:color={pickedColor} isAlpha={false} isOpen isInput={false} />
+<div
+  class="flex flex-col justify-center items-stretch rounded-lg border-2 border-black bg-[#FFFBFA] grow p-4 gap-y-2"
+>
+  <div class="bg-[#FAF2F1] font-semibold p-2 border border-black rounded-md">
+    Colour
+  </div>
+  <ColorPicker
+    bind:color={pickedColor}
+    isAlpha={false}
+    isOpen
+    isInput={false}
+  />
+  <div class="bg-[#FAF2F1] font-semibold p-2 border border-black rounded-md">
+    Shape
+  </div>
+</div>
