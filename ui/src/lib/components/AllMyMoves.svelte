@@ -9,6 +9,7 @@
   import type { ActionHash } from "@holochain/client";
   import { fetchNftIds, actionHashAndAccountToTokenId } from "$lib/helpers";
   import { bytesToHex, type Hex } from "viem";
+  import ReadOnlyBoardSvg from "$lib/components/ReadOnlyBoardSvg.svelte";
 
   let boards: BoardWithMetadata[];
   let nftIds: Uint8Array[];
@@ -35,7 +36,8 @@
     {#each boards as board}
       {@const tokenId = actionHashAndAccountToTokenId(board.creationHash, key)}
       <div class="flex flex-col gap-y-2 snap-start basis-1/5-gap-4 flex-none">
-        <Board readOnly board={board.board} />
+        <!-- <Board readOnly board={board.board} /> -->
+        <ReadOnlyBoardSvg board={board.board} />
         {#if nftIds.find((id) => bytesToHex(id) == bytesToHex(tokenId))}
           <Button
             on:click={() => {

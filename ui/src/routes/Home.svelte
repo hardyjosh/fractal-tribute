@@ -18,7 +18,7 @@
 
   <AllNfts />
 
-  <!-- <AllMyMoves /> -->
+  <AllMyMoves />
 
   <!-- <BuildParticipation /> -->
 </div>

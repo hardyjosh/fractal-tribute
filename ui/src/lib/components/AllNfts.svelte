@@ -1,11 +1,9 @@
 <script lang="ts">
   import Board from "$lib/components/Board.svelte";
-  import MintMove from "$lib/components/MintMove.svelte";
   import { fetchNftIds, formatAddress } from "$lib/helpers";
   import { happ } from "$lib/stores";
   import { Button, Heading } from "flowbite-svelte";
-  import { onMount } from "svelte";
-  import { bytesToBigint } from "viem";
+  import { onMount, onDestroy } from "svelte";
   import type { BoardWithMetadataAndId } from "$lib/types";
   import { encodeHashToBase64 } from "@holochain/client";
   import no_snapshots from "$lib/assets/no_snapshots.svg";
@@ -13,10 +11,18 @@
   let nftIds: Uint8Array[] = [];
   let boards: BoardWithMetadataAndId[] = [];
 
+  let pollInterval;
+
   onMount(async () => {
     nftIds = await fetchNftIds();
     boards = await $happ.getBoardsFromTokenIds(nftIds);
-    boards = [...boards, ...boards, ...boards, ...boards, ...boards, ...boards];
+    pollInterval = setInterval(async () => {
+      boards = await $happ.getBoardsFromTokenIds(nftIds);
+    }, 20000);
+  });
+
+  onDestroy(() => {
+    clearInterval(pollInterval);
   });
 </script>
 

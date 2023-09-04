@@ -1,6 +1,6 @@
 <script lang="ts">
   import { account } from "svelte-wagmi-stores";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import BoardComp from "$lib/components/Board.svelte";
   import type { Board, GameMove } from "$lib/types";
   import { happ } from "$lib/stores";
@@ -106,10 +106,17 @@
     board = await $happ.getLatestBoard();
   };
 
+  let pollingInterval;
+
   onMount(async () => {
+    pollingInterval = setInterval(getBoard, 1000);
     getBoard();
     const key = await $happ.getEvmAddress();
     moveStatus = key ? MoveStatus.Ready : MoveStatus.NotBinded;
+  });
+
+  onDestroy(() => {
+    clearInterval(pollingInterval);
   });
 
   // modal
