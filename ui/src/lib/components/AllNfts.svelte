@@ -21,10 +21,10 @@
 </script>
 
 <Heading tag="h4" class="font-pixel">Latest snapshots</Heading>
-<div class="grid grid-cols-5 gap-4 flex-wrap">
+<div class="flex overflow-scroll gap-4">
   {#if !boards || boards?.length == 0}
     <div
-      class="col-span-5 rounded-lg border-2 border-black flex flex-col gap-2 items-center justify-center h-60"
+      class="w-full rounded-lg border-2 border-black flex flex-col gap-2 items-center justify-center h-60"
     >
       <img src={no_snapshots} alt="no snapshots" />
       <p class="text-2xl font-semibold">No snapshots yet</p>
@@ -35,7 +35,7 @@
     </div>
   {:else}
     {#each boards as board, i}
-      <div class="flex flex-col gap-y-2">
+      <div class="flex flex-col gap-y-2 basis-1/5-gap-4 flex-none snap-start">
         <Board readOnly board={board.boardWithMetadata.board} />
         <div
           class="rounded-md border-black border-2 flex gap-x-2 p-2 justify-between items-center w-full"

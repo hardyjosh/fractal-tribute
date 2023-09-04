@@ -16,6 +16,7 @@ pub fn get_latest_board(_: ()) -> ExternResult<Vec<u8>> {
     ).into_iter().collect::<Vec<GameMove>>();
     let game_moves: &[GameMove] = &game_moves;
     let board = Board::reconstruct_from_game_moves(game_moves);
+    debug!("board: {:?}", board);
     let board_bytes = board.to_bytes();
     Ok(board_bytes)
 }

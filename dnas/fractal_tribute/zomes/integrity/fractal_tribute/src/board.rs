@@ -65,8 +65,6 @@ impl Board {
                         bytes.push(tile.graphic_option.unwrap_or(0));
                     },
                     None => {
-                        // If no color is present, you might want to push a default representation.
-                        // For example, push four zero bytes. Adjust as needed.
                         bytes.extend_from_slice(&[0, 0, 0, 0]);
                     }
                 }

@@ -14,6 +14,9 @@ const config = {
       pixel: ["'Press Start 2P'"],
     },
     extend: {
+      flexBasis: {
+        "1/5-gap-4": "calc(20% - 4/5 * 1rem)",
+      },
       colors: {
         // flowbite-svelte
         fractalorange: "#E94B2A",

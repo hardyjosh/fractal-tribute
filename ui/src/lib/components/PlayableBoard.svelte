@@ -59,7 +59,7 @@
         g: brush.color.g,
         b: brush.color.b,
       },
-      graphic_option: 0,
+      graphic_option: brush.graphic_option,
     });
 
     // Clear the undone changes since we're making a new change

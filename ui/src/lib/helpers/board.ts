@@ -75,3 +75,17 @@ export const parseIncomingBoardWithMetadata = (incomingBoardWithMetadata: Incomi
     const parsedBoard = parseBoardBytes(bytes);
     return { board: parsedBoard, creator, creationHash };
 }
+
+export enum ShapeOptions {
+    Square,
+    LeftRectangle,
+    UpperRectangle,
+    RightRectangle,
+    LowerRectangle,
+    UpperLeftTriangle,
+    UpperRightTriangle,
+    LowerRightTriangle,
+    LowerLeftTriangle,
+    Circle,
+    Diamond,
+}

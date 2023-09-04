@@ -39,6 +39,28 @@ impl GameMove {
 
     // Parsing a game_move from a dynamic-length byte array.
     // If the byte array's length is not a multiple of 4, we'll return an error.
+    // Returns a dynamic-length byte array.
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::with_capacity(self.changes.len() * 8);
+
+        for change in &self.changes {
+            // First byte: xxxxxxyy
+            let first_byte = (change.x as u8 & 0b11111) << 3 | (change.y as u8 >> 2);
+
+            // Second byte: yygooooo
+            let second_byte = ((change.y as u8 & 0b00000011) << 6) | (change.graphic_option & 0b1111);
+
+            bytes.push(first_byte);
+            bytes.push(second_byte);
+            bytes.push(change.color.r);
+            bytes.push(change.color.g);
+            bytes.push(change.color.b);
+        }
+
+        bytes
+    }
+
+    // Parsing a game_move from a dynamic-length byte array.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, &'static str> {
         if bytes.len() % 5 != 0 {
             return Err("Invalid length");
@@ -46,8 +68,8 @@ impl GameMove {
 
         let num_changes = bytes.len() / 5;
 
-        if (num_changes > 10) {
-            return Err("Maximum of 10 pixel changes per move")
+        if num_changes > 10 {
+            return Err("Maximum of 10 pixel changes per move");
         }
 
         let mut changes = Vec::with_capacity(num_changes);
@@ -55,44 +77,22 @@ impl GameMove {
         for i in 0..num_changes {
             let start = i * 5;
             
-            let r = bytes[start];
-            let g = bytes[start + 1];
-            let b = bytes[start + 2];
+            let x = (bytes[start] >> 3) & 0b11111;
+            let y = ((bytes[start] & 0b00000111) << 2) | ((bytes[start + 1] >> 6) & 0b00000011);
+            let graphic_option = bytes[start + 1] & 0b1111;
+
+            let r = bytes[start + 2];
+            let g = bytes[start + 3];
+            let b = bytes[start + 4];
+
             let color = Color { r, g, b };
-            
-            let x = bytes[start + 3] & 0b11111;
-            let graphic_option = bytes[start + 3] >> 5;
-            
-            let y = bytes[start + 4] & 0b11111;            
-            // debug!("graphic_option: {}", graphic_option);
+
             changes.push(PixelChange { x: x as usize, y: y as usize, color, graphic_option });
         }
 
         Ok(GameMove { changes })
     }
-    
-    // Returns a dynamic-length byte array.
-    pub fn to_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(self.changes.len() * 4);
 
-        for change in &self.changes {
-            let start = bytes.len();
-
-            // Encoding x and graphic option
-            bytes.push((change.x as u8 & 0b11111) | (change.graphic_option << 5));
-
-            // Encoding y and a part of red
-            bytes.push(((change.y as u8 & 0b11111) << 3) | (change.color.r >> 5));
-
-            // Continuing with red and then encoding green
-            bytes.push(((change.color.r & 0b00000111) << 3) | (change.color.g >> 5));
-
-            // Continuing with green and then encoding blue
-            bytes.push(((change.color.g & 0b00000111) << 3) | (change.color.b >> 5));
-        }
-
-        bytes
-    }
 }
 
 pub fn validate_create_game_move(

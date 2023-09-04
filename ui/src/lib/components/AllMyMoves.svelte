@@ -31,10 +31,10 @@
 
 <Heading tag="h4" class="font-pixel">Your moves</Heading>
 {#if boards?.length && key}
-  <div class="grid grid-cols-5 gap-2">
+  <div class="flex overflow-scroll gap-4">
     {#each boards as board}
       {@const tokenId = actionHashAndAccountToTokenId(board.creationHash, key)}
-      <div class="flex flex-col gap-y-2 snap-start">
+      <div class="flex flex-col gap-y-2 snap-start basis-1/5-gap-4 flex-none">
         <Board readOnly board={board.board} />
         {#if nftIds.find((id) => bytesToHex(id) == bytesToHex(tokenId))}
           <Button

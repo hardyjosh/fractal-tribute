@@ -2,6 +2,7 @@
   import type { Board } from "$lib/types";
   import { twMerge } from "tailwind-merge";
   import { createEventDispatcher } from "svelte";
+  import Shape from "$lib/components/Shape.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -38,14 +39,14 @@
             )}
             on:mouseenter={(e) => {
               if (readOnly) return;
-              e.currentTarget.style.setProperty(
-                "background-color",
-                `rgb(${brush?.color.r} ${brush?.color.g} ${brush?.color.b})`
-              );
+              // e.currentTarget.style.setProperty(
+              //   "background-color",
+              //   `rgb(${brush?.color.r} ${brush?.color.g} ${brush?.color.b})`
+              // );
             }}
             on:mouseleave={(e) => {
               if (readOnly) return;
-              e.currentTarget.style.setProperty("background-color", "");
+              // e.currentTarget.style.setProperty("background-color", "");
             }}
             on:click={() => handleTileClick(x, y)}
             on:keydown={(event) => {
@@ -55,14 +56,19 @@
             }}
           >
             <div
-              class="absolute inset-0 flex items-center justify-center"
-              style={`background-color:rgb(${tile?.color?.r || 255} ${
-                tile?.color?.g || 255
-              } ${tile?.color?.b || 255}`}
+              class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 z-10"
             >
-              <!-- <span class="text-white">
-                  {tile.graphic_option}
-                </span> -->
+              {#if brush?.color && brush?.graphic_option !== null}
+                <Shape
+                  color={brush?.color}
+                  shapeOption={brush?.graphic_option}
+                />
+              {/if}
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center z-0">
+              {#if tile?.color && tile?.graphic_option !== null}
+                <Shape color={tile?.color} shapeOption={tile?.graphic_option} />
+              {/if}
             </div>
           </div>
         {/each}
