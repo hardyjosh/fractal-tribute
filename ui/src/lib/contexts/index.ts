@@ -1,1 +1,1 @@
-export const walletContext = 'walletContext'
+export const routeContext = 'routes'

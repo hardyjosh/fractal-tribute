@@ -59,7 +59,6 @@ export const actionHashAndAccountToTokenId = (actionHash: Uint8Array, account: H
     const accountBytes = pad(hexToBytes(account), { size: 32 });
     const moveHash = hexToBytes(keccak256(actionHash));
     const tokenId = keccak256(concat([accountBytes, moveHash]));
-    console.log(hexToBytes(tokenId))
     return hexToBytes(tokenId)
 }
 

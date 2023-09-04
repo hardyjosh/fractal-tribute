@@ -39,6 +39,7 @@
       const resp = await $happ.createEvmKeyBinding(evmKeyBindingEntry);
       console.log(resp);
       evmKeyBindingStatus = EvmKeyBindingStatus.Created;
+      addToast("success", "Binding successfully created!");
       dispatch("evmKeyBindingCreated");
     } catch (e) {
       console.log(e?.details?.message);
@@ -54,9 +55,9 @@
 </script>
 
 <div
-  class="flex flex-col justify-center items-center rounded-lg border-2 border-black bg-[#FFFBFA] h-full"
+  class="flex flex-col justify-center items-center rounded-lg border-2 border-black bg-primary-25 h-full"
 >
-  <div class="gap-y-6 w-full flex flex-col break-words">
+  <div class="gap-y-6 w-full flex flex-col break-words p-4">
     {#if $account?.isConnected}
       {#if evmKeyBindingStatus === EvmKeyBindingStatus.NotCreated}
         <div class="flex flex-col gap-y-2 items-start">

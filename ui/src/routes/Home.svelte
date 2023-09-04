@@ -1,7 +1,7 @@
 <script lang="ts">
   import AllMyMoves from "$lib/components/AllMyMoves.svelte";
   import AllNfts from "$lib/components/AllNfts.svelte";
-  import BuildParticipation from "$lib/components/BuildParticipation.svelte";
+  import BuildParticipation from "$lib/components/Participation.svelte";
   import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
   import PlayableBoard from "$lib/components/PlayableBoard.svelte";
 </script>

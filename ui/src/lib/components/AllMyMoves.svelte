@@ -18,7 +18,6 @@
     key = await $happ.getEvmAddress();
     nftIds = await fetchNftIds();
     boards = await $happ.getBoardsFromAllMyMoves();
-    console.log(nftIds);
   });
 
   let creationHash: ActionHash;
@@ -32,11 +31,11 @@
 
 <Heading tag="h4" class="font-pixel">Your moves</Heading>
 {#if boards?.length && key}
-  <div class="flex flex-row gap-x-2 overflow-x-scroll snap-x">
+  <div class="grid grid-cols-5 gap-2">
     {#each boards as board}
       {@const tokenId = actionHashAndAccountToTokenId(board.creationHash, key)}
-      <div class="flex flex-col gap-y-4 snap-start">
-        <Board board={board.board} size="w-2 h-2" />
+      <div class="flex flex-col gap-y-2 snap-start">
+        <Board readOnly board={board.board} />
         {#if nftIds.find((id) => bytesToHex(id) == bytesToHex(tokenId))}
           <Button
             on:click={() => {

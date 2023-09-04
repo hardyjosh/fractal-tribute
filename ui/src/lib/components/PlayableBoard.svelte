@@ -118,14 +118,17 @@
   let savedMoveActionHash: ActionHash;
 </script>
 
-<div class="flex gap-x-4 items-stretch">
-  <BoardComp
-    board={mergedBoard}
-    bind:brush
-    on:tileClick={handleTileClick}
-    notAllowed={allMovesMade}
-  />
-  <div class="grow">
+<div class="gap-x-4 items-stretch grid grid-cols-5">
+  <div class="col-span-3">
+    <BoardComp
+      board={mergedBoard}
+      bind:brush
+      on:tileClick={handleTileClick}
+      notAllowed={allMovesMade}
+      readOnly={moveStatus !== MoveStatus.Ready || !$account?.isConnected}
+    />
+  </div>
+  <div class="col-span-2">
     {#if moveStatus == MoveStatus.NotBinded || !$account?.isConnected}
       <CreateEvmKeyBinding
         on:evmKeyBindingCreated={() => {

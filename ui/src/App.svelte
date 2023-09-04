@@ -1,6 +1,5 @@
 <script lang="ts">
   import "./app.postcss";
-  import WalletContext from "$lib/contexts/WalletContext.svelte";
   import Routes from "$routes/Routes.svelte";
   import { onMount, tick } from "svelte";
   import { AppAgentWebsocket } from "@holochain/client";

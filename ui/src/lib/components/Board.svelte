@@ -6,7 +6,7 @@
   const dispatch = createEventDispatcher();
 
   export let board: Board;
-  export let size: string = "w-7 h-7";
+  export let readOnly: boolean = false;
   export let brush: {
     color: { r: number; g: number; b: number };
     graphic_option: number;
@@ -14,31 +14,37 @@
   export let notAllowed: boolean = false;
 
   const handleTileClick = (x: number, y: number) => {
+    if (readOnly) return;
     dispatch("tileClick", { x, y });
   };
 </script>
 
 {#if board}
-  <div class="flex flex-row border-black border-2 rounded-lg overflow-hidden">
-    {#each board as row, x}
-      <div class="row">
-        {#each row as tile, y}
+  <div
+    class="flex flex-row border-black border-2 rounded-lg overflow-hidden relative w-full"
+  >
+    {#each board as col, x}
+      <div class="w-[3.125%]">
+        {#each col as tile, y}
           <div
             role="button"
             tabindex="0"
             class={twMerge(
-              "w-6 h-6 border border-gray-100 relative hover:border hover:border-blue-700 cursor-cell bg-gray-50",
-              size,
+              "border border-gray-100 relative bg-gray-50 cursor-default",
+              !readOnly && "hover:border hover:border-blue-700 cursor-cell",
+              "w-full aspect-square",
               tile.changed && "border-blue-700 border-4 border-double",
               notAllowed && "cursor-not-allowed"
             )}
             on:mouseenter={(e) => {
+              if (readOnly) return;
               e.currentTarget.style.setProperty(
                 "background-color",
                 `rgb(${brush?.color.r} ${brush?.color.g} ${brush?.color.b})`
               );
             }}
             on:mouseleave={(e) => {
+              if (readOnly) return;
               e.currentTarget.style.setProperty("background-color", "");
             }}
             on:click={() => handleTileClick(x, y)}
@@ -48,16 +54,16 @@
               }
             }}
           >
-            {#if tile?.color}
-              <div
-                class="absolute inset-0 flex items-center justify-center"
-                style={`background-color:rgb(${tile.color.r} ${tile.color.g} ${tile.color.b}`}
-              >
-                <!-- <span class="text-white">
+            <div
+              class="absolute inset-0 flex items-center justify-center"
+              style={`background-color:rgb(${tile?.color?.r || 255} ${
+                tile?.color?.g || 255
+              } ${tile?.color?.b || 255}`}
+            >
+              <!-- <span class="text-white">
                   {tile.graphic_option}
                 </span> -->
-              </div>
-            {/if}
+            </div>
           </div>
         {/each}
       </div>

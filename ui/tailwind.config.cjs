@@ -18,6 +18,7 @@ const config = {
         // flowbite-svelte
         fractalorange: "#E94B2A",
         primary: {
+          25: "#FFFBFA",
           50: "#fef3ee",
           100: "#fce4d8",
           200: "#f8c6b0",
