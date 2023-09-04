@@ -61,7 +61,7 @@
   </div>
 {:else}
   <div
-    class="w-full rounded-lg border-2 border-black flex flex-col gap-y-2 items-center justify-center h-60"
+    class="w-full rounded-lg border-2 border-black flex flex-col gap-y-2 items-center justify-center h-80"
   >
     <img src={no_moves} alt="no snapshots" />
     <p class="text-2xl font-semibold">No moves yet</p>

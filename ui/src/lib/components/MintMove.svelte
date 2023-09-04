@@ -12,6 +12,7 @@
   } from "$lib/helpers";
 
   export let tokenId: bigint;
+  export let open: boolean;
 
   let allowance: bigint, balance: bigint;
   const price = parseEther("1");
