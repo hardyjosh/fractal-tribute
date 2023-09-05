@@ -23,6 +23,11 @@
         }}>{route.name}</button
       >
     {/each}
+    <div class="border-2 rounded-lg p-3 self-stretch grow border-black">
+      <span>Game ends in: </span><span class="text-green-600 font-bold"
+        >{formatCountdown($countdown)}</span
+      >
+    </div>
     <Button
       on:click={() => {
         open = true;
@@ -34,7 +39,6 @@
       <QuestionCircleOutline class="mr-2" />
       How to play
     </Button>
-    <div>{formatCountdown($countdown)}</div>
   </div>
 </div>
 

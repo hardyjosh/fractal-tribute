@@ -19,8 +19,6 @@
       g: Math.floor(pickedColor.rgba.g),
       b: Math.floor(pickedColor.rgba.b),
     };
-
-  $: console.log(graphic_option);
 </script>
 
 <div
@@ -29,12 +27,14 @@
   <div class="bg-primary-50 font-semibold p-2 border border-black rounded-md">
     Colour
   </div>
-  <ColorPicker
-    bind:color={pickedColor}
-    isAlpha={false}
-    isOpen
-    isInput={false}
-  />
+  <div class="w-full flex flex-col items-center">
+    <ColorPicker
+      bind:color={pickedColor}
+      isAlpha={false}
+      isOpen
+      isInput={false}
+    />
+  </div>
   <div class="bg-primary-50 font-semibold p-2 border border-black rounded-md">
     Shape
   </div>

@@ -5,13 +5,16 @@
   import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
   import PlayableBoard from "$lib/components/PlayableBoard.svelte";
 
-  let allMyMoves;
+  let allMyMoves: AllMyMoves;
 </script>
 
 <div class="flex flex-col w-full gap-y-10">
   <PlayableBoard
     on:moveSaved={allMyMoves.updateMyBoards}
-    on:snapshotMinted={allMyMoves.updateNftIds}
+    on:snapshotMinted={() => {
+      allMyMoves.updateMyBoards();
+      allMyMoves.updateNftIds();
+    }}
   />
 
   <!-- 

@@ -30,6 +30,7 @@
 
   export const updateNftIds = async () => {
     nftIds = await fetchNftIds();
+    console.log("got new nft ids for all my moves");
   };
 
   let creationHash: ActionHash;

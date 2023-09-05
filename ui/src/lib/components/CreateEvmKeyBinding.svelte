@@ -37,7 +37,6 @@
       };
 
       const resp = await $happ.createEvmKeyBinding(evmKeyBindingEntry);
-      console.log(resp);
       evmKeyBindingStatus = EvmKeyBindingStatus.Created;
       addToast("success", "Binding successfully created!");
       dispatch("evmKeyBindingCreated");

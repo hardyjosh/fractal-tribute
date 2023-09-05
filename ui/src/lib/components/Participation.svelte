@@ -16,6 +16,7 @@
     nftContract,
     paymentToken,
     paymentTokenAddress,
+    web3modal,
   } from "$lib/stores";
   import type {
     AgentParticipation,
@@ -30,7 +31,7 @@
     TableBodyCell,
     TableBodyRow,
   } from "flowbite-svelte";
-  import { account } from "svelte-wagmi-stores";
+  import { account, walletClient } from "svelte-wagmi-stores";
   import { bytesToHex, formatUnits, getAddress, type Hex } from "viem";
   import { writable } from "svelte/store";
   import addresses from "$lib/addresses.json";
@@ -90,7 +91,17 @@
   $: ready = myParticipation && poolSize && token && poolsizeFormatted;
 </script>
 
-{#if poolSize && token}
+{#if !$walletClient}
+  <div class="mt-8 flex flex-col items-center gap-y-6">
+    <p class="text-center">Connect your wallet to get your stats</p>
+    <Button
+      class="bg-fractalorange border-2 border-black"
+      on:click={() => {
+        $web3modal.openModal();
+      }}>Connect wallet</Button
+    >
+  </div>
+{:else if poolSize && token}
   <Table divClass="w-full bg-none" noborder>
     <TableBody>
       <TableBodyRow class="bg-none!">

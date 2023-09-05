@@ -1,9 +1,14 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from "svelte";
   import addresses from "$lib/addresses.json";
-  import { account } from "svelte-wagmi-stores";
+  import { account, walletClient } from "svelte-wagmi-stores";
   import { type ActionHash } from "@holochain/client";
-  import { nftContract, paymentToken, paymentTokenAddress } from "$lib/stores";
+  import {
+    nftContract,
+    paymentToken,
+    paymentTokenAddress,
+    web3modal,
+  } from "$lib/stores";
   import { Button, Spinner, Heading } from "flowbite-svelte";
   import {
     hexToBigInt,
@@ -12,48 +17,50 @@
     parseEther,
     formatUnits,
   } from "viem";
-  import { mintEvaluable, snapshotEvaluable } from "$lib/helpers";
-  import { fetchToken, type FetchTokenResult } from "@wagmi/core";
+  import { snapshotEvaluable } from "$lib/helpers";
+  import {
+    fetchToken,
+    waitForTransaction,
+    type FetchTokenResult,
+  } from "@wagmi/core";
 
   const dispatch = createEventDispatcher();
 
   export let move: ActionHash;
   export let open: boolean;
+
   $: _move = hexToBigInt(keccak256(move));
 
   const price = parseEther("1");
 
   let allowance: bigint, balance: bigint;
-
   let token: FetchTokenResult;
 
   onMount(async () => {
     token = await fetchToken({ address: paymentTokenAddress });
   });
 
-  const getAllowanceAndBalance = () => {
-    $paymentToken
-      .read({
-        functionName: "allowance",
-        args: [$account?.address, addresses.instance as Address],
-      })
-      .then((r) => (allowance = r));
+  const getAllowanceAndBalance = async () => {
+    allowance = await $paymentToken.read({
+      functionName: "allowance",
+      args: [$account?.address, addresses.instance as Address],
+    });
 
-    $paymentToken
-      .read({
-        functionName: "balanceOf",
-        args: [$account?.address],
-      })
-      .then((r) => (balance = r));
+    balance = await $paymentToken.read({
+      functionName: "balanceOf",
+      args: [$account?.address],
+    });
   };
 
-  $: if ($account?.isConnected) getAllowanceAndBalance();
+  $: if ($walletClient) getAllowanceAndBalance();
 
   $: ({ write, status, error } = $nftContract.write({
     functionName: "flow",
     args: [snapshotEvaluable, [_move], []],
-    onSuccess: () => {
-      dispatch("snapshotMinted");
+    onSuccess: ({ hash }) => {
+      waitForTransaction({ hash, confirmations: 5 }).then(() => {
+        dispatch("snapshotMinted");
+      });
     },
   }));
 
@@ -64,8 +71,10 @@
   } = $paymentToken.write({
     functionName: "approve",
     args: [addresses.instance as Address, price],
-    onSuccess: () => {
-      getAllowanceAndBalance();
+    onSuccess: ({ hash }) => {
+      waitForTransaction({ hash, confirmations: 5 }).then(() => {
+        getAllowanceAndBalance();
+      });
     },
   }));
 
@@ -76,14 +85,23 @@
   $: balanceOk = balance >= price;
   $: allowanceOk = allowance >= price;
 
-  $: ready = balance && allowance && token;
-
-  $: console.log($status);
+  $: ready =
+    balance !== undefined && allowance !== undefined && token !== undefined;
 </script>
 
 <div class="flex flex-col justify-center gap-y-4">
   <Heading tag="h4">Create snapshot</Heading>
-  {#if ready}
+  {#if !$account.isConnected}
+    <p>You need to connect your wallet to mint a snapshot</p>
+    <Button
+      class="bg-fractalorange border-2 border-black self-start"
+      on:click={() => {
+        $web3modal.openModal();
+      }}>Connect wallet</Button
+    >
+  {:else if $account.isConnected && !ready}
+    <Spinner />
+  {:else if $account.isConnected && ready}
     {#if !balanceOk}
       <p>You don't have enough {token?.name} to mint this move</p>
     {:else if !allowanceOk}
@@ -91,7 +109,17 @@
         Before you can mint, you first need to approve the NFT contract to spend
         your {token?.name}
       </p>
-      <Button on:click={allowanceWrite}>Approve spend</Button>
+      <Button
+        class="bg-fractalorange border-2 border-black self-start  "
+        disabled={$allowanceStatus === "loading"}
+        on:click={allowanceWrite}
+      >
+        {#if $allowanceStatus === "loading"}
+          <Spinner size="4" class="mr-2" /> Approving
+        {:else}
+          Approve spend
+        {/if}
+      </Button>
     {:else if balanceOk && allowanceOk}
       {#if $status !== "success"}
         <p>
@@ -119,10 +147,10 @@
             disabled={$status === "loading"}
             on:click={snapshotMove}
           >
-            {#if $status === "idle" || $status === "error"}
-              Mint snapshot
-            {:else if $status === "loading"}
+            {#if $status === "loading"}
               <Spinner size="4" class="mr-2" /> Minting snapshot
+            {:else}
+              Mint snapshot
             {/if}
           </Button>
         </div>
@@ -143,7 +171,5 @@
     {#if $allowanceError}
       <p>{$allowanceError}</p>
     {/if}
-  {:else}
-    <Spinner />
   {/if}
 </div>

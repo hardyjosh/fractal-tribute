@@ -54,10 +54,12 @@ export class DnaInterface {
                 fn_name: 'get_evm_address',
                 payload: null,
             })
+            if (!addressBytes) {
+                return null
+            }
             return getAddress(bytesToHex(addressBytes))
         } catch (e) {
-            console.log(e?.data?.data)
-            console.log(e)
+            console.log(e?.data?.data || e)
         }
     }
 
@@ -113,8 +115,7 @@ export class DnaInterface {
             }) as IncomingBoardWithMetadata
             return parseIncomingBoardWithMetadata(res)
         } catch (e) {
-            console.log(e?.data?.data)
-            console.log(e)
+            console.log("Error getting latest board", e?.data?.data || e)
         }
     }
 
@@ -129,8 +130,7 @@ export class DnaInterface {
             })
             return parseBoardBytes(boardBytes)
         } catch (e) {
-            console.log(e?.data?.data)
-            console.log(e)
+            console.log("Error getting board at move", e?.data?.data || e)
         }
 
     }
@@ -166,8 +166,7 @@ export class DnaInterface {
 
             return incomingBoards.map(parseIncomingBoardWithMetadataAndId)
         } catch (e) {
-            console.log(e?.data?.data)
-            console.log(e)
+            console.log("Error with getBoardsFromTokenIds", e?.data?.data || e)
         }
     }
 
@@ -183,8 +182,7 @@ export class DnaInterface {
 
             return incomingBoards.map(parseIncomingBoardWithMetadata)
         } catch (e) {
-            console.log(e?.data?.data)
-            console.log(e)
+            console.log("Error with getBoardsFromAllMyMoves", e?.data?.data || e)
         }
     }
 
@@ -200,8 +198,7 @@ export class DnaInterface {
             }) as Record
             return record as any as ParticipationProof
         } catch (e) {
-            console.log(e?.data?.data)
-            console.log(e)
+            console.log(e?.data?.data || e)
         }
     }
 }

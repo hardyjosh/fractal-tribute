@@ -39,5 +39,6 @@
       <Participation />
     </div>
   </div>
-  <AllNfts />
+  <AllNfts showWinnerPanel heading="Current winners 🎉" />
+  <AllNfts heading="Snapshots" />
 </div>
