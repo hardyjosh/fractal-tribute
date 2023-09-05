@@ -2,7 +2,7 @@
 manifest_version: "1"
 name: fractal_tribute
 integrity:
-  network_seed: ~
+  network_seed: 10
   properties: ~
   origin_time: 1679514897361719
   zomes:
