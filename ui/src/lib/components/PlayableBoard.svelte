@@ -1,8 +1,8 @@
 <script lang="ts">
   import { account } from "svelte-wagmi-stores";
-  import { onMount, onDestroy } from "svelte";
+  import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import BoardComp from "$lib/components/Board.svelte";
-  import type { Board, GameMove } from "$lib/types";
+  import type { Board, BoardWithMetadata, GameMove } from "$lib/types";
   import { happ } from "$lib/stores";
   import { mergeGameMoveIntoBoard } from "$lib/helpers";
   import Palette from "$lib/components/Palette.svelte";
@@ -12,6 +12,8 @@
   import { addToast } from "$lib/components/toasts";
   import type { ActionHash } from "@holochain/client";
   import SnapshotMove from "$lib/components/SnapshotMove.svelte";
+
+  const dispatch = createEventDispatcher();
 
   enum MoveStatus {
     Thinking,
@@ -28,7 +30,7 @@
   let undoneChanges = [];
   $: allMovesMade = move.changes.length == 10;
 
-  let board: Board;
+  let board: BoardWithMetadata;
   let mergedBoard: Board;
 
   let color;
@@ -36,7 +38,7 @@
 
   $: brush = { color, graphic_option };
 
-  $: if (board) mergedBoard = mergeGameMoveIntoBoard(board, move);
+  $: if (board) mergedBoard = mergeGameMoveIntoBoard(board.board, move);
 
   const handleTileClick = (event: CustomEvent<{ x: number; y: number }>) => {
     // if we've already placed this tile, don't do anything
@@ -97,6 +99,7 @@
       undoneChanges = [];
       snapshotMove = false;
       promptSnapshot = true;
+      dispatch("moveSaved");
     } catch (e) {
       addToast("error", `Error saving move: ${e?.data?.data || e}`);
     }
@@ -204,6 +207,10 @@
       </Button>
     </div>
   {:else}
-    <SnapshotMove move={savedMoveActionHash} bind:open={promptSnapshot} />
+    <SnapshotMove
+      move={savedMoveActionHash}
+      bind:open={promptSnapshot}
+      on:snapshotMinted
+    />
   {/if}
 </Modal>

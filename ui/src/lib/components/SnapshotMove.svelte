@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import addresses from "$lib/addresses.json";
   import { account } from "svelte-wagmi-stores";
   import { type ActionHash } from "@holochain/client";
@@ -14,6 +14,8 @@
   } from "viem";
   import { mintEvaluable, snapshotEvaluable } from "$lib/helpers";
   import { fetchToken, type FetchTokenResult } from "@wagmi/core";
+
+  const dispatch = createEventDispatcher();
 
   export let move: ActionHash;
   export let open: boolean;
@@ -50,6 +52,9 @@
   $: ({ write, status, error } = $nftContract.write({
     functionName: "flow",
     args: [snapshotEvaluable, [_move], []],
+    onSuccess: () => {
+      dispatch("snapshotMinted");
+    },
   }));
 
   $: ({

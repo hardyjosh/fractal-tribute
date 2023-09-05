@@ -3,22 +3,42 @@ use fractal_tribute_integrity::*;
 use crate::all_game_moves::*;
 
 #[hdk_extern]
-pub fn get_latest_board(_: ()) -> ExternResult<Vec<u8>> {
+pub fn get_latest_board(_: ()) -> ExternResult<BoardWithMetadata> {
     let all_game_moves = get_all_game_moves(())?;
 
+    let creator = if all_game_moves.is_empty() {
+        HoloHash::from_raw_36([0; 36].to_vec())
+    } else {
+        all_game_moves[all_game_moves.len() - 1].action().author().clone()
+    };
+
+    let creation_hash = if all_game_moves.is_empty() {
+        HoloHash::from_raw_36([0; 36].to_vec())
+    } else {
+        all_game_moves[all_game_moves.len() - 1].action_hashed().as_hash().clone()
+    };
+
     // convert the records into a vec of game moves
-    let game_moves = all_game_moves.into_iter().map(|record| {
+    let game_moves = all_game_moves.clone().into_iter().map(|record| {
             let entry = record.entry.to_app_option::<GameMove>().map_err(|e| {
                 wasm_error!(format!("Could not convert record to GameMove: {:?}", e))
             }).unwrap().unwrap();
             return entry;
         }
     ).into_iter().collect::<Vec<GameMove>>();
-    let game_moves: &[GameMove] = &game_moves;
-    let board = Board::reconstruct_from_game_moves(game_moves);
-    debug!("board: {:?}", board);
-    let board_bytes = board.to_bytes();
-    Ok(board_bytes)
+
+    let board = Board::reconstruct_from_game_moves(&game_moves);
+    let bytes = board.to_bytes();
+    let svg = board.generate_svg();
+
+    Ok(
+        BoardWithMetadata {
+            svg,
+            bytes,
+            creator,
+            creation_hash,
+        }
+    )
 }
 
 #[hdk_extern]
@@ -43,13 +63,15 @@ pub fn get_board_at_move(move_action_hash: ActionHash) -> ExternResult<BoardWith
 
     let game_moves: &[GameMove] = &game_moves;
     let board = Board::reconstruct_from_game_moves(game_moves);
-    let board_bytes = board.to_bytes();
+    let bytes = board.to_bytes();
+    let svg = board.generate_svg();
     
     Ok(
         BoardWithMetadata {
-            bytes: board_bytes,
+            svg,
+            bytes,
             creator,
-            creationHash: move_action_hash,
+            creation_hash: move_action_hash,
         }
     )
 }

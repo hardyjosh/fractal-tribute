@@ -97,7 +97,7 @@
     {:else}
       <div class="gap-y-4 flex flex-col justify-center items-center">
         <img src={WalletSvg} class="w-32" alt="wallet icon" />
-        <span>Bind your EVM wallet to make your first move.</span>
+        <span>Connect your wallet to play.</span>
         <Button
           class="bg-fractalorange border-2 border-black"
           on:click={() => {

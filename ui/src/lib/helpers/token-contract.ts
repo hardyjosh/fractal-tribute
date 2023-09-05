@@ -32,7 +32,7 @@ export const fetchNftIds = async (): Promise<{ id: Uint8Array, supply: number }[
     } catch (error) {
         console.log("There was an error fetching the data", error);
     }
-    console.log('before supply', nfts)
+
     const balanceUrl = `https://polygon-mumbai.g.alchemy.com/nft/v2/${alchemyKey}/getOwnersForCollection?contractAddress=${addresses.instance}&withTokenBalances=true`;
 
     try {
@@ -48,7 +48,6 @@ export const fetchNftIds = async (): Promise<{ id: Uint8Array, supply: number }[
         }
 
         const data = await response.json();
-        console.log(data)
         if (data && data?.ownerAddresses) {
             data.ownerAddresses.forEach(owner => {
                 owner.tokenBalances.forEach(tokenBalance => {
@@ -63,7 +62,6 @@ export const fetchNftIds = async (): Promise<{ id: Uint8Array, supply: number }[
     } catch (error) {
         console.log("There was an error fetching the data", error);
     }
-    console.log(nfts)
     return nfts;
 
 }

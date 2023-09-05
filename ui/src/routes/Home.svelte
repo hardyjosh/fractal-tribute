@@ -4,10 +4,15 @@
   import BuildParticipation from "$lib/components/Participation.svelte";
   import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
   import PlayableBoard from "$lib/components/PlayableBoard.svelte";
+
+  let allMyMoves;
 </script>
 
 <div class="flex flex-col w-full gap-y-10">
-  <PlayableBoard />
+  <PlayableBoard
+    on:moveSaved={allMyMoves.updateMyBoards}
+    on:snapshotMinted={allMyMoves.updateNftIds}
+  />
 
   <!-- 
   <Button
@@ -18,7 +23,7 @@
 
   <AllNfts />
 
-  <AllMyMoves />
+  <AllMyMoves bind:this={allMyMoves} />
 
   <!-- <BuildParticipation /> -->
 </div>

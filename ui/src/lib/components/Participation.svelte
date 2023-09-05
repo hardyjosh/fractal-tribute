@@ -24,6 +24,7 @@
   } from "$lib/types";
   import {
     Button,
+    Spinner,
     Table,
     TableBody,
     TableBodyCell,
@@ -35,6 +36,7 @@
   import addresses from "$lib/addresses.json";
   import { fetchToken, type FetchTokenResult } from "@wagmi/core";
   import { setRoute } from "$lib/stores/routes";
+  import { createCountdownStore } from "$lib/stores/countdown";
 
   let board: Board;
   let myParticipation: AgentParticipation;
@@ -62,40 +64,40 @@
   onMount(async () => {
     const participations = await $happ.buildAgentParticipation();
     const myPubKey = await $happ.myPubKey();
-    // console.log(myPubKey);
-    // console.log(participations);
     myParticipation = participations.agent_participations.find(
       (p) => bytesToHex(p.agent) == bytesToHex(myPubKey)
     );
+  });
 
+  $: if ($account?.isConnected) {
     try {
-      poolSize = await $paymentToken.read({
-        functionName: "balanceOf",
-        args: [addresses.instance as Hex],
-      });
+      $paymentToken
+        .read({
+          functionName: "balanceOf",
+          args: [addresses.instance as Hex],
+        })
+        .then((r) => (poolSize = r));
     } catch (e) {
       console.log(e);
     }
+    fetchToken({ address: paymentTokenAddress }).then((r) => (token = r));
+  }
 
-    // console.log(poolSize);
-
-    token = await fetchToken({ address: paymentTokenAddress });
-    // console.log(token);
-
+  $: if (poolSize && token) {
     poolsizeFormatted = formatUnits(poolSize, token.decimals);
-    // console.log(poolsizeFormatted);
-  });
+  }
 
   $: ready = myParticipation && poolSize && token && poolsizeFormatted;
-  $: console.log({ myParticipation, poolSize, token, poolsizeFormatted });
 </script>
 
 {#if poolSize && token}
-  <Table>
+  <Table divClass="w-full bg-none" noborder>
     <TableBody>
-      <TableBodyRow>
-        <TableBodyCell>Your pixels changed</TableBodyCell>
-        <TableBodyCell>
+      <TableBodyRow class="bg-none!">
+        <TableBodyCell class="text-xl font-light"
+          >Your pixels changed</TableBodyCell
+        >
+        <TableBodyCell class="text-right font-bold text-xl">
           {#if myParticipation}
             {myParticipation.pixels_changed}
           {:else}
@@ -103,9 +105,11 @@
           {/if}
         </TableBodyCell>
       </TableBodyRow>
-      <TableBodyRow>
-        <TableBodyCell>Percentage contribution</TableBodyCell>
-        <TableBodyCell>
+      <TableBodyRow class="bg-none!">
+        <TableBodyCell class="text-xl font-light"
+          >Percentage contribution</TableBodyCell
+        >
+        <TableBodyCell class="text-right font-bold text-xl">
           {#if myParticipation}
             {myParticipation.percentage_of_total_pixels_changed * 100}%
           {:else}
@@ -113,13 +117,18 @@
           {/if}
         </TableBodyCell>
       </TableBodyRow>
-      <TableBodyRow>
-        <TableBodyCell>Total pool size</TableBodyCell>
-        <TableBodyCell>{poolsizeFormatted}</TableBodyCell>
+      <TableBodyRow class="bg-none!">
+        <TableBodyCell class="text-xl font-light">Total pool size</TableBodyCell
+        >
+        <TableBodyCell class="text-right font-bold text-xl"
+          >{poolsizeFormatted}</TableBodyCell
+        >
       </TableBodyRow>
-      <TableBodyRow>
-        <TableBodyCell>Your current allocation</TableBodyCell>
-        <TableBodyCell>
+      <TableBodyRow class="bg-none!">
+        <TableBodyCell class="text-xl font-light"
+          >Your current allocation</TableBodyCell
+        >
+        <TableBodyCell class="text-right font-bold text-xl">
           {#if myParticipation}
             {myParticipation.percentage_of_total_pixels_changed *
               Number(poolsizeFormatted)}
@@ -130,10 +139,16 @@
       </TableBodyRow>
     </TableBody>
   </Table>
+{:else}
+  <div>
+    <Spinner class="mr-4" /> Calculating your participation...
+  </div>
 {/if}
 {#if !myParticipation}
-  <div>
-    <p>Make a move to participate in this artwork!</p>
+  <div
+    class="flex flex-col items-center gap-y-4 border-gray-200 border-t w-full pt-8 mt-8"
+  >
+    <p class="text-xl">Make a move to participate in this artwork!</p>
     <Button
       on:click={() => {
         setRoute("Play");

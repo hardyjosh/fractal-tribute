@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
   import type { Board } from "$lib/types";
   import { twMerge } from "tailwind-merge";
   import { createEventDispatcher } from "svelte";
   import Shape from "$lib/components/Shape.svelte";
+  import { Spinner } from "flowbite-svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -20,12 +22,12 @@
   };
 </script>
 
-{#if board}
-  <div
-    class="flex flex-row border-black border-2 rounded-lg overflow-hidden relative w-full"
-  >
+<div
+  class="flex flex-row border-black border-2 rounded-lg overflow-hidden relative w-full aspect-square items-center justify-center"
+>
+  {#if board}
     {#each board as col, x}
-      <div class="w-[3.125%]">
+      <div in:fade class="w-[3.125%]">
         {#each col as tile, y}
           <div
             role="button"
@@ -74,8 +76,10 @@
         {/each}
       </div>
     {/each}
-  </div>
-{/if}
+  {:else}
+    <Spinner />
+  {/if}
+</div>
 
 <style>
   .tile:hover {

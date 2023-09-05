@@ -102,18 +102,18 @@ export class DnaInterface {
     }
 
     // board
-    async getLatestBoard(): Promise<Board> {
+    async getLatestBoard(): Promise<BoardWithMetadata> {
         try {
-            const boardBytes = await this.client.callZome({
+            const res = await this.client.callZome({
                 cap_secret: null,
                 role_name,
                 zome_name,
                 fn_name: 'get_latest_board',
                 payload: null,
-            })
-            return parseBoardBytes(boardBytes)
+            }) as IncomingBoardWithMetadata
+            return parseIncomingBoardWithMetadata(res)
         } catch (e) {
-            console.log(e.data.data)
+            console.log(e?.data?.data)
             console.log(e)
         }
     }

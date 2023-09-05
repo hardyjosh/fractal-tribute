@@ -39,9 +39,10 @@ export type Tile = {
 export type Board = Tile[][];
 
 export type IncomingBoardWithMetadata = {
+  svg: string,
   bytes: Uint8Array,
   creator: AgentPubKey
-  creationHash: ActionHash
+  creation_hash: ActionHash
 }
 
 export type IncomingBoardWithMetadataAndId = {
@@ -50,6 +51,7 @@ export type IncomingBoardWithMetadataAndId = {
 }
 
 export type BoardWithMetadata = {
+  svg: string,
   board: Board,
   creator: AgentPubKey,
   creationHash: ActionHash

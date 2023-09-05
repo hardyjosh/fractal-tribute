@@ -10,6 +10,7 @@ name = "fractal_tribute_integrity"
 [dependencies]
 hdi = { workspace = true }
 hdk = { workspace = true }
+svg = { version= "0.13.1"}
 
 serde = { workspace = true }
 ethers-core = { version = "2.0.5"}

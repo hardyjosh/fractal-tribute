@@ -52,7 +52,11 @@
   {:else}
     {#each boards as board, i}
       <div class="flex flex-col gap-y-2 basis-1/5-gap-4 flex-none snap-start">
-        <Board readOnly board={board.boardWithMetadata.board} />
+        <img
+          class="border-2 border-black"
+          src={board.boardWithMetadata.svg}
+          alt="game board"
+        />
         <div
           class="rounded-md border-black border-2 flex gap-x-2 p-2 justify-between items-center w-full"
         >
