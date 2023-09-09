@@ -2,5 +2,7 @@
   "rust-analyzer.cargo.features": ["mock"],
   "rainlang.autoCompile": {
     "onSave": "./rain/expressions.json"
-  }
+  },
+  "editor.formatOnSave": true,
+  "solidity.formatter": "forge"
 }
