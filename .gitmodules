@@ -10,3 +10,6 @@
 [submodule "rain/lib/rain.interpreter"]
 	path = rain/lib/rain.interpreter
 	url = https://github.com/rainprotocol/rain.interpreter
+[submodule "rain/lib/contracts"]
+	path = rain/lib/contracts
+	url = https://github.com/maticnetwork/contracts
