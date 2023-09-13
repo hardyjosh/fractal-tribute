@@ -7,43 +7,68 @@ import "rain.flow/interface/IFlowERC1155V3.sol";
 import 'forge-std/StdJson.sol';
 import { Vm } from 'forge-std/Vm.sol';
 import { Strings } from 'openzeppelin-contracts/contracts/utils/Strings.sol';
+import { NativeTokenFlowERC1155Caller } from '../src/NativeTokenFlowCaller.sol';
+
 
 contract Deploy is Script {
+    ICloneableFactoryV2 public constant factory = ICloneableFactoryV2(0x70dD832A82481d4e1d15A3B50Db904719e2d3341);
+    address public constant implementation = 0x2f1a7d6dF220508b4E06e62b8D6bAdAc8e38a11C;
+    address public constant deployer = 0x0a2392aB861834305dB90A8825af102C02B6929C;
+
+    address public constant wmatic = 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889;
 
     using stdJson for string;
     using Strings for uint256;
 
-    ICloneableFactoryV2 public factory = ICloneableFactoryV2(0x70dD832A82481d4e1d15A3B50Db904719e2d3341);
-    address public implementation = 0x2f1a7d6dF220508b4E06e62b8D6bAdAc8e38a11C;
-    address public deployer = 0x0a2392aB861834305dB90A8825af102C02B6929C;
 
     function setUp() public {}
 
+    function getEvaluableConfig(string memory path) internal returns (EvaluableConfig memory config) {
+        string memory jsonContent = vm.readFile(
+            string.concat(vm.projectRoot(), path)
+        );
+        config.sources = jsonContent.readBytesArray('.sources');
+        config.constants = jsonContent.readUintArray('.constants');
+        config.deployer = IExpressionDeployerV1(deployer);
+    }
+
+    struct Addresses {
+        address nativeTokenFlowCaller;
+        address interpreter;
+        address store;
+        address instance;
+        address snapshotExp;
+        address mintExp;
+        address claimExp;
+    }
+
+    function decodeLogs(Vm.Log[] memory entries) internal returns (Addresses memory addresses) {
+        (, addresses.interpreter, addresses.store, addresses.snapshotExp) = abi.decode(entries[4].data, (address, address, address, address));
+        (, , , addresses.mintExp) = abi.decode(entries[7].data, (address, address, address, address));
+        (, , , addresses.claimExp) = abi.decode(entries[10].data, (address, address, address, address));
+    }
+
+    function writeAddressesToJson(Addresses memory addresses) internal {
+        string memory obj = "snapshot";
+        vm.serializeAddress(obj, "nativeTokenFlowCaller", addresses.nativeTokenFlowCaller);
+        vm.serializeAddress(obj, "interpreter", addresses.interpreter);
+        vm.serializeAddress(obj, "store", addresses.store);
+        vm.serializeAddress(obj, "instance", addresses.instance);
+        vm.serializeAddress(obj, "snapshot", addresses.snapshotExp);
+        vm.serializeAddress(obj, "mint", addresses.mintExp);
+        string memory output = vm.serializeAddress(obj, "claim", addresses.claimExp);
+        string memory file = string.concat(vm.projectRoot(), "/addresses/flow-", block.number.toString(), ".json");
+        vm.writeJson(output, file);
+    }
+
     function run() public {
+        vm.startBroadcast();
 
-        EvaluableConfig memory snapshot;
-        string memory snapshotJson = vm.readFile(
-            string.concat(vm.projectRoot(), "/src/snapshot.json")
-        );
-        snapshot.sources = snapshotJson.readBytesArray('.sources');
-        snapshot.constants = snapshotJson.readUintArray('.constants');
-        snapshot.deployer = IExpressionDeployerV1(deployer);
+        NativeTokenFlowERC1155Caller nativeTokenFlowCaller = new NativeTokenFlowERC1155Caller(wmatic);
 
-        EvaluableConfig memory mint;
-        string memory mintJson = vm.readFile(
-            string.concat(vm.projectRoot(), "/src/mint.json")
-        );
-        mint.sources = mintJson.readBytesArray('.sources');
-        mint.constants = mintJson.readUintArray('.constants');
-        mint.deployer = IExpressionDeployerV1(deployer);
-
-        EvaluableConfig memory claim;
-        string memory claimJson = vm.readFile(
-            string.concat(vm.projectRoot(), "/src/claim.json")
-        );
-        claim.sources = claimJson.readBytesArray('.sources');
-        claim.constants = claimJson.readUintArray('.constants');
-        claim.deployer = IExpressionDeployerV1(deployer);
+        EvaluableConfig memory snapshot = getEvaluableConfig("/src/snapshot.json");
+        EvaluableConfig memory mint = getEvaluableConfig("/src/mint.json");
+        EvaluableConfig memory claim = getEvaluableConfig("/src/claim.json");
 
         EvaluableConfig memory canTransfer;
         canTransfer.sources = new bytes[](0);
@@ -58,27 +83,17 @@ contract Deploy is Script {
         config.flowConfig[1] = mint;
         config.flowConfig[2] = claim;
 
-        vm.broadcast();
         vm.recordLogs();
 
         address instance = factory.clone(implementation, abi.encode(config));
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        (, address interpreter, address store, address snapshotExp) = abi.decode(entries[4].data, (address, address, address, address));
-        (, , , address mintExp) = abi.decode(entries[7].data, (address, address, address, address));
-        (, , , address claimExp) = abi.decode(entries[10].data, (address, address, address, address));
+        Addresses memory addresses = decodeLogs(entries);
 
-        string memory obj = "snpashot";
-        vm.serializeAddress(obj, "interpreter", interpreter);
-        vm.serializeAddress(obj, "store", store);
-        vm.serializeAddress(obj, "instance", instance);
-        vm.serializeAddress(obj, "snapshot", snapshotExp);
-        vm.serializeAddress(obj, "mint", mintExp);
-        string memory output = vm.serializeAddress(obj, "claim", claimExp);
-        uint256 blockNumber = block.number;
-        string memory file = string.concat(vm.projectRoot(), "/addresses/flow-", blockNumber.toString(), ".json");
-        vm.writeJson(output, file);
-    }
+        addresses.nativeTokenFlowCaller = address(nativeTokenFlowCaller);
+        addresses.instance = instance;
+
+        writeAddressesToJson(addresses);    }
 }
 
 

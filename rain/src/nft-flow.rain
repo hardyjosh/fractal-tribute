@@ -11,9 +11,12 @@
 
 /* constants */
 #game-master-address 0x74423442CEA6B5c90d13C2d7C21B0FcE723ECe6d
-#payment-token 0x2Eb1D24aB0eC5FD0058ab5073F1EA2d8A59783E5
-#snapshot-price 1e18
-#mint-price 1e18
+#payment-token 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889
+#snapshot-price 0
+#mint-price 1e15
+#snapshot-end-time 1695375962 /* Fri Sep 22 2023 09:46:02 GMT+0000 */
+#mint-end-time 1695635162 /* Mon Sep 25 2023 09:46:02 GMT+0000 */
+
 #pool-amount 0x7dcc3e0b65d87abfb19508b671b26139dbe32871289b025ab4df45ad2f5481dd /* keccack256('pool-amount') */ 
 #total-claimed-key 0xc6b7deb4e2f8b011c443c5ec0687465fc0468b096ad0fc5cb8e2f1a302a1a73b /* keccack256('total-claimed') */
 
@@ -22,7 +25,9 @@ you: context<0 0>(),
 me: context<0 1>(),
 content-hash: context<1 0 >(),
 tokenid: hash(you content-hash),
-amount: 1,
+
+/* ensure that the snapshot period is still active */
+:ensure(lt(now() snapshot-end-time)),
 
 /* ensure that the tokenid is not already minted */
 :ensure(not(get(tokenid))),
@@ -50,7 +55,7 @@ burnslist: sentinel1155,
  * mints of this erc1155 token
  */
 mintslist: sentinel1155,
-mint-account mint-id mint-amount: you tokenid amount
+mint-account mint-id mint-amount: you tokenid 1
 
 
 #mint
@@ -58,15 +63,19 @@ you: context<0 0>(),
 me: context<0 1>(),
 tokenid: context<1 0 >(),
 mint-amount: context<1 1>(),
+recipient: context<1 2>(),
+
+/* ensure that the mint period is still active */
+:ensure(lt(now() mint-end-time)),
+
+/* ensure that this tokenid has been minted at least once */
+:ensure(get(tokenid)),
 
 amount: mul(mint-amount mint-price),
 
 /* update the pool accounting */
 prev-amount: get(pool-amount),
 :set(pool-amount add(prev-amount amount)),
-
-/* ensure that this tokenid has been minted at least once */
-:ensure(get(tokenid)),
 
 transfererc1155slist: sentinel,
 transfererc721slist: sentinel,
@@ -84,7 +93,7 @@ burnslist: sentinel1155,
  * to, id, amount
  */
 mintslist: sentinel1155,
-_ _ _: you tokenid mint-amount
+_ _ _: recipient tokenid mint-amount
 
 
 #claim
@@ -117,13 +126,10 @@ coupon-hash: context-column-hash<3>(),
     every(
         /* ensure that the coupon is signed by the game master */
         eq(coupon-signer game-master-address)
-
         /* ensure that the coupon is for the caller */
         eq(claimant you)
-
         /* ensure that the token in the coupon is the payment token */
         eq(token payment-token)
-
         /* ensure that the coupon is for this contract */
         eq(contract me)
     )

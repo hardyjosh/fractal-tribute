@@ -17,6 +17,7 @@ import { Strings } from 'openzeppelin-contracts/contracts/utils/Strings.sol';
 import 'forge-std/StdCheats.sol';
 import { IERC1155 } from 'openzeppelin-contracts/contracts/token/ERC1155/IERC1155.sol';
 import { SignContext } from './contracts/SignContext.sol';
+import { NativeTokenFlowERC1155Caller } from '../src/NativeTokenFlowCaller.sol';
 
 contract NftTest is Test, SignContext {
     using stdJson for string;
@@ -28,11 +29,13 @@ contract NftTest is Test, SignContext {
 
     // this is hardcoded in the flow expression
     address gameMaster = 0x504093896403Aa2888e24ddE68c14e3435c2DEc5;
-    Token paymentToken = Token(0x2Eb1D24aB0eC5FD0058ab5073F1EA2d8A59783E5);
+    Token paymentToken = Token(0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889);
 
     ICloneableFactoryV2 public factory = ICloneableFactoryV2(0x70dD832A82481d4e1d15A3B50Db904719e2d3341);
     address public implementation = 0x2f1a7d6dF220508b4E06e62b8D6bAdAc8e38a11C;
     IExpressionDeployerV1 public deployer = IExpressionDeployerV1(0x0a2392aB861834305dB90A8825af102C02B6929C);
+
+    NativeTokenFlowERC1155Caller public nativeTokenFlowCaller;
 
     IFlowERC1155V3 public instance;
     IERC1155 public instanceAs1155;
@@ -45,6 +48,9 @@ contract NftTest is Test, SignContext {
     Evaluable claimEvaluable;
 
     function setUp() public {
+
+        nativeTokenFlowCaller = new NativeTokenFlowERC1155Caller(address(paymentToken));
+
         EvaluableConfig memory snapshot;
         string memory snapshotJson = vm.readFile(
             string.concat(vm.projectRoot(), "/src/snapshot.json")
@@ -113,6 +119,7 @@ contract NftTest is Test, SignContext {
         // alice mints a snapshot
         vm.startPrank(alice);
         paymentToken.approve(address(instance), 1000e18);
+
         instance.flow(snapshotEvaluable, context, new SignedContextV1[](0));
 
         // we can calculate what the nft is
@@ -121,15 +128,19 @@ contract NftTest is Test, SignContext {
         assertEq(instanceAs1155.balanceOf(address(alice), nftId), 1);
 
         // joe buys a bunch
+        deal(joe, 1000 ether);
         vm.startPrank(joe);
-        paymentToken.approve(address(instance), 1000e18);
-        uint256[] memory joeContext = new uint256[](2);
+        // paymentToken.approve(address(instance), 1000e18);
+        uint256[] memory joeContext = new uint256[](3);
         joeContext[0] = nftId;
         joeContext[1] = 10;
-        instance.flow(mintEvaluable, joeContext, new SignedContextV1[](0));
+        joeContext[2] = uint256(uint160(address(joe)));
+
+        nativeTokenFlowCaller.flow{value: 10e15 wei}(instance, mintEvaluable, joeContext, new SignedContextV1[](0));
+        // instance.flow(mintEvaluable, joeContext, new SignedContextV1[](0));
 
         assertEq(instanceAs1155.balanceOf(joe, nftId), 10);
-        assertEq(paymentToken.balanceOf(address(instance)), 11e18);
+        assertEq(paymentToken.balanceOf(address(instance)), 1e16);
         vm.stopPrank();
 
         // now create a coupon

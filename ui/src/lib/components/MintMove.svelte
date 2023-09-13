@@ -1,71 +1,49 @@
 <script lang="ts">
   import addresses from "$lib/addresses.json";
   import { account } from "svelte-wagmi-stores";
-  import {
-    nftContract,
-    paymentToken,
-    paymentTokenAddress,
-    web3modal,
-  } from "$lib/stores";
+  import { nativeTokenFlowCaller, web3modal } from "$lib/stores";
   import { Button, Heading, Spinner } from "flowbite-svelte";
-  import { type Address, parseEther, formatUnits } from "viem";
+  import { parseEther, formatEther } from "viem";
   import { mintEvaluable } from "$lib/helpers";
-  import { fetchToken, type FetchTokenResult } from "@wagmi/core";
   import { onMount } from "svelte";
+  import { fetchBalance } from "@wagmi/core";
 
   export let tokenId: bigint;
   export let open: boolean;
 
-  let allowance: bigint, balance: bigint;
-  let token: FetchTokenResult;
+  let balance: bigint;
 
-  const price = parseEther("1");
+  $: if ($account?.isConnected)
+    fetchBalance({ address: $account.address }).then(
+      (r) => (balance = r.value)
+    );
 
-  onMount(async () => {
-    token = await fetchToken({ address: paymentTokenAddress });
-  });
+  const price = parseEther("0.001");
 
-  $: ({ write, status, error } = $nftContract.write({
+  onMount(async () => {});
+
+  $: ({ write, status, error } = $nativeTokenFlowCaller.write({
     functionName: "flow",
-    args: [mintEvaluable, [tokenId, 1n], []],
+    args: [
+      addresses.instance,
+      mintEvaluable,
+      [tokenId, 1n, $account.address],
+      [],
+    ],
+    value: price,
   }));
 
   const mintMove = async () => {
     await write();
   };
 
-  $: ({
-    write: allowanceWrite,
-    status: allowanceStatus,
-    error: allowanceError,
-  } = $paymentToken.write({
-    functionName: "approve",
-    args: [addresses.instance as Address, price],
-  }));
-
-  $: $paymentToken
-    .read({
-      functionName: "allowance",
-      args: [$account?.address, addresses.instance as Address],
-    })
-    .then((r) => (allowance = r));
-
-  $: $paymentToken
-    .read({
-      functionName: "balanceOf",
-      args: [$account?.address],
-    })
-    .then((r) => (balance = r));
-
-  // $: console.log($error);
-
   $: balanceOk = balance >= price;
-  $: allowanceOk = allowance >= price;
 
-  $: ready =
-    balance !== undefined && allowance !== undefined && token !== undefined;
+  $: ready = balance !== undefined;
 
   // $: console.log({ allowance, balance, price });
+
+  $: console.log($error);
 </script>
 
 <div class="flex flex-col justify-center gap-y-4">
@@ -81,36 +59,17 @@
   {:else if $account.isConnected && !ready}
     <Spinner />
   {:else if $account.isConnected && ready}
-    {#if !balanceOk}
-      <p>You don't have enough {token?.name} to mint this move</p>
-    {:else if !allowanceOk}
-      <p>
-        Before you can mint, you first need to approve the NFT contract to spend
-        your {token?.name}
-      </p>
-      <Button
-        class="bg-fractalorange border-2 border-black self-start  "
-        disabled={$allowanceStatus === "loading"}
-        on:click={allowanceWrite}
-      >
-        {#if $allowanceStatus === "loading"}
-          <Spinner size="4" class="mr-2" /> Approving
-        {:else}
-          Approve spend
-        {/if}
-      </Button>
-    {:else if balanceOk && allowanceOk}
+    {#if balanceOk}
       {#if $status !== "success"}
         <p>
-          Minting a snapshot costs {formatUnits(price, token.decimals)}
-          {token.symbol}.
+          Minting a snapshot costs {formatEther(price)} MATIC.
         </p>
         <p>
           By minting this snapshot you are helping push this version of the
           artwork up the leaderboard.
         </p>
         <p>
-          The {token.symbol} collected will be sent to the game pool to be redistributed
+          The MATIC collected will be sent to the game pool to be redistributed
           to players at the end of the game
         </p>
         <div class="flex gap-x-2">
@@ -145,10 +104,6 @@
           }}>Close</Button
         >
       {/if}
-    {/if}
-
-    {#if $allowanceError}
-      <p>{$allowanceError}</p>
     {/if}
   {/if}
 </div>

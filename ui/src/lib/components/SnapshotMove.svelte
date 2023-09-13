@@ -31,7 +31,7 @@
 
   $: _move = hexToBigInt(keccak256(move));
 
-  const price = parseEther("1");
+  const price = parseEther("0");
 
   let allowance: bigint, balance: bigint;
   let token: FetchTokenResult;
@@ -123,15 +123,16 @@
     {:else if balanceOk && allowanceOk}
       {#if $status !== "success"}
         <p>
-          Creating a snapshot costs {formatUnits(price, token.decimals)}
-          {token.symbol}.
+          <!-- Creating a snapshot costs {formatUnits(price, token.decimals)}
+          {token.symbol}. -->
+          Creating a snapshot is free, you'll just need to pay the gas fee.
         </p>
         <p>
           One you have created your snapshot, other players (and the public)
-          will be able to mint your snapshot.
+          will be able to mint your snapshot to push it up the leaderboard.
         </p>
         <p>
-          The {token.symbol} collected will be sent to the game pool to be redistributed
+          The MATIC collected will be sent to the game pool to be redistributed
           to players at the end of the game
         </p>
         <div class="flex gap-x-2">

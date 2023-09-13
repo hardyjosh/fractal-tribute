@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: CAL
 pragma solidity ^0.8.18;
 
-import 'rain.flow/IFlowERC1155V3';
-import {WETH} from 'contracts/token/WETH.sol';
+import 'rain.flow/interface/IFlowERC1155V3.sol';
+import {IWETH} from './IWETH.sol';
 
 contract NativeTokenFlowERC1155Caller {
     error ERC721TransferNotSupported();
@@ -11,21 +11,21 @@ contract NativeTokenFlowERC1155Caller {
     error WrongValueSent();
     error CantBeTokenRecipient();
 
-    WETH public WMATIC;
+    IWETH public WMATIC;
 
-    function constructor(WETH _WMATIC) public {
-        WMATIC = _WMATIC;
+    constructor(address _wmatic) {
+        WMATIC = IWETH(_wmatic);
     }
 
     function flow(
-        IFlowERC1155V3 contract, 
+        IFlowERC1155V3 instance, 
         Evaluable calldata evaluable,
         uint256[] calldata callerContext,
         SignedContextV1[] calldata signedContexts
-    ) external payable public {
+    ) external payable {
 
-        FlowERC1155IOV1 memory flowPreview = contract.previewFlow(evaluable, callerContext, signedContexts);
-        uint256 wrappedMaticAmount = 0
+        FlowERC1155IOV1 memory flowPreview = instance.previewFlow(evaluable, callerContext, signedContexts);
+        uint256 wrappedMaticAmount = 0;
 
         // checks
         if (flowPreview.flow.erc721.length > 0) {
@@ -36,7 +36,10 @@ contract NativeTokenFlowERC1155Caller {
         }
         if (flowPreview.flow.erc20.length > 0) {
             for (uint256 i = 0; i < flowPreview.flow.erc20.length; i++) {
-                if (flowPreview.flow.erc20[i].token == address(WMATIC) && flowPreview.flow.erc20[i].to == address(this) ) {
+                if (flowPreview.flow.erc20[i].to == address(this)) {
+                    revert CantBeTokenRecipient();
+                }
+                if (flowPreview.flow.erc20[i].token == address(WMATIC)) {
                     wrappedMaticAmount += flowPreview.flow.erc20[i].amount;
                 } else {
                     revert ERC20TransferNotSupported();
@@ -55,11 +58,11 @@ contract NativeTokenFlowERC1155Caller {
         }
         // wrap the matic
         if (wrappedMaticAmount > 0) {
-            WMATIC.deposit(wrappedMaticAmount);
+            WMATIC.deposit{value: wrappedMaticAmount}();
         }
         // approve the flow contract
-        WMATIC.approve(address(contract), wrappedMaticAmount);
+        WMATIC.approve(address(instance), wrappedMaticAmount);
         
-        FlowERC1155IOV1 actualFlow = contract.flow(evaluable, callerContext, signedContexts);
+        instance.flow(evaluable, callerContext, signedContexts);
     }
 }
