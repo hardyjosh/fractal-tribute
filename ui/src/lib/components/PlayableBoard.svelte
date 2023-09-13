@@ -33,14 +33,24 @@
   let board: BoardWithMetadata;
   let mergedBoard: Board;
 
+  let palette;
   let color;
   let graphic_option;
+  let eyeDropper;
 
   $: brush = { color, graphic_option };
 
   $: if (board) mergedBoard = mergeGameMoveIntoBoard(board.board, move);
 
   const handleTileClick = (event: CustomEvent<{ x: number; y: number }>) => {
+    // if we're just picking a colour, update the palette
+    if (eyeDropper) {
+      const color = mergedBoard[event.detail.x][event.detail.y]?.color;
+      if (!color) return;
+      palette.setColor(color);
+      return;
+    }
+
     // if we've already placed this tile, don't do anything
     if (
       move.changes.find(
@@ -126,6 +136,8 @@
   let promptSnapshot = false;
   let snapshotMove = false;
   let savedMoveActionHash: ActionHash;
+
+  $: console.log("eye droper in playable board is", eyeDropper);
 </script>
 
 <div class="gap-x-4 items-stretch grid grid-cols-5">
@@ -133,6 +145,7 @@
     <BoardComp
       board={mergedBoard}
       bind:brush
+      bind:eyeDropper
       on:tileClick={handleTileClick}
       notAllowed={allMovesMade}
       readOnly={moveStatus !== MoveStatus.Ready || !$account?.isConnected}
@@ -171,7 +184,12 @@
           on:click={saveMove}>Save Move</Button
         >
       </div>
-      <Palette bind:color bind:graphic_option />
+      <Palette
+        bind:color
+        bind:graphic_option
+        bind:eyeDropper
+        bind:this={palette}
+      />
     {/if}
   </div>
 </div>

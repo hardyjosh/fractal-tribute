@@ -1,15 +1,28 @@
+<svelte:options accessors />
+
 <script lang="ts">
   import Shape from "$lib/components/Shape.svelte";
   import type { ShapeOptions } from "$lib/helpers";
+  import { Button } from "flowbite-svelte";
   import ColorPicker from "svelte-awesome-color-picker";
   import { twMerge } from "tailwind-merge";
+  import eyeDropperImg from "$lib/assets/eyedropper.png";
 
   export let color: { r: number; g: number; b: number } = {
     r: 255,
     g: 0,
     b: 0,
   };
+  let rgb;
   export let graphic_option: ShapeOptions = 0;
+  export let eyeDropper: boolean = false;
+  export let setColor = (_color) => {
+    rgb = { ..._color, a: 1 };
+    rgb = rgb;
+    color = _color;
+  };
+
+  $: console.log(rgb);
 
   let pickedColor;
 
@@ -27,9 +40,23 @@
   <div class="bg-primary-50 font-semibold p-2 border border-black rounded-md">
     Colour
   </div>
-  <div class="w-full flex flex-col items-center">
+  <div class="w-full flex flex-row items-start justify-start">
+    <div class="flex flex-col">
+      <button
+        on:click={() => {
+          eyeDropper = true;
+        }}
+        color="none"
+        class={twMerge(
+          "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
+          eyeDropper && " border-black"
+        )}
+        ><img alt="eye dropper icon" class="w-8" src={eyeDropperImg} /></button
+      >
+    </div>
     <ColorPicker
       bind:color={pickedColor}
+      bind:rgb
       isAlpha={false}
       isOpen
       isInput={false}
@@ -43,10 +70,11 @@
       <button
         on:click={() => {
           graphic_option = i;
+          eyeDropper = false;
         }}
         class={twMerge(
           "flex flex-col items-center py-2 rounded-md border-gray-400 border h-12 hover:border-gray-800 cursor-pointer",
-          graphic_option === i && "border-2 border-black"
+          graphic_option === i && !eyeDropper && "border-2 border-black"
         )}
       >
         <Shape {color} shapeOption={i} />

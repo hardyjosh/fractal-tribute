@@ -14,7 +14,10 @@
     color: { r: number; g: number; b: number };
     graphic_option: number;
   } | null = null;
+  export let eyeDropper;
   export let notAllowed: boolean = false;
+
+  let hoveredTile: { x: number; y: number } | null = null;
 
   const handleTileClick = (x: number, y: number) => {
     if (readOnly) return;
@@ -37,18 +40,16 @@
               !readOnly && "hover:border hover:border-blue-700 cursor-cell",
               "w-full aspect-square",
               tile.changed && "border-blue-700 border-4 border-double",
-              notAllowed && "cursor-not-allowed"
+              notAllowed && "cursor-not-allowed",
+              eyeDropper && "cursor-[url(/color-picker.cur),_auto]"
             )}
             on:mouseenter={(e) => {
-              if (readOnly) return;
-              // e.currentTarget.style.setProperty(
-              //   "background-color",
-              //   `rgb(${brush?.color.r} ${brush?.color.g} ${brush?.color.b})`
-              // );
+              if (readOnly || eyeDropper) return;
+              hoveredTile = { x, y };
             }}
             on:mouseleave={(e) => {
-              if (readOnly) return;
-              // e.currentTarget.style.setProperty("background-color", "");
+              if (readOnly || eyeDropper) return;
+              hoveredTile = null;
             }}
             on:click={() => handleTileClick(x, y)}
             on:keydown={(event) => {
@@ -57,10 +58,8 @@
               }
             }}
           >
-            <div
-              class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 z-10"
-            >
-              {#if brush?.color && brush?.graphic_option !== null}
+            <div class="absolute inset-0 flex items-center justify-center z-10">
+              {#if brush?.color && brush?.graphic_option !== null && !eyeDropper && hoveredTile?.x === x && hoveredTile?.y === y}
                 <Shape
                   color={brush?.color}
                   shapeOption={brush?.graphic_option}
