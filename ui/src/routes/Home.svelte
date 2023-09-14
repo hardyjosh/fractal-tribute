@@ -2,7 +2,6 @@
   import AllMyMoves from "$lib/components/AllMyMoves.svelte";
   import AllNfts from "$lib/components/AllNfts.svelte";
   import BuildParticipation from "$lib/components/Participation.svelte";
-  import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
   import PlayableBoard from "$lib/components/PlayableBoard.svelte";
 
   let allMyMoves: AllMyMoves;
@@ -16,14 +15,6 @@
       allMyMoves.updateNftIds();
     }}
   />
-
-  <!-- 
-  <Button
-    on:click={() => {
-      $happ.createGameMove(generateRandomGameMove());
-    }}>Create a random game move</Button
-  > -->
-
   <AllNfts />
 
   <AllMyMoves bind:this={allMyMoves} />

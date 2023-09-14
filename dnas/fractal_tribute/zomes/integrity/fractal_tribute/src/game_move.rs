@@ -99,13 +99,6 @@ pub fn validate_create_game_move(
     _action: EntryCreationAction,
     _game_move: GameMove,
 ) -> ExternResult<ValidateCallbackResult> {
-    if *_action.action_seq() < 5u32 {
-        return Ok(
-            ValidateCallbackResult::Invalid(
-                String::from("EVM pubkey binding must be the first action after genesis"),
-            ),
-        )
-    }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_game_move(
@@ -146,35 +139,38 @@ pub fn validate_create_link_tokenid_to_game_move(
 
     // get the link author's evm key
     let filter = ChainFilter::new(_action.prev_action).include_cached_entries();
-    let mut activity = must_get_agent_activity(_action.author, filter)?;
-    activity.reverse();
-    let record_action = activity.get(4).ok_or(wasm_error!(
-        WasmErrorInner::Guest(String::from("No entry #4 in the source chain"))
-    ))?.action.as_hash().clone();
-    let record = must_get_valid_record(record_action)?;
-    let evm_key_binding: EvmKeyBinding = record
-        .entry()
-        .to_app_option()
-        .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Couldn't convert entry #4 to EVM key binding"))
-            ),
-        )?;
-    let evm_key_bytes = evm_key_binding.evm_key;
+    let agent_activities = must_get_agent_activity(_action.author, filter)?;
 
-    let valid_link_base = create_link_base(evm_key_bytes, game_move_bytes).unwrap();
-    
-    let base = _base_address.as_hash().clone().into_external_hash().unwrap();
-    if valid_link_base != base {
-        return Ok(
-            ValidateCallbackResult::Invalid(
-                String::from("Link base address does not match a hash derived from the agent's EVM key and the content game_move bytes"),
-            ),
-        )
+    for activity in agent_activities {
+
+        let action_type = activity.action.hashed.action_type().clone();
+
+        if let holochain_integrity_types::ActionType::Create = action_type {
+            let record = must_get_valid_record(activity.action.hashed.hash)?;
+            let app_option = record.entry.to_app_option::<EvmKeyBinding>();
+            if let Ok(Some(evm_key_binding)) = app_option {
+                let evm_key_bytes = evm_key_binding.evm_key;
+
+                let valid_link_base = create_link_base(evm_key_bytes, game_move_bytes).unwrap();
+                
+                let base = _base_address.as_hash().clone().into_external_hash().unwrap();
+
+                if valid_link_base != base {
+                    return Ok(
+                        ValidateCallbackResult::Invalid(
+                            String::from("Link base address does not match a hash derived from the agent's EVM key and the content game_move bytes"),
+                        ),
+                    )
+                }
+            
+                return Ok(ValidateCallbackResult::Valid)            
+            }
+        } else {
+            continue;
+        }
     }
 
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid(String::from("No EvmKeyBinding found for the author of the link")))
 }
 pub fn validate_delete_link_tokenid_to_game_move(
     _action: DeleteLink,

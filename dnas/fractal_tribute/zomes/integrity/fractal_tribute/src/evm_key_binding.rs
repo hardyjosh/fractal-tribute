@@ -13,6 +13,7 @@ pub fn validate_create_evm_key_binding(
     _evm_key_binding: EvmKeyBinding,
 ) -> ExternResult<ValidateCallbackResult> {
 
+    // first verify the signature
     let mut address_array = [0u8; 20];
     address_array.copy_from_slice(_evm_key_binding.evm_key.as_slice());
     let address = H160::from(address_array);
@@ -30,13 +31,32 @@ pub fn validate_create_evm_key_binding(
         )
     }
 
-    if *_action.action_seq() != 4u32 {
-        return Ok(
-            ValidateCallbackResult::Invalid(
-                String::from("EVM pubkey binding must be the first action after genesis"),
-            ),
-        )
+    // see if we can find another EvmKeyBinding anywhere else on the chain
+    // each agent can only bind one evm key to their agent key
+    let author = _action.author().clone();
+    let filter = ChainFilter::new(_action.prev_action().clone()).include_cached_entries();
+    let agent_activities = hdk::chain::must_get_agent_activity(author, filter)?;
+
+    for activity in agent_activities {
+
+        let action_type = activity.action.hashed.action_type().clone();
+
+        if let holochain_integrity_types::ActionType::Create = action_type {
+            let record = must_get_valid_record(activity.action.hashed.hash)?;
+            let app_option = record.entry.to_app_option::<EvmKeyBinding>();
+            if let Ok(Some(_entry)) = app_option {
+                // An EvmKeyBinding was found, so return Invalid
+                return Ok(
+                    ValidateCallbackResult::Invalid(
+                        String::from("Another EvmKeyBinding was found on the chain"),
+                    ),
+                );
+            }
+        } else {
+            continue;
+        }
     }
+
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_evm_key_binding(

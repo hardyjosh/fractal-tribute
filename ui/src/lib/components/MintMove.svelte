@@ -49,7 +49,7 @@
 <div class="flex flex-col justify-center gap-y-4">
   <Heading tag="h4">Mint snapshot</Heading>
   {#if !$account.isConnected}
-    <p>You need to connect your wallet to mint a snapshot</p>
+    <p>You need to connect your wallet to collect a snapshot</p>
     <Button
       class="bg-fractalorange border-2 border-black self-start"
       on:click={() => {

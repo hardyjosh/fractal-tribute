@@ -1,6 +1,6 @@
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
-use crate::{all_game_moves::*, evm_key_binding::get_agent_evm_address};
+use crate::{all_game_moves::*, evm_key_binding::*};
 use std::collections::HashMap;
 use ethers_core::types::*;
 use ethers_core::abi::*;
@@ -31,10 +31,12 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
                 match std::convert::TryInto::<GameMove>::try_into(app_entry_bytes.clone().into_sb()) {
                     Ok(game_move) => {
                         let agent = record.action().author();
-                        let pixels_changed = game_move.count_changes();
-
-                        *agent_pixels_changed.entry(agent.clone()).or_insert(0) += pixels_changed as u32;
-                        total_pixels_changed += pixels_changed as u32;
+                        let result =_get_agent_evm_address(agent.clone());
+                        if let Ok(_) = result {
+                            let pixels_changed = game_move.count_changes();
+                            *agent_pixels_changed.entry(agent.clone()).or_insert(0) += pixels_changed as u32;
+                            total_pixels_changed += pixels_changed as u32;
+                        }
                     },
                     Err(_) => return Err(wasm_error!("Could not convert record to GameMove")),
                 }
@@ -49,7 +51,7 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
 
             // producing the packed message for signing is a little annoying because ethers-rs encode_packed doesn't work the same as solidity's
             // see https://github.com/gakonst/ethers-rs/issues/2225
-            let evm_key = get_agent_evm_address(agent.clone()).map_err(|_| wasm_error!("Could not get EVM address"))?;
+            let evm_key = get_agent_evm_address(agent.clone())?;
             let mut evm_key_slice = [0u8; 32];
             evm_key_slice[12..].copy_from_slice(&evm_key[..]);
             let evm_key_uint: U256 = evm_key_slice.try_into().unwrap();

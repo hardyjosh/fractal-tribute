@@ -30,6 +30,14 @@ pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
             ),
         )?;
 
+    let path = Path::from("all_game_moves");
+    create_link(path.path_entry_hash()?, game_move_hash.clone(), LinkTypes::AllGameMoves, ())?;
+
+    Ok(_record)
+}
+
+#[hdk_extern]
+pub fn create_tokenid_for_game_move(game_move_hash: ActionHash) -> ExternResult<()> {
     // add the extra 12 empty bytes so it matches the Solidty uint256
     let key_result = _get_evm_address();
     let key_bytes = match key_result {
@@ -58,12 +66,9 @@ pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
         game_move_hash.clone(),
         LinkTypes::TokenIdToGameMove,
         (),
-    )?;
-
-    let path = Path::from("all_game_moves");
-    create_link(path.path_entry_hash()?, game_move_hash.clone(), LinkTypes::AllGameMoves, ())?;
-
-    Ok(_record)
+    )?; 
+       
+    Ok(())
 }
 
 #[hdk_extern]

@@ -4,6 +4,7 @@
   import { account, walletClient } from "svelte-wagmi-stores";
   import { type ActionHash } from "@holochain/client";
   import {
+    happ,
     nftContract,
     paymentToken,
     paymentTokenAddress,
@@ -23,6 +24,7 @@
     waitForTransaction,
     type FetchTokenResult,
   } from "@wagmi/core";
+  import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -36,9 +38,18 @@
   let allowance: bigint, balance: bigint;
   let token: FetchTokenResult;
 
+  let key: Address;
+  let checkedKey = false;
+
   onMount(async () => {
     token = await fetchToken({ address: paymentTokenAddress });
+    await getKey();
+    checkedKey = true;
   });
+
+  const getKey = async () => {
+    key = await $happ.getEvmAddress();
+  };
 
   const getAllowanceAndBalance = async () => {
     allowance = await $paymentToken.read({
@@ -79,6 +90,7 @@
   }));
 
   const snapshotMove = async () => {
+    await $happ.createTokenIdForGameMove(move);
     await write();
   };
 
@@ -91,7 +103,24 @@
 
 <div class="flex flex-col justify-center gap-y-4">
   <Heading tag="h4">Create snapshot</Heading>
-  {#if !$account.isConnected}
+  {#if !checkedKey}
+    <Spinner />
+  {:else if !key}
+    <p>
+      Before you can mint a snapshot you need to bind your Ethereum wallet to
+      your Holochain agent key.
+    </p>
+    {#if !$account.isConnected}
+      <Button
+        class="bg-fractalorange border-2 border-black self-start"
+        on:click={() => {
+          $web3modal.openModal();
+        }}>Connect wallet</Button
+      >
+    {:else}
+      <CreateEvmKeyBinding on:evmKeyBindingCreated={getKey} />
+    {/if}
+  {:else if !$account.isConnected}
     <p>You need to connect your wallet to mint a snapshot</p>
     <Button
       class="bg-fractalorange border-2 border-black self-start"
@@ -99,6 +128,13 @@
         $web3modal.openModal();
       }}>Connect wallet</Button
     >
+  {:else if $account?.isConnected && $account.address !== key}
+    <p>
+      You previously bound the Ethereum wallet {key} to your Holochain agent key.
+    </p>
+    <p>
+      You'll need switch to this account in your wallet before you can mint.
+    </p>
   {:else if $account.isConnected && !ready}
     <Spinner />
   {:else if $account.isConnected && ready}

@@ -54,7 +54,7 @@
 </script>
 
 <div
-  class="flex flex-col justify-center items-center rounded-lg border-2 border-black bg-primary-25 h-full"
+  class="flex flex-col justify-center items-center rounded-lg border-black bg-primary-25 h-full max-w-full"
 >
   <div class="gap-y-6 w-full flex flex-col break-words p-4">
     {#if $account?.isConnected}

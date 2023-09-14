@@ -60,6 +60,7 @@ export class DnaInterface {
             return getAddress(bytesToHex(addressBytes))
         } catch (e) {
             console.log(e?.data?.data || e)
+            console.log(e?.message.toString().includes('Record not found'))
         }
     }
 
@@ -100,6 +101,22 @@ export class DnaInterface {
             console.log(e?.data?.data)
             console.log(e)
 
+        }
+    }
+
+    async createTokenIdForGameMove(gameMove: ActionHash) {
+        try {
+            return await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'create_tokenid_for_game_move',
+                payload: gameMove,
+            })
+        } catch (e) {
+            console.log(e?.data?.data)
+            console.log(e)
+            throw (e)
         }
     }
 

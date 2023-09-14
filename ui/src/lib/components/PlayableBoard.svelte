@@ -17,12 +17,11 @@
 
   enum MoveStatus {
     Thinking,
-    NotBinded,
     Ready,
     Cooldown,
   }
 
-  let moveStatus: MoveStatus = MoveStatus.Thinking;
+  let moveStatus: MoveStatus = MoveStatus.Ready;
 
   let move: GameMove = {
     changes: [],
@@ -124,8 +123,6 @@
   onMount(async () => {
     pollingInterval = setInterval(getBoard, 1000);
     getBoard();
-    const key = await $happ.getEvmAddress();
-    moveStatus = key ? MoveStatus.Ready : MoveStatus.NotBinded;
   });
 
   onDestroy(() => {
@@ -136,8 +133,6 @@
   let promptSnapshot = false;
   let snapshotMove = false;
   let savedMoveActionHash: ActionHash;
-
-  $: console.log("eye droper in playable board is", eyeDropper);
 </script>
 
 <div class="gap-x-4 items-stretch grid grid-cols-5">
@@ -148,17 +143,11 @@
       bind:eyeDropper
       on:tileClick={handleTileClick}
       notAllowed={allMovesMade}
-      readOnly={moveStatus !== MoveStatus.Ready || !$account?.isConnected}
+      readOnly={moveStatus !== MoveStatus.Ready}
     />
   </div>
   <div class="col-span-2">
-    {#if moveStatus == MoveStatus.NotBinded || !$account?.isConnected}
-      <CreateEvmKeyBinding
-        on:evmKeyBindingCreated={() => {
-          moveStatus = MoveStatus.Ready;
-        }}
-      />
-    {:else if moveStatus == MoveStatus.Ready}
+    {#if moveStatus == MoveStatus.Ready}
       <div class="p-4 border-2 border-black rounded-lg mb-4">
         You've made {move.changes.length}/10 changes.
       </div>

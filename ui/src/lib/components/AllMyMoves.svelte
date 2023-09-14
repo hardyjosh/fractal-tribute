@@ -30,7 +30,6 @@
 
   export const updateNftIds = async () => {
     nftIds = await fetchNftIds();
-    console.log("got new nft ids for all my moves");
   };
 
   let creationHash: ActionHash;
@@ -44,20 +43,16 @@
 
 <Heading tag="h4" class="font-pixel">Your moves</Heading>
 {#if ready}
-  {#if boards?.length && key}
+  {#if boards?.length}
     <div in:fade class="flex overflow-scroll gap-4">
       {#each boards as board}
-        {@const tokenId = actionHashAndAccountToTokenId(
-          board.creationHash,
-          key
-        )}
         <div class="flex flex-col gap-y-2 snap-start basis-1/5-gap-4 flex-none">
           <img
             alt="game board"
             class="border-2 border-black rounded-md"
             src={board.svg}
           />
-          {#if nftIds.find((nft) => bytesToHex(nft.id) == bytesToHex(tokenId))}
+          {#if key && nftIds.find((nft) => bytesToHex(nft.id) == bytesToHex(actionHashAndAccountToTokenId(board.creationHash, key)))}
             <Button
               on:click={() => {
                 snapshotMove(board.creationHash);

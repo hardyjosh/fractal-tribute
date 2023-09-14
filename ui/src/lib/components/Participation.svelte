@@ -13,16 +13,11 @@
   } from "$lib/helpers/participation";
   import {
     happ,
-    nftContract,
     paymentToken,
     paymentTokenAddress,
     web3modal,
   } from "$lib/stores";
-  import type {
-    AgentParticipation,
-    Board,
-    ParticipationProof,
-  } from "$lib/types";
+  import type { AgentParticipation, Board } from "$lib/types";
   import {
     Button,
     Spinner,
@@ -32,7 +27,13 @@
     TableBodyRow,
   } from "flowbite-svelte";
   import { account, walletClient } from "svelte-wagmi-stores";
-  import { bytesToHex, formatUnits, getAddress, type Hex } from "viem";
+  import {
+    bytesToHex,
+    formatUnits,
+    getAddress,
+    type Address,
+    type Hex,
+  } from "viem";
   import { writable } from "svelte/store";
   import addresses from "$lib/addresses.json";
   import { fetchToken, type FetchTokenResult } from "@wagmi/core";
@@ -41,6 +42,9 @@
 
   let board: Board;
   let myParticipation: AgentParticipation;
+  let evmKey: Address;
+
+  let bindingActive: boolean;
 
   let error = writable(null),
     write;
@@ -65,10 +69,16 @@
   onMount(async () => {
     const participations = await $happ.buildAgentParticipation();
     const myPubKey = await $happ.myPubKey();
+    evmKey = await $happ.getEvmAddress();
     myParticipation = participations.agent_participations.find(
       (p) => bytesToHex(p.agent) == bytesToHex(myPubKey)
     );
   });
+
+  const handleEvmBindingCreated = async () => {
+    evmKey = await $happ.getEvmAddress();
+    bindingActive = false;
+  };
 
   $: if ($account?.isConnected) {
     try {
@@ -91,7 +101,27 @@
   $: ready = myParticipation && poolSize && token && poolsizeFormatted;
 </script>
 
-{#if !$walletClient}
+{#if !evmKey && bindingActive}
+  <div class="w-full">
+    <CreateEvmKeyBinding on:evmKeyBindingCreated={handleEvmBindingCreated} />
+  </div>
+{:else if !evmKey}
+  <div class="mt-8 px-8 text-center flex flex-col gap-y-4">
+    <div class="text-xl">
+      You haven't bound your Ethereum wallet to your Holochain agent key yet.
+    </div>
+    <div class="text-xl">
+      Do it before the game ends to claim your share of the pool after minting
+      closes.
+    </div>
+    <Button
+      class="bg-fractalorange border-2 border-black"
+      on:click={() => {
+        bindingActive = true;
+      }}>Bind now</Button
+    >
+  </div>
+{:else if !$walletClient}
   <div class="mt-8 flex flex-col items-center gap-y-6">
     <p class="text-center">Connect your wallet to get your stats</p>
     <Button
@@ -118,7 +148,7 @@
       </TableBodyRow>
       <TableBodyRow class="bg-none!">
         <TableBodyCell class="text-xl font-light"
-          >Percentage contribution</TableBodyCell
+          >Percentage allocation</TableBodyCell
         >
         <TableBodyCell class="text-right font-bold text-xl">
           {#if myParticipation}
@@ -155,7 +185,7 @@
     <Spinner class="mr-4" /> Calculating your participation...
   </div>
 {/if}
-{#if !myParticipation}
+{#if !myParticipation && evmKey}
   <div
     class="flex flex-col items-center gap-y-4 border-gray-200 border-t w-full pt-8 mt-8"
   >

@@ -5,7 +5,7 @@ import type { Address } from "viem";
 import addresses from "$lib/addresses.json";
 import { NativeTokenFlowERC1155Caller } from "$lib/abi/NativeTokenFlowERC1155Caller";
 
-export const paymentTokenAddress = "0x2Eb1D24aB0eC5FD0058ab5073F1EA2d8A59783E5";
+export const paymentTokenAddress = "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889";
 
 export const nftContract = makeContractStore(IFlowERC1155V3, addresses.instance as Address)
 export const paymentToken = makeContractStore(IERC20, paymentTokenAddress as Address)
