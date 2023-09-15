@@ -66,7 +66,7 @@
     Shape
   </div>
   <div class="grid grid-cols-5 gap-4">
-    {#each new Array(11) as _, i}
+    {#each new Array(19) as _, i}
       <button
         on:click={() => {
           graphic_option = i;

@@ -23,6 +23,8 @@
     if (readOnly) return;
     dispatch("tileClick", { x, y });
   };
+
+  console.log(board);
 </script>
 
 <div

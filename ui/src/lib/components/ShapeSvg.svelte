@@ -95,4 +95,52 @@
       fill="rgb({color.r} {color.g} {color.b})"
     />
   {/if}
+  {#if shapeOption === ShapeOptions.TopLeftToBottomRightTrap}
+    <polygon
+      points="0,0 50,0 100,100 50,100"
+      fill="rgb({color.r} {color.g} {color.b})"
+    />
+  {/if}
+  {#if shapeOption === ShapeOptions.TopRightToBottomLeftTrap}
+    <polygon
+      points="0,100 50,0 100,0 50,100"
+      fill="rgb({color.r} {color.g} {color.b})"
+    />
+  {/if}
+  {#if shapeOption === ShapeOptions.BottomRightToTopLeftTrap}
+    <polygon
+      points="0,0 100,50 100,100 0,50"
+      fill="rgb({color.r} {color.g} {color.b})"
+    />
+  {/if}
+  {#if shapeOption === ShapeOptions.BottomLeftToTopRightTrap}
+    <polygon
+      points="0,50 100,0 100,50 0,100"
+      fill="rgb({color.r} {color.g} {color.b})"
+    />
+  {/if}
+  {#if shapeOption == ShapeOptions.TopLeftL}
+    <polygon
+      points="0,0 0,100 50,100 50,50 100,50 100,0 0,0"
+      fill="rgb({color.r} {color.g} {color.b})"
+    />
+  {/if}
+  {#if shapeOption == ShapeOptions.TopRightL}
+    <polygon
+      points="100,100 50,100 50,50 0,50 0,0 100,0 100,100"
+      fill="rgb({color.r} {color.g} {color.b})"
+    />
+  {/if}
+  {#if shapeOption == ShapeOptions.BottomRightL}
+    <polygon
+      points="50,0 100,0 100,100 0,100 0,50 50,50"
+      fill="rgb({color.r} {color.g} {color.b})"
+    />
+  {/if}
+  {#if shapeOption == ShapeOptions.BottomLeftL}
+    <polygon
+      points="0,0 50,0 50,50 100,50 100,100 0,100"
+      fill="rgb({color.r} {color.g} {color.b})"
+    />
+  {/if}
 </g>

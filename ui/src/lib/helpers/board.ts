@@ -4,9 +4,10 @@ import type { Board, BoardWithMetadataAndId, GameMove, IncomingBoardWithMetadata
 const BOARD_SIZE = 32;
 
 export const parseBoardBytes = (bytes: Uint8Array): Tile[][] => {
-    if (bytes.length !== BOARD_SIZE * BOARD_SIZE * 4) {
-        throw new Error("Invalid board bytes length");
-    }
+    // const bytesPerTile = 6; // 3 for RGB and 1 for graphic_option
+    // if (bytes.length !== BOARD_SIZE * BOARD_SIZE * bytesPerTile) {
+    //     throw new Error("Invalid board bytes length");
+    // }
 
     const board: Tile[][] = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill({}));
 
@@ -25,7 +26,9 @@ export const parseBoardBytes = (bytes: Uint8Array): Tile[][] => {
                 tile.color = { r, g, b };
             }
 
+            // if (graphic_option) {
             tile.graphic_option = graphic_option;
+            // }
 
             board[y][x] = tile;
         }
@@ -88,4 +91,12 @@ export enum ShapeOptions {
     LowerLeftTriangle,
     Circle,
     Diamond,
+    TopLeftToBottomRightTrap,
+    TopRightToBottomLeftTrap,
+    BottomRightToTopLeftTrap,
+    BottomLeftToTopRightTrap,
+    TopLeftL,
+    TopRightL,
+    BottomRightL,
+    BottomLeftL,
 }

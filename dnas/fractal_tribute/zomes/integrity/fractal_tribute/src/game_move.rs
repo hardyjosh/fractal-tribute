@@ -37,21 +37,14 @@ impl GameMove {
         self.changes.len()
     }
 
-    // Parsing a game_move from a dynamic-length byte array.
-    // If the byte array's length is not a multiple of 4, we'll return an error.
-    // Returns a dynamic-length byte array.
+    // Parsing a game_move from a dynamic-length byte array
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(self.changes.len() * 8);
+        let mut bytes = Vec::with_capacity(self.changes.len() * 6);
 
         for change in &self.changes {
-            // First byte: xxxxxxyy
-            let first_byte = (change.x as u8 & 0b11111) << 3 | (change.y as u8 >> 2);
-
-            // Second byte: yygooooo
-            let second_byte = ((change.y as u8 & 0b00000011) << 6) | (change.graphic_option & 0b1111);
-
-            bytes.push(first_byte);
-            bytes.push(second_byte);
+            bytes.push(change.x as u8);
+            bytes.push(change.y as u8);
+            bytes.push(change.graphic_option);
             bytes.push(change.color.r);
             bytes.push(change.color.g);
             bytes.push(change.color.b);
@@ -60,14 +53,14 @@ impl GameMove {
         bytes
     }
 
-    // Parsing a game_move from a dynamic-length byte array.
+    // Parsing a game_move from a dynamic-length byte array
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, &'static str> {
-        if bytes.len() % 5 != 0 {
+        if bytes.len() % 6 != 0 {
             return Err("Invalid length");
         }
 
-        let num_changes = bytes.len() / 5;
-
+        let num_changes = bytes.len() / 6;
+        
         if num_changes > 10 {
             return Err("Maximum of 10 pixel changes per move");
         }
@@ -75,15 +68,14 @@ impl GameMove {
         let mut changes = Vec::with_capacity(num_changes);
 
         for i in 0..num_changes {
-            let start = i * 5;
+            let start = i * 6;
             
-            let x = (bytes[start] >> 3) & 0b11111;
-            let y = ((bytes[start] & 0b00000111) << 2) | ((bytes[start + 1] >> 6) & 0b00000011);
-            let graphic_option = bytes[start + 1] & 0b1111;
-
-            let r = bytes[start + 2];
-            let g = bytes[start + 3];
-            let b = bytes[start + 4];
+            let x = bytes[start];
+            let y = bytes[start + 1];
+            let graphic_option = bytes[start + 2];
+            let r = bytes[start + 3];
+            let g = bytes[start + 4];
+            let b = bytes[start + 5];
 
             let color = Color { r, g, b };
 
@@ -92,7 +84,6 @@ impl GameMove {
 
         Ok(GameMove { changes })
     }
-
 }
 
 pub fn validate_create_game_move(
