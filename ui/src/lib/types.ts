@@ -1,5 +1,21 @@
 import type { ActionHash, AgentPubKey } from '@holochain/client'
-import type { Hex } from 'viem';
+import type { Address, Hex } from 'viem';
+
+export type DnaProperties = {
+  nft_contract_address: string;
+  payment_token_address: string;
+  game_end_time: string;
+  game_master_evm_key: string;
+  chain_id: string;
+};
+
+export type TransformedDnaProperties = {
+  nftContractAddress: Address;
+  paymentTokenAddress: Address;
+  gameEndTime: Date;
+  gameMasterEvmKey: Address;
+  chainId: number;
+};
 
 // EVM key binding
 export type EvmKeyBinding = {

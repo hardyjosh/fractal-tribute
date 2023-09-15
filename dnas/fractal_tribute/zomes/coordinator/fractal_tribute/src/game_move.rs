@@ -1,9 +1,15 @@
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
-use crate::evm_key_binding::_get_evm_address;
+use crate::{evm_key_binding::_get_evm_address, dna_properties::get_dna_properties};
 
 #[hdk_extern]
 pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
+
+    let game_end_time = get_dna_properties(())?.game_end_time;
+    let now = sys_time()?.as_seconds_and_nanos().0;
+    if now > game_end_time.into() {
+        return Err(wasm_error!("Game has ended"));
+    }
 
     let game_move_bytes_slice = game_move_bytes.as_slice();
 

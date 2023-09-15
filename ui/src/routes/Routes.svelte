@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { happ } from "$lib/stores";
   import { setContext } from "svelte";
   import { createCountdownStore, formatCountdown } from "$lib/stores/countdown";
   import logo from "$lib/assets/logo.svg";
@@ -7,7 +8,7 @@
   import { QuestionCircleOutline } from "flowbite-svelte-icons";
   import { countdownContext } from "$lib/contexts";
 
-  let countdown = createCountdownStore(1696462866000);
+  let countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
   setContext(countdownContext, countdown);
 
   let open: boolean = false;

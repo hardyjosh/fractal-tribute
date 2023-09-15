@@ -49,7 +49,10 @@
   };
 </script>
 
-<Heading tag="h4" class="font-pixel">{heading}</Heading>
+<div class="flex flex-col gap-y-2">
+  <Heading tag="h4" class="font-pixel">{heading}</Heading>
+  <p class="text-lg">Vote for your favourite snapshots by minting them</p>
+</div>
 <div class="flex overflow-scroll gap-4">
   {#if !boardsWithSupply || boardsWithSupply?.length == 0}
     <div

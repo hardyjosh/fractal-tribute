@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { happ } from "$lib/stores";
   import type { BoardWithMetadata } from "$lib/types";
   import SnapshotMove from "$lib/components/SnapshotMove.svelte";
@@ -15,12 +15,21 @@
   let key: Hex;
 
   let ready: boolean = false;
+  let interval;
 
   onMount(async () => {
     key = await $happ.getEvmAddress();
     await updateNftIds();
     await updateMyBoards();
     ready = true;
+    interval = setInterval(async () => {
+      await updateMyBoards();
+      await updateNftIds();
+    }, 10000);
+  });
+
+  onDestroy(() => {
+    clearInterval(interval);
   });
 
   export const updateMyBoards = async () => {
@@ -41,7 +50,13 @@
   };
 </script>
 
-<Heading tag="h4" class="font-pixel">Your moves</Heading>
+<div class="flex flex-col gap-y-2">
+  <Heading tag="h4" class="font-pixel">Your moves</Heading>
+  <p class="text-lg">
+    Make a snapshot onchain for any of your moves by minting them
+  </p>
+</div>
+
 {#if ready}
   {#if boards?.length}
     <div in:fade class="flex overflow-scroll gap-4">

@@ -1,14 +1,17 @@
-import type { Board, BoardWithMetadataAndId, EvmKeyBinding, GameMove, GameMoveWithActionHash, IncomingBoardWithMetadataAndId, ParticipationProof, BoardWithMetadata, IncomingBoardWithMetadata } from '$lib/types';
+import type { Board, BoardWithMetadataAndId, EvmKeyBinding, GameMove, GameMoveWithActionHash, IncomingBoardWithMetadataAndId, ParticipationProof, BoardWithMetadata, IncomingBoardWithMetadata, DnaProperties, TransformedDnaProperties } from '$lib/types';
 import type { AppAgentClient, Record, ActionHash } from '@holochain/client';
 import { writable } from 'svelte/store';
 import { type Address, getAddress, bytesToHex, concat } from 'viem'
 import { decode } from "@msgpack/msgpack";
 import { gameMoveToBytes, parseBoardBytes, parseIncomingBoardWithMetadata, parseIncomingBoardWithMetadataAndId, tokenIdToLinkBase } from '$lib/helpers';
+import { transformDnaProperties } from '$lib/helpers/dna-properties';
 
 export const happ = writable<DnaInterface>()
 
-export const initHapp = (client: AppAgentClient) => {
-    happ.set(new DnaInterface(client))
+export const initHapp = async (client: AppAgentClient) => {
+    const iface = new DnaInterface(client);
+    await iface.init();
+    happ.set(iface);
 }
 
 const role_name = 'fractal_tribute';
@@ -20,12 +23,35 @@ export class DnaInterface {
         this.client = client;
     }
 
-    public client
+    public client: AppAgentClient;
+    public dnaProperties: TransformedDnaProperties;
 
     myPubKey(): Uint8Array {
         return this.client.myPubKey;
 
     }
+
+    async init() {
+        this.dnaProperties = await this.getDnaInfo()
+    }
+
+    async getDnaInfo(): Promise<TransformedDnaProperties> {
+        try {
+            const res = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_dna_properties',
+                payload: null,
+            }) as DnaProperties
+            console.log(res)
+            return transformDnaProperties(res)
+        } catch (e) {
+            console.log(e?.data?.data)
+            console.log(e)
+        }
+    }
+
     // evm key binding
     async createEvmKeyBinding(evmKeyBindingEntry: EvmKeyBinding): Promise<Record> {
         let _evmKeyBinding: any = {}

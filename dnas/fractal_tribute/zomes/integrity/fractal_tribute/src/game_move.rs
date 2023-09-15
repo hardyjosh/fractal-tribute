@@ -1,5 +1,5 @@
 use hdi::prelude::*;
-use crate::*;
+use crate::{*, dna_properties::_get_dna_properties};
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
@@ -90,6 +90,15 @@ pub fn validate_create_game_move(
     _action: EntryCreationAction,
     _game_move: GameMove,
 ) -> ExternResult<ValidateCallbackResult> {
+    
+    let game_end_time = _get_dna_properties(())?.game_end_time;
+    let move_creation_time = _action.timestamp().as_seconds_and_nanos().0;
+
+    if move_creation_time > game_end_time.into() {
+        debug!("Game move validation failed because game has ended");
+        return Ok(ValidateCallbackResult::Invalid("Game has ended".to_string()));
+    }
+
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_game_move(

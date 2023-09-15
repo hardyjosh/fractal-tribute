@@ -91,7 +91,7 @@
     } catch (e) {
       console.log(e);
     }
-    fetchToken({ address: paymentTokenAddress }).then((r) => (token = r));
+    fetchToken({ address: $paymentTokenAddress }).then((r) => (token = r));
   }
 
   $: if (poolSize && token) {

@@ -27,7 +27,7 @@ const calculateTimeRemaining = (endTimestamp: number, currentTimestamp: number):
         seconds: [Math.floor(seconds / 10), seconds % 10]
     };
 };
-export const createCountdownStore = (endTime: number) => {
+export const createCountdownStore = (endTime: Date) => {
     const time = writable(Date.now(), (set) => {
         const intervalId = setInterval(() => {
             set(Date.now());
@@ -38,7 +38,7 @@ export const createCountdownStore = (endTime: number) => {
     });
 
     const countdown = derived(time, ($time) =>
-        calculateTimeRemaining(endTime, $time)
+        calculateTimeRemaining(endTime.valueOf(), $time)
     );
     return countdown;
 };

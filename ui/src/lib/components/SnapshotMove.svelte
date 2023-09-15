@@ -42,7 +42,7 @@
   let checkedKey = false;
 
   onMount(async () => {
-    token = await fetchToken({ address: paymentTokenAddress });
+    token = await fetchToken({ address: $paymentTokenAddress });
     await getKey();
     checkedKey = true;
   });
@@ -99,6 +99,8 @@
 
   $: ready =
     balance !== undefined && allowance !== undefined && token !== undefined;
+
+  $: console.log($error);
 </script>
 
 <div class="flex flex-col justify-center gap-y-4">

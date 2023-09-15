@@ -10,7 +10,7 @@ export const signParticipations = async (participation: ParticipationProof, priv
 
     const proofs = await Promise.all(participation.agent_participations.map(async (p) => {
         const evmBigint = bytesToBigint(pad(p.evm_key, { size: 32 }));
-        const tokenBigint = bytesToBigint(pad(hexToBytes(paymentTokenAddress), { size: 32 }));
+        const tokenBigint = bytesToBigint(pad(hexToBytes(get(paymentTokenAddress)), { size: 32 }));
         const contractBigint = bytesToBigint(pad(hexToBytes(addresses.instance as Address), { size: 32 }));
         const percentageBigint = parseEther(p.percentage_of_total_pixels_changed.toString());
         const message = encodePacked(
@@ -37,7 +37,7 @@ export const constructSignedContext = (agentParticipation: AgentParticipation) =
     const context = [
         bytesToBigint(pad(agentParticipation.evm_key, { size: 32 })),
         parseEther(agentParticipation.percentage_of_total_pixels_changed.toString()),
-        bytesToBigint(pad(hexToBytes(paymentTokenAddress), { size: 32 })),
+        bytesToBigint(pad(hexToBytes(get(paymentTokenAddress)), { size: 32 })),
         bytesToBigint(pad(hexToBytes(addresses.instance as Address), { size: 32 })),
     ]
     const signature = bytesToHex(agentParticipation.signature_bytes);

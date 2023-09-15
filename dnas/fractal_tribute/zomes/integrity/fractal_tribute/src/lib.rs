@@ -6,8 +6,10 @@ pub mod board;
 pub use board::*;
 pub mod participation_proof;
 pub use participation_proof::*;
+pub mod dna_properties;
 
 use hdi::prelude::*;
+
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
 #[hdk_entry_defs]
