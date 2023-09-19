@@ -16,13 +16,11 @@
   let rgb;
   export let graphic_option: ShapeOptions = 0;
   export let eyeDropper: boolean = false;
-  export let setColor = (_color) => {
+  export const setColor = (_color) => {
     rgb = { ..._color, a: 1 };
     rgb = rgb;
     color = _color;
   };
-
-  $: console.log(rgb);
 
   let pickedColor;
 

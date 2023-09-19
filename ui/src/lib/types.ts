@@ -52,6 +52,12 @@ export type Tile = {
   changed?: boolean
 };
 
+export type Brush = {
+  eyeDropper: boolean,
+  color: Color,
+  graphic_option: number
+}
+
 export type Board = Tile[][];
 
 export type IncomingBoardWithMetadata = {

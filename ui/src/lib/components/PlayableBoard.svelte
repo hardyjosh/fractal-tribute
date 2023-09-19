@@ -37,8 +37,8 @@
   let graphic_option;
   let eyeDropper;
 
-  $: brush = { color, graphic_option };
-
+  $: brush = { color, graphic_option, eyeDropper };
+  $: console.log("brush in playable board", brush);
   $: if (board) mergedBoard = mergeGameMoveIntoBoard(board.board, move);
 
   const handleTileClick = (event: CustomEvent<{ x: number; y: number }>) => {
@@ -101,14 +101,15 @@
     try {
       const record = await $happ.createGameMove(move);
       savedMoveActionHash = record.signed_action.hashed.hash;
+      console.log("move saved");
+      dispatch("moveSaved");
+      snapshotMove = false;
+      promptSnapshot = true;
       await getBoard();
       move = {
         changes: [],
       };
       undoneChanges = [];
-      snapshotMove = false;
-      promptSnapshot = true;
-      dispatch("moveSaved");
     } catch (e) {
       addToast("error", `Error saving move: ${e?.data?.data || e}`);
     }
@@ -121,7 +122,7 @@
   let pollingInterval;
 
   onMount(async () => {
-    pollingInterval = setInterval(getBoard, 1000);
+    pollingInterval = setInterval(getBoard, 10000);
     getBoard();
   });
 
@@ -133,17 +134,17 @@
   let promptSnapshot = false;
   let snapshotMove = false;
   let savedMoveActionHash: ActionHash;
+
+  $: console.log("brush in playable board", brush);
 </script>
 
 <div class="gap-x-4 items-stretch grid grid-cols-5">
-  <div class="col-span-3">
+  <div class="col-span-3 relative">
     <BoardComp
       board={mergedBoard}
       bind:brush
-      bind:eyeDropper
       on:tileClick={handleTileClick}
       notAllowed={allMovesMade}
-      readOnly={moveStatus !== MoveStatus.Ready}
     />
   </div>
   <div class="col-span-2">

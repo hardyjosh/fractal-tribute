@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
+use serde::de;
 use crate::all_game_moves::*;
 
 #[hdk_extern]
@@ -43,6 +44,8 @@ pub fn get_latest_board(_: ()) -> ExternResult<BoardWithMetadata> {
 
 #[hdk_extern]
 pub fn get_board_at_move(move_action_hash: ActionHash) -> ExternResult<BoardWithMetadata> {
+    let time = sys_time()?;
+    debug!("{:?}: starting", move_action_hash);
     let mut all_game_moves = get_all_game_moves(())?;
     let creator = all_game_moves[all_game_moves.len() - 1].action().author().clone();
 
@@ -51,7 +54,6 @@ pub fn get_board_at_move(move_action_hash: ActionHash) -> ExternResult<BoardWith
     } else {
         return Err(wasm_error!("Could not find a game move for that action hash"));
     }
-
     // convert the records into a vec of game moves
     let game_moves = all_game_moves.into_iter().map(|record| {
             let entry = record.entry.to_app_option::<GameMove>().map_err(|e| {
@@ -62,10 +64,15 @@ pub fn get_board_at_move(move_action_hash: ActionHash) -> ExternResult<BoardWith
     ).into_iter().collect::<Vec<GameMove>>();
 
     let game_moves: &[GameMove] = &game_moves;
+    let mut new_time = sys_time()?;
+    debug!("{:?}: got game moves in {:?}", move_action_hash, new_time - time);
     let board = Board::reconstruct_from_game_moves(game_moves);
     let bytes = board.to_bytes();
+    new_time = sys_time()?;
+    debug!("{:?}: got bytes in {:?}", move_action_hash, new_time - time);
     let svg = board.generate_svg();
-    
+    new_time = sys_time()?;
+    debug!("{:?}: got svg in {:?}", move_action_hash, new_time - time);
     Ok(
         BoardWithMetadata {
             svg,

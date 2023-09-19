@@ -162,16 +162,16 @@ export class DnaInterface {
         }
     }
 
-    async getBoardAtMove(actionHash: ActionHash): Promise<Board> {
+    async getBoardAtMove(actionHash: ActionHash): Promise<BoardWithMetadata> {
         try {
-            const boardBytes = await this.client.callZome({
+            const board = await this.client.callZome({
                 cap_secret: null,
                 role_name,
                 zome_name,
                 fn_name: 'get_board_at_move',
                 payload: actionHash,
-            })
-            return parseBoardBytes(boardBytes)
+            }) as IncomingBoardWithMetadata
+            return parseIncomingBoardWithMetadata(board);
         } catch (e) {
             console.log("Error getting board at move", e?.data?.data || e)
         }

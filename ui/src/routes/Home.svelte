@@ -1,5 +1,6 @@
 <script lang="ts">
   import AllMyMoves from "$lib/components/AllMyMoves.svelte";
+  import AllMyMovesAlt from "$lib/components/AllMyMovesAlt.svelte";
   import AllNfts from "$lib/components/AllNfts.svelte";
   import BuildParticipation from "$lib/components/Participation.svelte";
   import PlayableBoard from "$lib/components/PlayableBoard.svelte";
@@ -15,9 +16,11 @@
       allMyMoves.updateNftIds();
     }}
   />
+  <!-- <PlayableBoard /> -->
   <AllNfts />
 
-  <AllMyMoves bind:this={allMyMoves} />
+  <!-- <AllMyMoves bind:this={allMyMoves} /> -->
+  <AllMyMovesAlt bind:this={allMyMoves} />
 
   <!-- <BuildParticipation /> -->
 </div>
