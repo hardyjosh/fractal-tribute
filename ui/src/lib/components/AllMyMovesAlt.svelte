@@ -1,38 +1,22 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
+  import { nfts } from "$lib/stores/nfts";
   import { onMount, onDestroy } from "svelte";
   import { happ } from "$lib/stores";
-  import type { BoardWithMetadata } from "$lib/types";
   import SnapshotMove from "$lib/components/SnapshotMove.svelte";
-  import { Heading, Button, Modal, Spinner } from "flowbite-svelte";
+  import { Heading, Modal, Spinner } from "flowbite-svelte";
   import no_moves from "$lib/assets/no_moves.svg";
   import type { ActionHash } from "@holochain/client";
-  import { fetchNftIds, actionHashAndAccountToTokenId } from "$lib/helpers";
+  import { actionHashAndAccountToTokenId } from "$lib/helpers";
   import { bytesToHex, type Hex } from "viem";
   import MyMoveCard from "$lib/components/MyMoveCard.svelte";
   import IntersectionObserver from "svelte-intersection-observer";
 
-  let nftIds: { id: Uint8Array; supply: number }[];
   let moveActions: ActionHash[] = [];
   let key: Hex;
   let wrappers: HTMLElement[] = [];
 
-  let ready: boolean = false;
-  let interval;
-
   onMount(async () => {
     key = await $happ.getEvmAddress();
-    await updateNftIds();
-    await updateMyBoards();
-    ready = true;
-    interval = setInterval(async () => {
-      await updateMyBoards();
-      await updateNftIds();
-    }, 10000);
-  });
-
-  onDestroy(() => {
-    clearInterval(interval);
   });
 
   export const updateMyBoards = async () => {
@@ -42,9 +26,7 @@
     moveActions = _moveActions;
   };
 
-  export const updateNftIds = async () => {
-    nftIds = await fetchNftIds();
-  };
+  $: if ($nfts) updateMyBoards();
 
   let creationHash: ActionHash;
   let openModal = false;
@@ -53,6 +35,8 @@
     creationHash = action;
     openModal = true;
   };
+
+  $: ready = moveActions && $nfts;
 </script>
 
 <div class="flex flex-col gap-y-2">
@@ -72,7 +56,13 @@
             class="flex flex-col gap-y-2 snap-start basis-1/5-gap-4 flex-none"
           >
             {#if intersecting}
-              <MyMoveCard actionHash={action} {key} />
+              <MyMoveCard
+                actionHash={action}
+                {key}
+                on:snapshot={() => {
+                  snapshotMove(action);
+                }}
+              />
             {/if}
           </div>
         </IntersectionObserver>

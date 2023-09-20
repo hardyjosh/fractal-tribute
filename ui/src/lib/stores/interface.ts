@@ -44,7 +44,7 @@ export class DnaInterface {
                 fn_name: 'get_dna_properties',
                 payload: null,
             }) as DnaProperties
-            console.log(res)
+            // console.log(res)
             return transformDnaProperties(res)
         } catch (e) {
             console.log(e?.data?.data)
@@ -86,7 +86,7 @@ export class DnaInterface {
             return getAddress(bytesToHex(addressBytes))
         } catch (e) {
             console.log(e?.data?.data || e)
-            console.log(e?.message.toString().includes('Record not found'))
+            // console.log(e?.message.toString().includes('Record not found'))
         }
     }
 
@@ -121,7 +121,7 @@ export class DnaInterface {
                 const actionHash = r.signed_action.hashed.hash
                 return { gameMove, actionHash }
             })
-            console.log('all my game moves', records)
+            // console.log('all my game moves', records)
             return records
         } catch (e) {
             console.log(e?.data?.data)
@@ -143,6 +143,21 @@ export class DnaInterface {
             console.log(e?.data?.data)
             console.log(e)
             throw (e)
+        }
+    }
+
+    async getNumberOfMoves(): Promise<number> {
+        try {
+            return await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_number_of_moves',
+                payload: null,
+            })
+        } catch (e) {
+            console.log(e?.data?.data)
+            console.log(e)
         }
     }
 

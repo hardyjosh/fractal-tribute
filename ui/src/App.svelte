@@ -31,9 +31,9 @@
 
 <div class="min-w-screen min-h-screen p-4 container mx-auto">
   {#if $happ && ready}
-    <!-- <RandomGameMoves /> -->
     <Routes />
   {/if}
 </div>
+<RandomGameMoves />
 
 <Toasts {toasts} />

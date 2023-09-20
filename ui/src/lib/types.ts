@@ -99,3 +99,6 @@ export type ParticipationProof = {
   total_pixels_changed: number;
   agent_participations: AgentParticipation[];
 }
+
+// NFTS
+export type NFT = { id: Uint8Array, supply: number }

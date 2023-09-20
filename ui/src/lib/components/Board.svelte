@@ -10,35 +10,12 @@
 
   export let board: Board;
   export let brush: Brush | null = null;
-  export let notAllowed: boolean = false;
 
   let wrapper: HTMLDivElement;
 
   const handleTileClick = (x: number, y: number) => {
     dispatch("tileClick", { x, y });
   };
-
-  $: console.log("brush in board.svele", brush);
-
-  // $: cursor = notAllowed
-  //   ? "!cursor-not-allowed"
-  //   : brush?.eyeDropper
-  //   ? "cursor-[url(/color-picker.cur),_auto]"
-  //   : "cursor-cell";
-
-  $: if (wrapper && (brush || notAllowed)) {
-    console.log("setting cursor", brush);
-    if (notAllowed) {
-      console.log("setting cursor to not allowed");
-      wrapper.style.cursor = "not-allowed";
-    } else if (brush?.eyeDropper) {
-      console.log("setting cursor to eye dropper");
-      wrapper.style.cursor = "url(/color-picker.cur), auto";
-    } else {
-      console.log("setting cursor to cell");
-      wrapper.style.cursor = "cell";
-    }
-  }
 </script>
 
 <div
@@ -52,7 +29,6 @@
           <Tile
             {brush}
             {tile}
-            {notAllowed}
             on:click={() => {
               handleTileClick(x, y);
             }}

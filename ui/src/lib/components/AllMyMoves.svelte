@@ -7,7 +7,7 @@
   import { Heading, Button, Modal, Spinner } from "flowbite-svelte";
   import no_moves from "$lib/assets/no_moves.svg";
   import type { ActionHash } from "@holochain/client";
-  import { fetchNftIds, actionHashAndAccountToTokenId } from "$lib/helpers";
+  import { actionHashAndAccountToTokenId } from "$lib/helpers";
   import { bytesToHex, type Hex } from "viem";
 
   let boards: BoardWithMetadata[];

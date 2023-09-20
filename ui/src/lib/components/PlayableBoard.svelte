@@ -12,6 +12,7 @@
   import { addToast } from "$lib/components/toasts";
   import type { ActionHash } from "@holochain/client";
   import SnapshotMove from "$lib/components/SnapshotMove.svelte";
+  import BoardNew from "$lib/components/BoardNew.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -32,13 +33,14 @@
   let board: BoardWithMetadata;
   let mergedBoard: Board;
 
+  let wrapper: HTMLDivElement;
+
   let palette;
   let color;
   let graphic_option;
   let eyeDropper;
 
   $: brush = { color, graphic_option, eyeDropper };
-  $: console.log("brush in playable board", brush);
   $: if (board) mergedBoard = mergeGameMoveIntoBoard(board.board, move);
 
   const handleTileClick = (event: CustomEvent<{ x: number; y: number }>) => {
@@ -101,7 +103,6 @@
     try {
       const record = await $happ.createGameMove(move);
       savedMoveActionHash = record.signed_action.hashed.hash;
-      console.log("move saved");
       dispatch("moveSaved");
       snapshotMove = false;
       promptSnapshot = true;
@@ -135,17 +136,21 @@
   let snapshotMove = false;
   let savedMoveActionHash: ActionHash;
 
-  $: console.log("brush in playable board", brush);
+  // $: console.log("brush in playable board", brush);
 </script>
 
 <div class="gap-x-4 items-stretch grid grid-cols-5">
-  <div class="col-span-3 relative">
-    <BoardComp
-      board={mergedBoard}
-      bind:brush
-      on:tileClick={handleTileClick}
-      notAllowed={allMovesMade}
-    />
+  <div bind:this={wrapper} class="col-span-3 relative">
+    <!-- <BoardComp board={mergedBoard} bind:brush on:tileClick={handleTileClick} /> -->
+    {#if board}
+      <BoardNew
+        {allMovesMade}
+        {board}
+        {brush}
+        {move}
+        on:tileClick={handleTileClick}
+      />
+    {/if}
   </div>
   <div class="col-span-2">
     {#if moveStatus == MoveStatus.Ready}

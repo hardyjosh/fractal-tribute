@@ -37,7 +37,7 @@ pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
         )?;
 
     let path = Path::from("all_game_moves");
-    create_link(path.path_entry_hash()?, game_move_hash.clone(), LinkTypes::AllGameMoves, ())?;
+    create_link(path.path_entry_hash()?, game_move_hash.clone(), LinkTypes::AllGameMoves, game_move_bytes)?;
 
     Ok(_record)
 }

@@ -24,6 +24,29 @@ pub fn get_all_game_moves(_: ()) -> ExternResult<Vec<Record>> {
     Ok(records)
 }
 
+#[hdk_extern]
+pub fn get_all_game_moves_from_link_tags(_:()) -> ExternResult<Vec<GameMove>> {
+    let path = Path::from("all_game_moves");
+    let links: Vec<Link> = get_links(path.path_entry_hash()?, LinkTypes::AllGameMoves, None)?;
+    // get the bytes from each link tag and make a vector of game moves
+    let game_moves: Vec<GameMove> = links
+        .into_iter()
+        .map(|link| {
+            let bytes = link.tag.0;
+            let game_move = GameMove::from_bytes(&bytes).ok().unwrap();
+            Ok(game_move)
+        })
+        .collect::<ExternResult<Vec<GameMove>>>()?;
+    Ok(game_moves)
+}
+
+#[hdk_extern]
+pub fn get_number_of_moves(_:()) -> ExternResult<u32> {
+    let path = Path::from("all_game_moves");
+    let links = get_links(path.path_entry_hash()?, LinkTypes::AllGameMoves, None)?;
+    Ok(links.len() as u32)
+}
+
 
 #[hdk_extern]
 pub fn get_all_my_game_moves(_: ()) -> ExternResult<Vec<Record>> {

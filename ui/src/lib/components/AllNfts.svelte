@@ -1,29 +1,24 @@
 <script lang="ts">
-  import Board from "$lib/components/Board.svelte";
-  import { fetchNftIds, formatAddress } from "$lib/helpers";
+  import { formatAddress } from "$lib/helpers";
   import { happ } from "$lib/stores";
   import { Button, Heading, Modal } from "flowbite-svelte";
-  import { onMount, onDestroy } from "svelte";
   import type { BoardWithMetadataAndId } from "$lib/types";
   import { encodeHashToBase64 } from "@holochain/client";
   import no_snapshots from "$lib/assets/no_snapshots.svg";
   import MintMove from "$lib/components/MintMove.svelte";
   import { hexToBigInt, type Hex, bytesToHex } from "viem";
+  import { nfts } from "$lib/stores/nfts";
 
   export let heading = "Latest snapshots";
   export let showWinnerPanel = false;
 
-  let nftIds: { id: Uint8Array; supply: number }[] = [];
   let boards: BoardWithMetadataAndId[] = [];
   let boardsWithSupply: (BoardWithMetadataAndId & { supply: number })[] = [];
 
-  let pollInterval;
-
   const prepareHappNfts = async () => {
-    nftIds = await fetchNftIds();
-    boards = await $happ.getBoardsFromTokenIds(nftIds.map((nft) => nft.id));
+    boards = await $happ.getBoardsFromTokenIds($nfts.map((nft) => nft.id));
     boardsWithSupply = boards.map((board) => {
-      const nft = nftIds.find((nft) => bytesToHex(nft.id) == board.id);
+      const nft = $nfts.find((nft) => bytesToHex(nft.id) == board.id);
       return { ...board, supply: nft.supply };
     });
     if (showWinnerPanel) {
@@ -31,14 +26,7 @@
     }
   };
 
-  onMount(async () => {
-    prepareHappNfts();
-    pollInterval = setInterval(prepareHappNfts, 20000);
-  });
-
-  onDestroy(() => {
-    clearInterval(pollInterval);
-  });
+  $: if ($nfts) prepareHappNfts();
 
   let mintMoveModal = false;
   let tokenId: bigint;

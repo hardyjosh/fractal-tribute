@@ -7,6 +7,7 @@
   import { bytesToHex, type Hex } from "viem";
   import { happ } from "$lib/stores";
   import { Spinner } from "flowbite-svelte";
+  import { nfts } from "$lib/stores/nfts";
 
   const dispatch = createEventDispatcher();
 
@@ -14,7 +15,6 @@
   export let key: Hex;
 
   let board: BoardWithMetadata;
-  let nftIds: { id: Uint8Array; supply: number }[];
 
   onMount(async () => {
     console.log("should be requesting the board");
@@ -32,7 +32,7 @@
       <Spinner />
     {/if}
   </div>
-  {#if key && nftIds.find((nft) => bytesToHex(nft.id) == bytesToHex(actionHashAndAccountToTokenId(actionHash, key)))}
+  {#if key && $nfts?.find((nft) => bytesToHex(nft.id) == bytesToHex(actionHashAndAccountToTokenId(actionHash, key)))}
     <Button
       on:click={() => {
         dispatch("snapshot");

@@ -1,7 +1,7 @@
 import { concat, bytesToHex, type Hex, keccak256, hexToBytes, pad } from "viem";
 import type { Board, BoardWithMetadataAndId, GameMove, IncomingBoardWithMetadataAndId, Tile, IncomingBoardWithMetadata, BoardWithMetadata } from "../types";
 
-const BOARD_SIZE = 32;
+export const BOARD_SIZE = 32;
 
 export const parseBoardBytes = (bytes: Uint8Array): Tile[][] => {
     // const bytesPerTile = 6; // 3 for RGB and 1 for graphic_option
