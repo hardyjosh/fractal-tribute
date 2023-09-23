@@ -1,11 +1,12 @@
 use hdi::prelude::*;
+use svg::node::Text;
 use crate::*;
-use svg::node::element::{Rectangle, Circle, Polygon};
+use svg::node::element::{Rectangle, Circle, Polygon, Use, Definitions};
 use svg::Document;
 
-const BOARD_SIZE: usize = 32;
+const BOARD_SIZE: usize = 50;
 
-#[hdk_entry_helper]
+// #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct Board {
     tiles: [[Tile; BOARD_SIZE]; BOARD_SIZE],
@@ -22,6 +23,7 @@ pub struct Tile {
 #[derive(Clone, PartialEq)]
 pub struct BoardWithMetadata {
     pub svg: String,
+    // pub png: String,
     pub bytes: Vec<u8>,
     pub creator: AgentPubKey,
     pub creation_hash: ActionHash,
@@ -78,163 +80,43 @@ impl Board {
 
     pub fn generate_svg(&self) -> String {
         let mut document = Document::new().set("viewBox", (0, 0, BOARD_SIZE * 100, BOARD_SIZE * 100));
-    
+        
+        let defs = Text::new(include_str!("defs.svg"));
+
+        document = document.add(defs);
+
         for (x, col) in self.tiles.iter().enumerate() {
             for (y, tile) in col.iter().enumerate() {
                 let base_x = x as u32 * 100;
                 let base_y = y as u32 * 100;
     
                 let rect = Rectangle::new()
-                    .set("x", base_x + 1)
-                    .set("y", base_y + 1)
-                    .set("width", 98)
-                    .set("height", 98)
-                    .set("fill", "rgb(249, 250, 251)");
+                    .set("x", base_x)
+                    .set("y", base_y)
+                    .set("width", 100)
+                    .set("height", 100);
+                    // .set("fill", "rgb(249, 250, 251)");
     
-                document = document.add(rect);
+                // document = document.add(rect);
     
                 if let Some(color) = tile.color {
                     let fill = format!("rgb({},{},{})", color.r, color.g, color.b);
-                    
-                    match tile.graphic_option {
-                        Some(0) => { // Square
-                            let square = Rectangle::new()
-                                .set("x", base_x)
-                                .set("y", base_y)
-                                .set("width", 100)
-                                .set("height", 100)
-                                .set("fill", fill);
-                            document = document.add(square);
-                        },
-                        Some(1) => { // LeftRectangle
-                            let rect = Rectangle::new()
-                                .set("x", base_x)
-                                .set("y", base_y)
-                                .set("width", 50)
-                                .set("height", 100)
-                                .set("fill", fill);
-                            document = document.add(rect);
-                        },
-                        Some(2) => { // UpperRectangle
-                            let rect = Rectangle::new()
-                                .set("x", base_x)
-                                .set("y", base_y)
-                                .set("width", 100)
-                                .set("height", 50)
-                                .set("fill", fill);
-                            document = document.add(rect);
-                        },
-                        Some(3) => { // RightRectangle
-                            let rect = Rectangle::new()
-                                .set("x", base_x + 50)
-                                .set("y", base_y)
-                                .set("width", 50)
-                                .set("height", 100)
-                                .set("fill", fill);
-                            document = document.add(rect);
-                        },
-                        Some(4) => { // LowerRectangle
-                            let rect = Rectangle::new()
-                                .set("x", base_x)
-                                .set("y", base_y + 50)
-                                .set("width", 100)
-                                .set("height", 50)
-                                .set("fill", fill);
-                            document = document.add(rect);
-                        },
-                        Some(5) => { // UpperLeftTriangle
-                            let triangle = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}", base_x, base_y, base_x + 100, base_y, base_x, base_y + 100))
-                                .set("fill", fill);
-                            document = document.add(triangle);
-                        },
-                        Some(6) => { // UpperRightTriangle
-                            let triangle = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}", base_x, base_y, base_x + 100, base_y, base_x + 100, base_y + 100))
-                                .set("fill", fill);
-                            document = document.add(triangle);
-                        },
-                        Some(7) => { // LowerRightTriangle
-                            let triangle = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}", base_x, base_y + 100, base_x + 100, base_y + 100, base_x + 100, base_y))
-                                .set("fill", fill);
-                            document = document.add(triangle);
-                        },
-                        Some(8) => { // LowerLeftTriangle
-                            let triangle = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}", base_x, base_y, base_x, base_y + 100, base_x + 100, base_y + 100))
-                                .set("fill", fill);
-                            document = document.add(triangle);
-                        },
-                        Some(9) => { // Circle
-                            let circle = Circle::new()
-                                .set("cx", base_x + 50)
-                                .set("cy", base_y + 50)
-                                .set("r", 50)
-                                .set("fill", fill);
-                            document = document.add(circle);
-                        },
-                        Some(10) => { // Diamond
-                            let diamond = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}, {},{}", base_x, base_y + 50, base_x + 50, base_y, base_x + 100, base_y + 50, base_x + 50, base_y + 100))
-                                .set("fill", fill);
-                            document = document.add(diamond);
-                        },
-                        Some(11) => {
-                            let trap = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}, {},{}", base_x, base_y, base_x + 50, base_y, base_x + 100, base_y + 100, base_x + 50, base_y + 100))
-                                .set("fill", fill);
-                            document = document.add(trap);
-                        },
-                        Some(12) => {
-                            let trap = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}, {},{}", base_x, base_y + 100, base_x + 50, base_y, base_x + 100, base_y, base_x + 50, base_y + 100))
-                                .set("fill", fill);
-                            document = document.add(trap);
-                        },
-                        Some(13) => {
-                            let trap = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}, {},{}", base_x, base_y, base_x + 100, base_y + 50, base_x + 100, base_y + 100, base_x, base_y + 50))
-                                .set("fill", fill);
-                            document = document.add(trap);
-                        },
-                        Some(14) => {
-                            let trap = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}, {},{}", base_x, base_y + 50, base_x + 100, base_y, base_x + 100, base_y + 50, base_x, base_y + 100))
-                                .set("fill", fill);
-                            document = document.add(trap);
-                        },
-                        Some(15) => {
-                            let l = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}, {},{}, {},{}, {},{}", base_x, base_y, base_x, base_y + 100, base_x + 50, base_y + 100, base_x + 50, base_y + 50, base_x + 100, base_y + 50, base_x + 100, base_y))
-                                .set("fill", fill);
-                            document = document.add(l);
-                        },
-                        Some(16) => {
-                            let l = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}, {},{}, {},{}, {},{}", base_x + 100, base_y + 100, base_x + 50, base_y + 100, base_x + 50, base_y + 50, base_x, base_y + 50, base_x, base_y, base_x + 100, base_y))
-                                .set("fill", fill);
-                            document = document.add(l);
-                        },
-                        Some(17) => { // BottomRightL
-                            let l = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}, {},{}, {},{}, {},{}", base_x + 50, base_y, base_x + 100, base_y, base_x + 100, base_y + 100, base_x, base_y + 100, base_x, base_y + 50, base_x + 50, base_y + 50))
-                                .set("fill", fill);
-                            document = document.add(l);
-                        },
-                        Some(18) => { // BottomLeftL
-                            let l = Polygon::new()
-                                .set("points", format!("{},{}, {},{}, {},{}, {},{}, {},{}, {},{}", base_x, base_y, base_x + 50, base_y, base_x + 50, base_y + 50, base_x + 100, base_y + 50, base_x + 100, base_y + 100, base_x, base_y + 100))
-                                .set("fill", fill);
-                            document = document.add(l);
-                        },
-                        _ => ()
+                    let rect = rect.set("fill", fill);
+
+                    if let Some(graphic_option) = tile.graphic_option {
+                        let mask_attr = format!("url(#m_{})", graphic_option + 1);
+                        let rect = rect.set("mask", mask_attr);
+                        document = document.add(rect);
                     }
                 }
             }
-        }
-    
-        let svg_str: String = document.to_string();
-        format!("data:image/svg+xml;utf8,{}", svg_str)
+        } 
+        document.to_string()
     }
+
+    pub fn generate_svg_data_uri(&self) -> String {
+        let svg = self.generate_svg();
+        format!("data:image/svg+xml;utf8,{}", svg)
+    }
+
 }

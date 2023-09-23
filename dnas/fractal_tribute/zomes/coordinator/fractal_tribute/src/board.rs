@@ -2,11 +2,43 @@ use hdk::prelude::*;
 use fractal_tribute_integrity::*;
 use serde::de;
 use crate::all_game_moves::*;
+use resvg::*;
+use resvg::usvg::TreeParsing;
+use resvg::usvg::TreeWriting;
+use usvg::XmlOptions;
+use tiny_skia::*;
+use base64::{Engine as _, engine::general_purpose};
+
+pub fn svg_to_png(svg_data: String) -> ExternResult<String> {
+    // Parse the SVG string
+    let opts = resvg::usvg::Options::default();
+    let utree = usvg::Tree::from_str(&svg_data, &opts)
+        .map_err(|e| wasm_error!(format!("Could not parse SVG: {:?} {}", e, svg_data)))?;
+    
+    let rtree = resvg::Tree::from_usvg(&utree);
+    wasm_error!("{:?}", utree.to_string(&XmlOptions::default()));
+
+    // Create a pixmap for rendering
+    let mut binding = Pixmap::new(rtree.size.width() as u32, rtree.size.height() as u32)
+        .ok_or_else(|| wasm_error!("Could not create Pixmap"))?;
+    let mut pixmap = binding.as_mut();
+    
+    rtree.render(Transform::from_scale(1.0, 1.0), &mut pixmap);
+
+    let pixmap = pixmap.to_owned();
+
+    // Encode the pixmap as a PNG image
+    let png_bytes = pixmap.encode_png()
+        .map_err(|e| wasm_error!(format!("Could not encode PNG: {:?}", e)))?;
+    let base64_encoded = general_purpose::URL_SAFE_NO_PAD.encode(png_bytes);
+    let data_uri = format!("data:image/png;base64,{}", base64_encoded);
+    Ok(data_uri)
+}
 
 #[hdk_extern]
 pub fn get_latest_board(_: ()) -> ExternResult<BoardWithMetadata> {
     let game_moves = get_all_game_moves_from_link_tags(())?;
-
+    println!("{:?}", game_moves);
     // let creator = if all_game_moves.is_empty() {
     //     HoloHash::from_raw_36([0; 36].to_vec())
     // } else {
@@ -21,13 +53,15 @@ pub fn get_latest_board(_: ()) -> ExternResult<BoardWithMetadata> {
 
     let board = Board::reconstruct_from_game_moves(&game_moves);
     let bytes = board.to_bytes();
-    let svg = board.generate_svg();
+    let svg = board.generate_svg_data_uri();
+    // let png = svg_to_png(board.generate_svg())?;
 
     let creator = HoloHash::from_raw_36([0; 36].to_vec());
     let creation_hash = HoloHash::from_raw_36([0; 36].to_vec());
 
     Ok(
         BoardWithMetadata {
+            // png,
             svg,
             bytes,
             creator,
@@ -63,7 +97,7 @@ pub fn get_latest_board(_: ()) -> ExternResult<BoardWithMetadata> {
 
 //     let board = Board::reconstruct_from_game_moves(&game_moves);
 //     let bytes = board.to_bytes();
-//     let svg = board.generate_svg();
+//     let svg = board.generate_svg_data_uri();
 
 //     Ok(
 //         BoardWithMetadata {
@@ -81,7 +115,7 @@ pub fn get_board_at_move(move_action_hash: ActionHash) -> ExternResult<BoardWith
     // debug!("{:?}: starting", move_action_hash);
     // let mut game_moves = get_all_game_moves_from_link_tags(())?;
 
-    let path = Path::from("all_game_moves");
+    let path = hdk::hash_path::path::Path::from("all_game_moves");
     let links: Vec<Link> = get_links(path.path_entry_hash()?, LinkTypes::AllGameMoves, None)?;
 
     // truncate the links
@@ -132,11 +166,13 @@ pub fn get_board_at_move(move_action_hash: ActionHash) -> ExternResult<BoardWith
     let bytes = board.to_bytes();
     new_time = sys_time()?;
     debug!("{:?}: got bytes in {:?}", move_action_hash, new_time - time);
-    let svg = board.generate_svg();
+    let svg = board.generate_svg_data_uri();
+    // let png = svg_to_png(board.generate_svg())?;
     new_time = sys_time()?;
     debug!("{:?}: got svg in {:?}", move_action_hash, new_time - time);
     Ok(
         BoardWithMetadata {
+            // png,
             svg,
             bytes,
             creator,
@@ -173,7 +209,7 @@ pub fn get_board_at_move(move_action_hash: ActionHash) -> ExternResult<BoardWith
 //     let bytes = board.to_bytes();
 //     new_time = sys_time()?;
 //     debug!("{:?}: got bytes in {:?}", move_action_hash, new_time - time);
-//     let svg = board.generate_svg();
+//     let svg = board.generate_svg_data_uri();
 //     new_time = sys_time()?;
 //     debug!("{:?}: got svg in {:?}", move_action_hash, new_time - time);
 //     Ok(

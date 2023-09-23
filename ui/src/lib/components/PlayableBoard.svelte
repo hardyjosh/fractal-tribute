@@ -150,6 +150,7 @@
         {move}
         on:tileClick={handleTileClick}
       />
+      <!-- <img class="absolute inset-0" src={board.svg} /> -->
     {/if}
   </div>
   <div class="col-span-2">

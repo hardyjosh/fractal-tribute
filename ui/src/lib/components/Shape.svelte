@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ShapeSvg from "$lib/components/ShapeSvg.svelte";
+  import ShapeSvgAlt from "$lib/components/ShapeSvgAlt.svelte";
   import { ShapeOptions } from "$lib/helpers";
 
   export let shapeOption: ShapeOptions;
@@ -11,5 +11,5 @@
 </script>
 
 <svg class="w-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <ShapeSvg {color} {shapeOption} />
+  <ShapeSvgAlt {color} {shapeOption} />
 </svg>

@@ -1,7 +1,7 @@
 import { concat, bytesToHex, type Hex, keccak256, hexToBytes, pad } from "viem";
 import type { Board, BoardWithMetadataAndId, GameMove, IncomingBoardWithMetadataAndId, Tile, IncomingBoardWithMetadata, BoardWithMetadata } from "../types";
 
-export const BOARD_SIZE = 32;
+export const BOARD_SIZE = 50;
 
 export const parseBoardBytes = (bytes: Uint8Array): Tile[][] => {
     // const bytesPerTile = 6; // 3 for RGB and 1 for graphic_option
@@ -74,9 +74,9 @@ export const parseIncomingBoardWithMetadataAndId = (incomingBoardWithMetadataAnd
 }
 
 export const parseIncomingBoardWithMetadata = (incomingBoardWithMetadata: IncomingBoardWithMetadata): BoardWithMetadata => {
-    const { bytes, creator, creation_hash, svg } = incomingBoardWithMetadata;
+    const { bytes, creator, creation_hash, svg, png } = incomingBoardWithMetadata;
     const parsedBoard = parseBoardBytes(bytes);
-    return { board: parsedBoard, creator, creationHash: creation_hash, svg };
+    return { board: parsedBoard, creator, creationHash: creation_hash, svg, png };
 }
 
 export enum ShapeOptions {

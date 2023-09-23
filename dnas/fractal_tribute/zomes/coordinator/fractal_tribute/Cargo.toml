@@ -14,6 +14,8 @@ serde = { workspace = true }
 ethers-core = { version = "2.0.5"}
 
 fractal_tribute_integrity = { workspace = true } 
+resvg = "0.35.0"
+base64 = "0.21.4"
 
 [features]
 mock = ["hdk/mock", "hdk/test_utils"]

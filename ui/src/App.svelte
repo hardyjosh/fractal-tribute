@@ -11,6 +11,8 @@
   import { polygonMumbai } from "viem/chains";
   import RandomGameMoves from "$lib/components/RandomGameMoves.svelte";
 
+  import defs from "../../dnas/fractal_tribute/zomes/integrity/fractal_tribute/src/defs.svg?raw";
+
   let client: AppAgentWebsocket;
   let ready = false;
 
@@ -29,6 +31,9 @@
   }
 </script>
 
+<svg class="h-0 w-0" viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg">
+  {@html defs}
+</svg>
 <div class="min-w-screen min-h-screen p-4 container mx-auto">
   {#if $happ && ready}
     <Routes />

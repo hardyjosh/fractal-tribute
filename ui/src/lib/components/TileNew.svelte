@@ -27,7 +27,9 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="border border-gray-200 relative bg-gray-50 w-full aspect-square">
+<div
+  class="border-[0.5px] border-gray-200 relative bg-gray-50 w-full aspect-square"
+>
   <div class="absolute inset-0 flex items-center justify-center z-10">
     {#if brush && hovered && !brush.eyeDropper}
       <Shape color={brush?.color} shapeOption={brush?.graphic_option} />

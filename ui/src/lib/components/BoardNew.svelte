@@ -34,16 +34,16 @@
   }
 
   const handleClick = (e) => {
-    const x = Math.floor((e.offsetX / rect.width) * 32);
-    const y = Math.floor((e.offsetY / rect.height) * 32);
+    const x = Math.floor((e.offsetX / rect.width) * BOARD_SIZE);
+    const y = Math.floor((e.offsetY / rect.height) * BOARD_SIZE);
     // console.log(e);
     dispatch("tileClick", { x, y });
   };
 
   const handleMove = (e) => {
     // const width = e.client
-    const xPos = Math.floor((e.offsetX / rect.width) * 32);
-    const yPos = Math.floor((e.offsetY / rect.height) * 32);
+    const xPos = Math.floor((e.offsetX / rect.width) * BOARD_SIZE);
+    const yPos = Math.floor((e.offsetY / rect.height) * BOARD_SIZE);
 
     const tile = tileArr[xPos][yPos];
     if (tile !== hoveredTile) {
@@ -59,7 +59,7 @@
     hoveredTile?.handleLeave();
   };
 
-  // $: console.log({ rect });
+  $: console.log(board);
 </script>
 
 <div
@@ -84,5 +84,6 @@
     {/each}
   </div>
 
+  <!-- {@html board.svg} -->
   <img class="absolute inset-0" src={board.svg} />
 </div>

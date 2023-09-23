@@ -61,6 +61,7 @@ export type Brush = {
 export type Board = Tile[][];
 
 export type IncomingBoardWithMetadata = {
+  png: string,
   svg: string,
   bytes: Uint8Array,
   creator: AgentPubKey
@@ -73,6 +74,7 @@ export type IncomingBoardWithMetadataAndId = {
 }
 
 export type BoardWithMetadata = {
+  png: string,
   svg: string,
   board: Board,
   creator: AgentPubKey,

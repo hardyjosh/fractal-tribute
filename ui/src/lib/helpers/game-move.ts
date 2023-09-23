@@ -47,4 +47,4 @@ export const generateRandomGameMove = (): GameMove => {
     return { changes };
 };
 
-const BOARD_SIZE = 32; 
+const BOARD_SIZE = 50; 
