@@ -22,14 +22,19 @@
 
 <div class="flex flex-col gap-y-8">
   <div class="grid grid-cols-5 gap-x-4">
-    <div class="col-span-3 aspect-square">
+    <div
+      class="col-span-3 aspect-square relative border-black border-2 rounded-md"
+    >
       <!-- <BoardComp readOnly {board} /> -->
       <!-- <ReadOnlyBoardSvg {board} /> -->
-      <img
+      <!-- <img
         alt="game board"
         class="border-black border-2 rounded-md"
         src={board?.svg}
-      />
+      /> -->
+      {#if board}
+      {@html board?.svg}
+      {/if}
     </div>
     <div
       class="col-span-2 bg-primary-25 border-2 border-black rounded-lg flex flex-col items-center pt-12 gap-y-8"

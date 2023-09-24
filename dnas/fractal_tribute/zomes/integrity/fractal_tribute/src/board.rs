@@ -1,8 +1,8 @@
 use hdi::prelude::*;
 use svg::node::Text;
 use crate::*;
-use svg::node::element::{Rectangle, Circle, Polygon, Use, Definitions};
-use svg::Document;
+use svg::node::element::{Rectangle, Circle, Polygon, Use, Definitions, Group};
+use svg::{Document, Node};
 
 const BOARD_SIZE: usize = 50;
 
@@ -34,6 +34,14 @@ pub struct BoardWithMetadata {
 pub struct BoardWithMetadataAndId {
     pub board: BoardWithMetadata,
     pub id: Vec<u8>,
+}
+
+#[hdk_entry_helper]
+#[derive(Clone, PartialEq)]
+pub struct Metadata {
+    pub name: String,
+    pub description: String,
+    pub image: String
 }
 
 impl Board {
@@ -78,45 +86,75 @@ impl Board {
         bytes
     }
 
-    pub fn generate_svg(&self) -> String {
-        let mut document = Document::new().set("viewBox", (0, 0, BOARD_SIZE * 100, BOARD_SIZE * 100));
-        
-        let defs = Text::new(include_str!("defs.svg"));
-
-        document = document.add(defs);
-
+    pub fn generate_svg_document(&self) -> Document {
+        let mut document = Document::new()
+            .set("viewBox", (0, 0, BOARD_SIZE * 100, BOARD_SIZE * 100));
+    
+        let mut groups: Vec<Group> = vec![Group::new(); 16];  // Create 16 empty groups
+        let mut bg_group = Group::new();
+    
         for (x, col) in self.tiles.iter().enumerate() {
             for (y, tile) in col.iter().enumerate() {
                 let base_x = x as u32 * 100;
                 let base_y = y as u32 * 100;
     
-                let rect = Rectangle::new()
+                let mut rect = Rectangle::new()
                     .set("x", base_x)
                     .set("y", base_y)
                     .set("width", 100)
                     .set("height", 100);
-                    // .set("fill", "rgb(249, 250, 251)");
     
-                // document = document.add(rect);
+                let mut bg_rect = Rectangle::new()
+                    .set("x", base_x)
+                    .set("y", base_y)
+                    .set("width", 100)
+                    .set("height", 100);
     
                 if let Some(color) = tile.color {
                     let fill = format!("rgb({},{},{})", color.r, color.g, color.b);
-                    let rect = rect.set("fill", fill);
-
-                    if let Some(graphic_option) = tile.graphic_option {
-                        let mask_attr = format!("url(#m_{})", graphic_option + 1);
-                        let rect = rect.set("mask", mask_attr);
-                        document = document.add(rect);
+                    if tile.graphic_option < Some(16) {
+                        bg_rect = bg_rect.set("fill", "white");
+                        rect = rect.set("fill", fill);
+    
+                    } else {
+                        bg_rect = bg_rect.set("fill", fill);
+                        rect = rect.set("fill", "white");
                     }
+                    if let Some(mut graphic_option) = tile.graphic_option {
+                        graphic_option = graphic_option % 16;
+                        // Add the rect to the appropriate group based on its mask.
+                        groups[graphic_option as usize].append(rect);
+                    }
+                    // Add the bg_rect to the bg_group
+                    bg_group.append(bg_rect);
                 }
             }
-        } 
-        document.to_string()
+        }
+    
+        // Add bg_group to the document
+        document = document.add(bg_group);
+    
+        // Add mask attribute to groups and add them to the document
+        for (i, group) in groups.iter_mut().enumerate() {
+            let mask_attr = format!("url(#m_{})", i % 16 + 1);
+            group.assign("mask", mask_attr);
+            document = document.add(group.clone());
+        }
+
+        document
     }
 
+    pub fn generate_svg(&self) -> String {
+        let document = self.generate_svg_document();
+        document.to_string()
+    }
+    
     pub fn generate_svg_data_uri(&self) -> String {
-        let svg = self.generate_svg();
-        format!("data:image/svg+xml;utf8,{}", svg)
+        let mut document = self.generate_svg_document();
+        let defs = Text::new(include_str!("defs.svg"));
+        document = document.add(defs);
+
+        format!("data:image/svg+xml;utf8,{}", document)
     }
 
 }

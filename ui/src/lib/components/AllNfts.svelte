@@ -72,12 +72,17 @@
       </div>
     {/if}
     {#each boardsWithSupply as board, i}
-      <div class="flex flex-col gap-y-2 basis-1/5-gap-4 flex-none snap-start">
-        <img
+      <div
+        class="relative flex flex-col gap-y-2 basis-1/5-gap-4 flex-none snap-start"
+      >
+        <div class="aspect-square border-2 border-black rounded-lg">
+          {@html board.boardWithMetadata.svg}
+        </div>
+        <!-- <img
           class="border-2 border-black rounded-lg"
           src={board.boardWithMetadata.svg}
           alt="game board"
-        />
+        /> -->
         <div
           class="rounded-md border-black border-2 flex gap-x-2 p-2 justify-between items-center w-full"
         >

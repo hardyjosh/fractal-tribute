@@ -24,10 +24,11 @@
 
 <div class="flex flex-col gap-y-2 snap-start basis-1/5-gap-4 flex-none">
   <div
-    class="aspect-square w-full border-2 border-black rounded-md flex flex-col items-center justify-center"
+    class="aspect-square w-full border-2 border-black rounded-md flex flex-col items-center justify-center relative"
   >
     {#if board}
-      <img alt="game board" class="h-full" src={board.svg} />
+      <!-- <img alt="game board" class="h-full" src={board.svg} /> -->
+      {@html board.svg}
     {:else}
       <Spinner />
     {/if}

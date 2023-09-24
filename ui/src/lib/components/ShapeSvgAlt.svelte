@@ -8,11 +8,30 @@
 
 <!-- {@html defs} -->
 
-<rect
-  x="0"
-  y="0"
-  width="100"
-  height="100"
-  fill="rgb({color.r} {color.g} {color.b})"
-  mask={`url(#m_${shapeOption + 1})`}
-/>
+{#if shapeOption < 16}
+  <rect x="0" y="0" width="100" height="100" fill="white" />
+  <rect
+    x="0"
+    y="0"
+    width="100"
+    height="100"
+    fill="rgb({color.r} {color.g} {color.b})"
+    mask={`url(#m_${(shapeOption % 16) + 1})`}
+  />
+{:else}
+  <rect
+    x="0"
+    y="0"
+    width="100"
+    height="100"
+    fill="rgb({color.r} {color.g} {color.b})"
+  />
+  <rect
+    x="0"
+    y="0"
+    width="100"
+    height="100"
+    fill="white"
+    mask={`url(#m_${(shapeOption % 16) + 1})`}
+  />
+{/if}

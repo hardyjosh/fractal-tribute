@@ -4,6 +4,8 @@
   import { BOARD_SIZE } from "$lib/helpers";
   import type { BoardWithMetadata, GameMove } from "$lib/types";
   import TileNew from "$lib/components/TileNew.svelte";
+  import Shape from "$lib/components/Shape.svelte";
+  import MoveSvg from "$lib/components/MoveSvg.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -16,8 +18,8 @@
   let overlay: HTMLDivElement;
   let rect: DOMRectReadOnly;
 
-  let tileArr = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE));
-  let hoveredTile;
+  let hoveredTile: { x: number; y: number } | null = null;
+  $: tilePercent = 100 / BOARD_SIZE;
 
   $: if (overlay && (brush || allMovesMade)) {
     // console.log("setting cursor", brush);
@@ -36,27 +38,22 @@
   const handleClick = (e) => {
     const x = Math.floor((e.offsetX / rect.width) * BOARD_SIZE);
     const y = Math.floor((e.offsetY / rect.height) * BOARD_SIZE);
-    // console.log(e);
     dispatch("tileClick", { x, y });
   };
 
   const handleMove = (e) => {
-    // const width = e.client
-    const xPos = Math.floor((e.offsetX / rect.width) * BOARD_SIZE);
-    const yPos = Math.floor((e.offsetY / rect.height) * BOARD_SIZE);
+    const x = Math.floor((e.offsetX / rect.width) * BOARD_SIZE);
+    const y = Math.floor((e.offsetY / rect.height) * BOARD_SIZE);
 
-    const tile = tileArr[xPos][yPos];
-    if (tile !== hoveredTile) {
-      tile.handleEnter();
-      hoveredTile?.handleLeave();
+    if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
+      hoveredTile = null;
+    } else {
+      hoveredTile = { x, y };
     }
-    hoveredTile = tile;
-
-    // console.log({ xPos, yPos });
   };
 
   const handleLeave = (e) => {
-    hoveredTile?.handleLeave();
+    hoveredTile = null;
   };
 
   $: console.log(board);
@@ -65,6 +62,8 @@
 <div
   class="flex flex-row border-black border-2 rounded-lg overflow-hidden relative w-full aspect-square bg-transparent"
 >
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
     on:mousemove={handleMove}
     on:mouseleave={handleLeave}
@@ -73,17 +72,107 @@
     bind:this={overlay}
     class="absolute inset-0 z-50"
   />
-
-  <div class="w-full flex flex-row">
-    {#each tileArr as col, x}
-      <div class="w-[3.125%]">
-        {#each col as tile, y}
-          <TileNew {brush} bind:this={tileArr[x][y]} {move} pos={{ x, y }} />
-        {/each}
-      </div>
-    {/each}
+  <div
+    class="absolute inset-0 will-change-auto"
+    style="transform: translateZ(0);"
+  >
+    {@html board.svg}
   </div>
 
-  <!-- {@html board.svg} -->
-  <img class="absolute inset-0" src={board.svg} />
+  <svg
+    style="transform: translateZ(1);"
+    class="absolute inset-0 will-change-auto"
+    viewBox={`0 0 ${BOARD_SIZE * 100} ${BOARD_SIZE * 100}`}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {#each move.changes as change}
+      {#if change.graphic_option < 16}
+        <rect
+          x={change.y * 100}
+          y={change.x * 100}
+          width="100"
+          height="100"
+          fill="white"
+        />
+        <rect
+          x={change.y * 100}
+          y={change.x * 100}
+          width="100"
+          height="100"
+          fill={`rgb(${change.color.r}, ${change.color.g}, ${change.color.b})`}
+          mask={`url(#m_${(change.graphic_option % 16) + 1})`}
+        />
+      {:else}
+        <rect
+          x={change.y * 100}
+          y={change.x * 100}
+          width="100"
+          height="100"
+          fill={`rgb(${change.color.r}, ${change.color.g}, ${change.color.b})`}
+        />
+        <rect
+          x={change.y * 100}
+          y={change.x * 100}
+          width="100"
+          height="100"
+          fill="white"
+          mask={`url(#m_${(change.graphic_option % 16) + 1})`}
+        />
+      {/if}
+    {/each}
+    {#if hoveredTile}
+      {#if brush?.graphic_option < 16}
+        <rect
+          x={hoveredTile.x * 100}
+          y={hoveredTile.y * 100}
+          width="100"
+          height="100"
+          fill="white"
+        />
+        <rect
+          x={hoveredTile.x * 100}
+          y={hoveredTile.y * 100}
+          width="100"
+          height="100"
+          fill={`rgb(${brush?.color.r}, ${brush?.color.g}, ${brush?.color.b})`}
+          mask={`url(#m_${(brush?.graphic_option % 16) + 1})`}
+        />
+      {:else}
+        <rect
+          x={hoveredTile.x * 100}
+          y={hoveredTile.y * 100}
+          width="100"
+          height="100"
+          fill={`rgb(${brush?.color.r}, ${brush?.color.g}, ${brush?.color.b})`}
+        />
+        <rect
+          x={hoveredTile.x * 100}
+          y={hoveredTile.y * 100}
+          width="100"
+          height="100"
+          fill="white"
+          mask={`url(#m_${(brush?.graphic_option % 16) + 1})`}
+        />
+      {/if}
+    {/if}
+  </svg>
+
+  <svg
+    style="transform: translateZ(1);"
+    class="absolute inset-0 will-change-auto"
+    viewBox="0 0 500 500"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+        <path
+          d="M 10 0 L 0 0 0 10"
+          fill="none"
+          stroke="rgb(240, 240, 240)"
+          stroke-width="1"
+        />
+      </pattern>
+    </defs>
+    <rect width="500" height="500" fill="url(#grid)" />
+  </svg>
 </div>

@@ -2,16 +2,16 @@
   {
     "dotrain": "./rain/src/nft-flow.rain",
     "json": "./rain/src/snapshot.json",
-    "expressions": ["snapshot"]
+    "entrypoints": ["snapshot"]
   },
   {
     "dotrain": "./rain/src/nft-flow.rain",
     "json": "./rain/src/mint.json",
-    "expressions": ["mint"]
+    "entrypoints": ["mint"]
   },
   {
     "dotrain": "./rain/src/nft-flow.rain",
     "json": "./rain/src/claim.json",
-    "expressions": ["claim"]
+    "entrypoints": ["claim"]
   }
 ]

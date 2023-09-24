@@ -41,7 +41,7 @@ export const generateRandomGameMove = (): GameMove => {
             x: getRandomInt(BOARD_SIZE),
             y: getRandomInt(BOARD_SIZE),
             color: getRandomColor(),
-            graphic_option: getRandomInt(16)  // Assuming 16 graphic options
+            graphic_option: getRandomInt(32)  // Assuming 16 graphic options
         });
     }
     return { changes };
