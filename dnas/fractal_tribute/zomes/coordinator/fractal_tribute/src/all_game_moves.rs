@@ -5,9 +5,9 @@ use fractal_tribute_integrity::*;
 pub fn get_all_game_moves(_: ()) -> ExternResult<Vec<Record>> {
     let path = Path::from("all_game_moves");
     let mut time = sys_time()?;
-    debug!("Starting to get moves at: {:?}", time);
+    // debug!("Starting to get moves at: {:?}", time);
     let links = get_links(path.path_entry_hash()?, LinkTypes::AllGameMoves, None)?;
-    debug!("Time to get links: {:?}", sys_time()? - time);
+    // debug!("Time to get links: {:?}", sys_time()? - time);
     time = sys_time()?;
     let get_input: Vec<GetInput> = links
         .into_iter()
@@ -16,23 +16,23 @@ pub fn get_all_game_moves(_: ()) -> ExternResult<Vec<Record>> {
             GetOptions::content(),
         ))
         .collect();
-    debug!("Time to get inputs: {:?}", sys_time()? - time);
+    // debug!("Time to get inputs: {:?}", sys_time()? - time);
     time = sys_time()?;
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
-    debug!("Time to get records: {:?}", sys_time()? - time);
+    // debug!("Time to get records: {:?}", sys_time()? - time);
     let records: Vec<Record> = records.into_iter().filter_map(|r| r).collect();
     Ok(records)
 }
 
 #[hdk_extern]
 pub fn get_all_game_moves_from_link_tags(_:()) -> ExternResult<Vec<GameMove>> {
-    debug!("Starting to get all game moves from link tags");
+    // debug!("Starting to get all game moves from link tags");
     let path = Path::from("all_game_moves");
-    debug!("Got path {:?}", path);
+    // debug!("Got path {:?}", path);
     let path_entry_hash = path.path_entry_hash()?;
-    debug!("Got path entry hash");
+    // debug!("Got path entry hash");
     let links = get_links(path_entry_hash, LinkTypes::AllGameMoves, None)?;
-    debug!("Got links");
+    // debug!("Got links");
     // get the bytes from each link tag and make a vector of game moves
     let game_moves: Vec<GameMove> = links
         .into_iter()

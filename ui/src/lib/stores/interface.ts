@@ -244,6 +244,21 @@ export class DnaInterface {
         }
     }
 
+    async tokenIdToMetadata(tokenid: string): Promise<String> {
+        try {
+            return await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'token_id_to_metadata',
+                payload: tokenid,
+            }) as String
+        } catch (e) {
+            console.log(e?.data?.data)
+            console.log(e)
+        }
+    }
+
     // participation proof
     async buildAgentParticipation(): Promise<ParticipationProof> {
         try {

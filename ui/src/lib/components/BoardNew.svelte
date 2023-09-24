@@ -3,9 +3,6 @@
   import { createEventDispatcher } from "svelte";
   import { BOARD_SIZE } from "$lib/helpers";
   import type { BoardWithMetadata, GameMove } from "$lib/types";
-  import TileNew from "$lib/components/TileNew.svelte";
-  import Shape from "$lib/components/Shape.svelte";
-  import MoveSvg from "$lib/components/MoveSvg.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -55,8 +52,6 @@
   const handleLeave = (e) => {
     hoveredTile = null;
   };
-
-  $: console.log(board);
 </script>
 
 <div

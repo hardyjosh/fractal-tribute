@@ -8,7 +8,7 @@ use resvg::usvg::TreeWriting;
 use usvg::XmlOptions;
 use tiny_skia::*;
 use base64::{Engine as _, engine::general_purpose};
-// use ethers_core::types::U256;
+use ethers_core::types::U256;
 
 // currently unused
 pub fn svg_to_png(svg_data: String) -> ExternResult<String> {
@@ -157,28 +157,30 @@ pub fn get_boards_from_links(link_bases: Vec<ExternalHash>) -> ExternResult<Vec<
     Ok(boards)
 }
 
-// fn token_id_to_board(token_id: U256) -> ExternResult<Board> {
-//     let mut link_base = [0u8; 40];
-//     link_base[..3].copy_from_slice(&[132, 47, 36]);
-//     token_id.to_big_endian(&mut link_base[3..35]);
-//     link_base[35..].copy_from_slice(&[0u8; 4]);
-//     let link_base = HoloHash::from_raw_39(link_base.to_vec()).map_err(|_| wasm_error!("Could not parse token id"))?;
-//     let board = _get_board_from_link(link_base)?;
-//     Ok(board)
-// }
+fn token_id_to_board(token_id: U256) -> ExternResult<Board> {
+    let mut link_base = [0u8; 39];
+    link_base[..3].copy_from_slice(&[132, 47, 36]);
+    token_id.to_big_endian(&mut link_base[3..35]);
+    link_base[35..].copy_from_slice(&[0u8; 4]);
+    debug!("link_base: {:?}", link_base);
+    let link_base = HoloHash::from_raw_39(link_base.to_vec()).map_err(|_| wasm_error!("Could not parse token id"))?;
+    let board = _get_board_from_link(link_base)?;
+    Ok(board)
+}
 
-// // a function that will create a metadata json for an nft, given a token id
-// #[hdk_extern]
-// fn token_id_to_metadata(str: String) -> ExternResult<String> {
-//     let token_id = U256::from_dec_str(&str).map_err(|_| wasm_error!("Could not parse token id"))?;
-//     let board = token_id_to_board(token_id)?;
-//     let svg = board.generate_svg_data_uri();
-//     let metadata = Metadata {
-//         name: "Fractal Tribute".to_string(),
-//         description: "A collaborative art game".to_string(),
-//         image: svg,
-//     };
-//     let json = serde_json::to_string(&metadata).map_err(|_| wasm_error!("Could not serialize metadata"))?;
-//     let base64_str = format!("data:application/json;base64,{}", general_purpose::URL_SAFE_NO_PAD.encode(json));
-//     Ok(base64_str)
-// }
+// a function that will create a metadata json for an nft, given a token id
+#[hdk_extern]
+fn token_id_to_metadata(str: String) -> ExternResult<String> {
+    let token_id = U256::from_dec_str(&str).map_err(|_| wasm_error!("Could not parse token id"))?;
+    let board = token_id_to_board(token_id)?;
+    let svg = board.generate_svg_data_uri();
+    let metadata = Metadata {
+        name: "Fractal Tribute".to_string(),
+        description: "A collaborative art game".to_string(),
+        image: svg,
+    };
+    let json = serde_json::to_string(&metadata).map_err(|_| wasm_error!("Could not serialize metadata"))?;
+    // debug!("json: {:?}", json);
+    // let base64_str = format!("data:application/json;base64,{}", base64::encode(json));
+    Ok(json)
+}

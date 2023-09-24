@@ -17,7 +17,6 @@
   let board: BoardWithMetadata;
 
   onMount(async () => {
-    console.log("should be requesting the board");
     board = await $happ.getBoardAtMove(actionHash);
   });
 </script>

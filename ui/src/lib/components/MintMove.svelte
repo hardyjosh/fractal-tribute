@@ -40,10 +40,6 @@
   $: balanceOk = balance >= price;
 
   $: ready = balance !== undefined;
-
-  // $: console.log({ allowance, balance, price });
-
-  $: console.log($error);
 </script>
 
 <div class="flex flex-col justify-center gap-y-4">

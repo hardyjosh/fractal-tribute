@@ -153,8 +153,9 @@ impl Board {
         let mut document = self.generate_svg_document();
         let defs = Text::new(include_str!("defs.svg"));
         document = document.add(defs);
+        let svg_string = document.to_string();
 
-        format!("data:image/svg+xml;utf8,{}", document)
+        format!("data:image/svg+xml;base64,{}", base64::encode(svg_string.clone()))
     }
 
 }

@@ -14,6 +14,7 @@ svg = { version= "0.13.1"}
 
 serde = { workspace = true }
 ethers-core = { version = "2.0.5"}
+base64 = "0.21.4"
 
 [features]
 mock = ["hdk/mock", "hdk/test_utils"]
