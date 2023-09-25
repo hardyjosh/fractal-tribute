@@ -5,25 +5,58 @@ import { type Address, getAddress, bytesToHex, concat } from 'viem'
 import { decode } from "@msgpack/msgpack";
 import { gameMoveToBytes, parseBoardBytes, parseIncomingBoardWithMetadata, parseIncomingBoardWithMetadataAndId, tokenIdToLinkBase } from '$lib/helpers';
 import { transformDnaProperties } from '$lib/helpers/dna-properties';
+import type WebSdkApi from '@holo-host/web-sdk';
+import WebSdk from "@holo-host/web-sdk";
+import { AppAgentWebsocket } from "@holochain/client";
+
 
 export const happ = writable<DnaInterface>()
 
-export const initHapp = async (client: AppAgentClient) => {
+let client: AppAgentWebsocket | WebSdk;
+
+const IS_HOLO = ["true", "1", "t"].includes(
+    import.meta.env.VITE_APP_IS_HOLO?.toLowerCase()
+);
+
+export const initHapp = async () => {
+    if (IS_HOLO) {
+        client = await WebSdk.connect({
+            chaperoneUrl: import.meta.env.VITE_APP_CHAPERONE_URL,
+            authFormCustomization: {
+                appName: "svelte-holo-test",
+            },
+        });
+
+        const waitForAgentState = () => new Promise(resolve => {
+            (client as WebSdk).on("agent-state", (agent_state) => {
+                if (agent_state.isAvailable && !agent_state.isAnonymous) {
+                    resolve(null);
+                }
+            });
+        });
+
+        (client as WebSdk).signUp({ cancellable: false });
+
+        await waitForAgentState();
+    } else {
+        client = await AppAgentWebsocket.connect("", "svelte-holo-test");
+    }
+
     const iface = new DnaInterface(client);
     await iface.init();
     happ.set(iface);
-}
+};
 
 const role_name = 'fractal_tribute';
 const zome_name = 'fractal_tribute';
 
 export class DnaInterface {
 
-    constructor(client: AppAgentClient) {
+    constructor(client: AppAgentClient | WebSdkApi) {
         this.client = client;
     }
 
-    public client: AppAgentClient;
+    public client: AppAgentClient | WebSdkApi;
     public dnaProperties: TransformedDnaProperties;
 
     myPubKey(): Uint8Array {
