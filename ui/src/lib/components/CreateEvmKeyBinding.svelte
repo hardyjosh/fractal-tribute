@@ -54,9 +54,9 @@
 </script>
 
 <div
-  class="flex flex-col justify-center items-center rounded-lg border-black bg-primary-25 h-full max-w-full"
+  class="flex flex-col justify-center items-center rounded-lg border-black h-full max-w-full"
 >
-  <div class="gap-y-6 w-full flex flex-col break-words p-4">
+  <div class="gap-y-6 w-full flex flex-col break-words">
     {#if $account?.isConnected}
       {#if evmKeyBindingStatus === EvmKeyBindingStatus.NotCreated}
         <div class="flex flex-col gap-y-2 items-start">

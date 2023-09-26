@@ -4,6 +4,7 @@ pub mod board;
 pub mod all_game_moves;
 pub mod participation_proof;
 pub mod dna_properties;
+pub mod profile;
 
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;

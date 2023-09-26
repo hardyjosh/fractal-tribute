@@ -1,17 +1,26 @@
 <script lang="ts">
   import { happ } from "$lib/stores";
-  import { setContext } from "svelte";
+  import { onMount, setContext } from "svelte";
   import { createCountdownStore, formatCountdown } from "$lib/stores/countdown";
   import logo from "$lib/assets/logo.svg";
   import { currentRoute, routes, setRoute } from "$lib/stores/routes";
   import { Button, Modal } from "flowbite-svelte";
   import { QuestionCircleOutline } from "flowbite-svelte-icons";
   import { countdownContext } from "$lib/contexts";
+  import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
+  import HowToPlay from "$lib/components/HowToPlay.svelte";
 
   let countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
   setContext(countdownContext, countdown);
 
-  let open: boolean = false;
+  let open: boolean = true;
+
+  onMount(async () => {
+    const evm_address = await $happ.getEvmAddress();
+    if (evm_address) {
+      open = false;
+    }
+  });
 </script>
 
 <div class="flex gap-x-2 mb-4 items-center justify-between">
@@ -48,5 +57,9 @@
 <svelte:component this={$currentRoute.component} />
 
 <Modal bind:open>
-  <p>How to play instructions go here :)</p>
-</Modal>
+  <HowToPlay
+    on:onboarding-complete={() => {
+      open = false;
+    }}
+  /></Modal
+>

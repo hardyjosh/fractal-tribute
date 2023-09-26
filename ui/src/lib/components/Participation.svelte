@@ -70,6 +70,7 @@
     const participations = await $happ.buildAgentParticipation();
     const myPubKey = await $happ.myPubKey();
     evmKey = await $happ.getEvmAddress();
+    console.log(evmKey);
     myParticipation = participations.agent_participations.find(
       (p) => bytesToHex(p.agent) == bytesToHex(myPubKey)
     );

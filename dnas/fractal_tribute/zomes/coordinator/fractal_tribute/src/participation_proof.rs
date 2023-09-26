@@ -31,7 +31,7 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
                 match std::convert::TryInto::<GameMove>::try_into(app_entry_bytes.clone().into_sb()) {
                     Ok(game_move) => {
                         let agent = record.action().author();
-                        let result =_get_agent_evm_address(agent.clone());
+                        let result = get_agent_evm_address(agent.clone());
                         if let Ok(_) = result {
                             let pixels_changed = game_move.count_changes();
                             *agent_pixels_changed.entry(agent.clone()).or_insert(0) += pixels_changed as u32;

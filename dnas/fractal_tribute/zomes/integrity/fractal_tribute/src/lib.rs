@@ -7,6 +7,8 @@ pub use board::*;
 pub mod participation_proof;
 pub use participation_proof::*;
 pub mod dna_properties;
+pub mod profile;
+pub use profile::*;
 
 use hdi::prelude::*;
 
@@ -17,14 +19,16 @@ use hdi::prelude::*;
 pub enum EntryTypes {
     GameMove(GameMove),
     EvmKeyBinding(EvmKeyBinding),
-    ParticipationProof(ParticipationProof)
+    ParticipationProof(ParticipationProof),
+    Profile(Profile)
 }
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
     TokenIdToGameMove,
     AllGameMoves,
-    AgentToEvmKeyBinding
+    AgentToEvmKeyBinding,
+    AgentToProfile
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -70,6 +74,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 participation_proof,
                             )
                         }
+                        EntryTypes::Profile(profile) => {
+                            validate_create_profile(
+                                EntryCreationAction::Create(action),
+                                profile,
+                            )
+                        }
+
                     }
                 }
                 OpEntry::UpdateEntry { app_entry, action, .. } => {
@@ -90,6 +101,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             validate_create_participation_proof(
                                 EntryCreationAction::Update(action),
                                 participation_proof,
+                            )
+                        }
+                        EntryTypes::Profile(profile) => {
+                            validate_create_profile(
+                                EntryCreationAction::Update(action),
+                                profile,
                             )
                         }
                     }
@@ -139,6 +156,17 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 original_participation_proof,
                             )
                         }
+                        (
+                            EntryTypes::Profile(profile),
+                            EntryTypes::Profile(original_profile),
+                        ) => {
+                            validate_update_profile(
+                                action,
+                                profile,
+                                original_action,
+                                original_profile,
+                            )
+                        }
                         _ => {
                             Ok(
                                 ValidateCallbackResult::Invalid(
@@ -173,6 +201,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 participation_proof,
                             )
                         }
+                        EntryTypes::Profile(profile) => {
+                            validate_delete_profile(
+                                action,
+                                original_action,
+                                profile,
+                            )
+                        }
                     }
                 }
                 _ => Ok(ValidateCallbackResult::Valid),
@@ -204,6 +239,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
                 LinkTypes::AgentToEvmKeyBinding => {
                     validate_create_link_agent_to_evm_key_binding(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::AgentToProfile => {
+                    validate_create_link_agent_to_profile(
                         action,
                         base_address,
                         target_address,
@@ -248,6 +291,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
+                LinkTypes::AgentToProfile => {
+                    validate_delete_link_agent_to_profile(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
             }
         }
         OpType::StoreRecord(store_record) => {
@@ -270,6 +322,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             validate_create_participation_proof(
                                 EntryCreationAction::Create(action),
                                 participation_proof,
+                            )
+                        }
+                        EntryTypes::Profile(profile) => {
+                            validate_create_profile(
+                                EntryCreationAction::Create(action),
+                                profile,
                             )
                         }
                     }
@@ -388,6 +446,37 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 Ok(result)
                             }
                         }
+                        EntryTypes::Profile(profile) => {
+                            let result = validate_create_profile(
+                                EntryCreationAction::Update(action.clone()),
+                                profile.clone(),
+                            )?;
+                            if let ValidateCallbackResult::Valid = result {
+                                let original_profile: Option<Profile> = original_record
+                                    .entry()
+                                    .to_app_option()
+                                    .map_err(|e| wasm_error!(e))?;
+                                let original_profile = match original_profile {
+                                    Some(profile) => profile,
+                                    None => {
+                                        return Ok(
+                                            ValidateCallbackResult::Invalid(
+                                                "The updated entry type must be the same as the original entry type"
+                                                    .to_string(),
+                                            ),
+                                        );
+                                    }
+                                };
+                                validate_update_profile(
+                                    action,
+                                    profile,
+                                    original_action,
+                                    original_profile,
+                                )
+                            } else {
+                                Ok(result)
+                            }
+                        }
                     }
                 }
                 OpRecord::DeleteEntry { original_action_hash, action, .. } => {
@@ -463,6 +552,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 original_participation_proof,
                             )
                         }
+                        EntryTypes::Profile(original_profile) => {
+                            validate_delete_profile(
+                                action,
+                                original_action,
+                                original_profile,
+                            )
+                        }
                     }
                 }
                 OpRecord::CreateLink {
@@ -491,6 +587,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::AgentToEvmKeyBinding => {
                             validate_create_link_agent_to_evm_key_binding(
+                                action,
+                                base_address,
+                                target_address,
+                                tag,
+                            )
+                        }
+                        LinkTypes::AgentToProfile => {
+                            validate_create_link_agent_to_profile(
                                 action,
                                 base_address,
                                 target_address,
@@ -542,6 +646,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::AgentToEvmKeyBinding => {
                             validate_delete_link_agent_to_evm_key_binding(
+                                action,
+                                create_link.clone(),
+                                base_address,
+                                create_link.target_address,
+                                create_link.tag,
+                            )
+                        }
+                        LinkTypes::AgentToProfile => {
+                            validate_delete_link_agent_to_profile(
                                 action,
                                 create_link.clone(),
                                 base_address,

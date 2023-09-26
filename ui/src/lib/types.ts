@@ -23,6 +23,11 @@ export type EvmKeyBinding = {
   signature_bytes: Uint8Array;
 }
 
+// Profile
+export type Profile = {
+  name: string;
+}
+
 // Game moves
 export type Color = {
   r: number,

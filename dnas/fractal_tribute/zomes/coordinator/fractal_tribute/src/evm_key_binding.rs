@@ -48,20 +48,12 @@ pub fn get_evm_address(_:()) -> ExternResult<Option<Vec<u8>>> {
 }
 
 pub fn _get_evm_address() -> Result<Option<Vec<u8>>, EvmAddressError> {
-    let query_filter = ChainQueryFilter::new()
-        .include_entries(true)
-        .entry_type(EntryType::App(AppEntryDef::new(
-            1.into(),
-            0.into(),
-            EntryVisibility::Public,
-        )));
-
+    let query_filter = ChainQueryFilter::new().include_entries(true);
     let records = query(query_filter).map_err(|_| EvmAddressError::QueryError)?;
-    let records: Vec<Record> = records.into_iter().collect();
-    if (records.len() == 0) {
-        return Err(EvmAddressError::RecordNotFound);
-    }
-    let record = records[0].clone();
+    let record = match records.get(4).cloned() {
+        Some(record) => record,
+        None => return Ok(None),
+    };
     let sb = record.entry.as_option().ok_or(EvmAddressError::EntryError)?
                     .as_app_entry().ok_or(EvmAddressError::AppEntryError)?
                     .clone().into_sb();
@@ -72,12 +64,8 @@ pub fn _get_evm_address() -> Result<Option<Vec<u8>>, EvmAddressError> {
 
 #[hdk_extern]
 pub fn get_agent_evm_address(base: AgentPubKey) -> ExternResult<Vec<u8>> {
-    _get_agent_evm_address(base).map_err(|e| wasm_error!(e.to_string()))
-}
-
-pub fn _get_agent_evm_address(base: AgentPubKey) -> Result<Vec<u8>, EvmAddressError> {
-    let links = get_links(base, LinkTypes::AgentToEvmKeyBinding, None).map_err(|_| EvmAddressError::QueryError)?;
-    let get_input: Vec<GetInput> = links
+    let links = get_links(base, LinkTypes::AgentToEvmKeyBinding, None)?;
+        let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
             ActionHash::from(link.target).into(),
@@ -85,17 +73,18 @@ pub fn _get_agent_evm_address(base: AgentPubKey) -> Result<Vec<u8>, EvmAddressEr
         ))
         .collect();
     let records: Vec<Record> = HDK
-        .with(|hdk| hdk.borrow().get(get_input))
-        .map_err(|_| EvmAddressError::QueryError)? 
+        .with(|hdk| hdk.borrow().get(get_input))?
         .into_iter()
         .filter_map(|r| r)
         .collect();
-    if records.len() == 0 {
-        return Err(EvmAddressError::RecordNotFound);
+    if (records.len() == 0) {
+        return Err(wasm_error!("No EvmKeyBinding found for this agent"));
     }
-    let evm_key_binding: EvmKeyBinding = records[0].entry().to_app_option().map_err(|e| EvmAddressError::EntryError)?
+    let evm_key_binding: EvmKeyBinding = records[0].entry().to_app_option().map_err(|e| wasm_error!(e))?
         .ok_or(
-            EvmAddressError::AppEntryError,
+            wasm_error!(
+                WasmErrorInner::Guest(String::from("EvmKeyBinding not found at link target"))
+            ),
         )?;
     Ok(evm_key_binding.evm_key)
 }

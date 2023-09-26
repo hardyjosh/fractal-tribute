@@ -61,8 +61,8 @@ impl GameMove {
 
         let num_changes = bytes.len() / 6;
         
-        if num_changes > 10 {
-            return Err("Maximum of 10 pixel changes per move");
+        if num_changes > 20 {
+            return Err("Maximum of 20 pixel changes per move");
         }
 
         let mut changes = Vec::with_capacity(num_changes);
@@ -90,6 +90,14 @@ pub fn validate_create_game_move(
     _action: EntryCreationAction,
     _game_move: GameMove,
 ) -> ExternResult<ValidateCallbackResult> {
+
+    if *_action.action_seq() < 5u32 {
+        return Ok(
+            ValidateCallbackResult::Invalid(
+                String::from("EVM pubkey binding must be the first action after genesis"),
+            ),
+        )
+    }
     
     let game_end_time = _get_dna_properties(())?.game_end_time;
     let move_creation_time = _action.timestamp().as_seconds_and_nanos().0;

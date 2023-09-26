@@ -13,6 +13,7 @@
   import type { ActionHash } from "@holochain/client";
   import SnapshotMove from "$lib/components/SnapshotMove.svelte";
   import BoardNew from "$lib/components/BoardNew.svelte";
+  import { CHANGES_PER_MOVE } from "$lib/constants";
 
   const dispatch = createEventDispatcher();
 
@@ -28,7 +29,7 @@
     changes: [],
   };
   let undoneChanges = [];
-  $: allMovesMade = move.changes.length == 10;
+  $: allMovesMade = move.changes.length == CHANGES_PER_MOVE;
 
   let board: BoardWithMetadata;
   let mergedBoard: Board;
@@ -156,7 +157,7 @@
   <div class="col-span-2">
     {#if moveStatus == MoveStatus.Ready}
       <div class="p-4 border-2 border-black rounded-lg mb-4">
-        You've made {move.changes.length}/10 changes.
+        You've made {move.changes.length}/{CHANGES_PER_MOVE} changes.
       </div>
       <div class="flex gap-x-2 mb-4">
         <Button

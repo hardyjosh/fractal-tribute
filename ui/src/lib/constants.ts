@@ -1,0 +1,1 @@
+export const CHANGES_PER_MOVE = 20;

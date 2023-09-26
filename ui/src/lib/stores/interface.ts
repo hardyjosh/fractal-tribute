@@ -1,4 +1,4 @@
-import type { Board, BoardWithMetadataAndId, EvmKeyBinding, GameMove, GameMoveWithActionHash, IncomingBoardWithMetadataAndId, ParticipationProof, BoardWithMetadata, IncomingBoardWithMetadata, DnaProperties, TransformedDnaProperties } from '$lib/types';
+import type { Board, BoardWithMetadataAndId, EvmKeyBinding, GameMove, GameMoveWithActionHash, IncomingBoardWithMetadataAndId, ParticipationProof, BoardWithMetadata, IncomingBoardWithMetadata, DnaProperties, TransformedDnaProperties, Profile } from '$lib/types';
 import type { AppAgentClient, Record, ActionHash } from '@holochain/client';
 import { writable } from 'svelte/store';
 import { type Address, getAddress, bytesToHex, concat } from 'viem'
@@ -122,6 +122,39 @@ export class DnaInterface {
             // console.log(e?.message.toString().includes('Record not found'))
         }
     }
+
+    // profile
+    async createProfile(profile: Profile): Promise<Record> {
+        try {
+            return await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'create_profile',
+                payload: profile,
+            }) as Record
+        } catch (e) {
+            console.log(e?.data?.data)
+            console.log(e)
+        }
+    }
+
+    async getProfile(agentPubKey: Uint8Array): Promise<Profile> {
+        try {
+            const profile = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_profile',
+                payload: agentPubKey,
+            }) as Profile
+            return profile
+        } catch (e) {
+            console.log(e?.data?.data)
+            console.log(e)
+        }
+    }
+
 
     // moves
     async createGameMove(gameMove: GameMove): Promise<Record> {

@@ -3,35 +3,16 @@ use ethers_core::types::*;
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
-pub struct EvmKeyBinding {
-    pub evm_key: Vec<u8>,
-    pub signature_bytes: Vec<u8>,
+pub struct Profile {
+    pub name: String
 }
 
-pub fn validate_create_evm_key_binding(
+pub fn validate_create_profile(
     _action: EntryCreationAction,
-    _evm_key_binding: EvmKeyBinding,
+    _profile: Profile,
 ) -> ExternResult<ValidateCallbackResult> {
 
-    // first verify the signature
-    let mut address_array = [0u8; 20];
-    address_array.copy_from_slice(_evm_key_binding.evm_key.as_slice());
-    let address = H160::from(address_array);
-    let signature: ethers_core::types::Signature = _evm_key_binding.signature_bytes.as_slice().try_into().unwrap();
-
-    let message: RecoveryMessage = _action.author().get_raw_39().try_into().ok().unwrap();
-
-    let verified = signature.verify(message, address);
-
-    if !verified.is_ok() {
-        return Ok(
-            ValidateCallbackResult::Invalid(
-                String::from("EVM pubkey binding signature is invalid"),
-            ),
-        )
-    }
-
-    if *_action.action_seq() != 4u32 {
+    if *_action.action_seq() < 5u32 {
         return Ok(
             ValidateCallbackResult::Invalid(
                 String::from("EVM pubkey binding must be the first action after genesis"),
@@ -39,33 +20,42 @@ pub fn validate_create_evm_key_binding(
         )
     }
 
+    // check that the name string isn't empty
+    if _profile.name.is_empty() {
+        return Ok(
+            ValidateCallbackResult::Invalid(
+                String::from("Profile name cannot be empty"),
+            ),
+        )
+    }
+
     Ok(ValidateCallbackResult::Valid)
 }
-pub fn validate_update_evm_key_binding(
+pub fn validate_update_profile(
     _action: Update,
-    _evm_key_binding: EvmKeyBinding,
+    _profile: Profile,
     _original_action: EntryCreationAction,
-    _original_evm_key_binding: EvmKeyBinding,
+    _original_profile: Profile,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(
         ValidateCallbackResult::Invalid(
-            String::from("Evm Key Bindings cannot be updated"),
+            String::from("Profiles cannot be updated"),
         ),
     )
 }
-pub fn validate_delete_evm_key_binding(
+pub fn validate_delete_profile(
     _action: Delete,
     _original_action: EntryCreationAction,
-    _original_evm_key_binding: EvmKeyBinding,
+    _original_profile: Profile,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(
         ValidateCallbackResult::Invalid(
-            String::from("Evm Key Bindings cannot be deleted"),
+            String::from("Profiles cannot be deleted"),
         ),
     )
 }
 
-pub fn validate_create_link_agent_to_evm_key_binding(
+pub fn validate_create_link_agent_to_profile(
     _action: CreateLink,
     _base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
@@ -74,7 +64,7 @@ pub fn validate_create_link_agent_to_evm_key_binding(
     // Check the entry type for the given action hash
     let action_hash = ActionHash::from(target_address);
     let record = must_get_valid_record(action_hash)?;
-    let _evm_key_binding: crate::EvmKeyBinding = record
+    let _profile: crate::Profile = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
@@ -83,19 +73,21 @@ pub fn validate_create_link_agent_to_evm_key_binding(
                 WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
             ),
         )?;
-    // TODO: add the appropriate validation rules
     Ok(ValidateCallbackResult::Valid)
 }
 
-pub fn validate_delete_link_agent_to_evm_key_binding(
+pub fn validate_delete_link_agent_to_profile(
     _action: DeleteLink,
     _original_action: CreateLink,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from("All game moves links cannot be deleted")))
+    Ok(ValidateCallbackResult::Invalid(String::from("Profile links cannot be deleted")))
 }
+
+
+
 // #[cfg(test)]
 // pub mod tests {
 //     use super::*;
@@ -123,7 +115,7 @@ pub fn validate_delete_link_agent_to_evm_key_binding(
 //             let signature = wallet.sign_message(message).await.unwrap();
 //             assert_eq!(signature.recover(&message[..]).unwrap(), wallet.address());
 
-//             let evm_key_binding = EvmKeyBinding {
+//             let evm_key_binding = Profile {
 //                 evm_key: ByteArray(wallet.address().as_bytes().to_vec()),
 //                 signature_bytes: ByteArray(signature.to_vec()),
 //             };
@@ -131,7 +123,7 @@ pub fn validate_delete_link_agent_to_evm_key_binding(
 //             let record: Record = conductor
 //                 .call(
 //                     &alice.zome("nft_payload"), 
-//                     "create_evm_key_binding", 
+//                     "create_profile", 
 //                     evm_key_binding.clone()
 //                 ).await;
 
@@ -154,7 +146,7 @@ pub fn validate_delete_link_agent_to_evm_key_binding(
 //             let signature = wallet.sign_message(message).await.unwrap();
 //             assert_eq!(signature.recover(&message[..]).unwrap(), wallet.address());
 
-//             let evm_key_binding = EvmKeyBinding {
+//             let evm_key_binding = Profile {
 //                 evm_key: ByteArray(second_wallet.address().as_bytes().to_vec()),
 //                 signature_bytes: ByteArray(signature.to_vec()),
 //             };
@@ -162,7 +154,7 @@ pub fn validate_delete_link_agent_to_evm_key_binding(
 //             let record: Record = conductor
 //                 .call(
 //                     &alice.zome("nft_payload"), 
-//                     "create_evm_key_binding", 
+//                     "create_profile", 
 //                     evm_key_binding.clone()
 //                 ).await;
 
