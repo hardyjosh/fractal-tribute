@@ -98,6 +98,17 @@ pub fn validate_create_game_move(
             ),
         )
     }
+
+    // check that all of the pixel changes are within the bounds of the board
+    for change in _game_move.changes.iter() {
+        if change.x > BOARD_SIZE - 1 || change.y > BOARD_SIZE - 1 {
+            return Ok(
+                ValidateCallbackResult::Invalid(
+                    String::from(format!("Pixel change coordinates must be between 0 and {}", BOARD_SIZE - 1)),
+                ),
+            )
+        }
+    }
     
     let game_end_time = _get_dna_properties(())?.game_end_time;
     let move_creation_time = _action.timestamp().as_seconds_and_nanos().0;

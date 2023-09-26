@@ -9,6 +9,7 @@
   export let board: BoardWithMetadata;
   export let brush: Brush | null = null;
   export let allMovesMade: boolean;
+  export let eyeDropper: boolean = false;
 
   export let move: GameMove;
 
@@ -45,7 +46,7 @@
     if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
       hoveredTile = null;
     } else {
-      hoveredTile = { x, y };
+      if (!eyeDropper) hoveredTile = { x, y };
     }
   };
 

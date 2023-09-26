@@ -7,7 +7,7 @@
   import { mergeGameMoveIntoBoard } from "$lib/helpers";
   import Palette from "$lib/components/Palette.svelte";
   import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
-  import { Button, Modal, Heading } from "flowbite-svelte";
+  import { Button, Modal, Heading, Spinner } from "flowbite-svelte";
   import { UndoOutline, RedoOutline } from "flowbite-svelte-icons";
   import { addToast } from "$lib/components/toasts";
   import type { ActionHash } from "@holochain/client";
@@ -40,6 +40,8 @@
   let color;
   let graphic_option;
   let eyeDropper;
+
+  let saving;
 
   $: brush = { color, graphic_option, eyeDropper };
   $: if (board) mergedBoard = mergeGameMoveIntoBoard(board.board, move);
@@ -104,10 +106,12 @@
     try {
       const record = await $happ.createGameMove(move);
       savedMoveActionHash = record.signed_action.hashed.hash;
-      dispatch("moveSaved");
       snapshotMove = false;
-      promptSnapshot = true;
+      saving = true;
       await getBoard();
+      promptSnapshot = true;
+      dispatch("moveSaved");
+      saving = false;
       move = {
         changes: [],
       };
@@ -149,6 +153,7 @@
         {board}
         {brush}
         {move}
+        {eyeDropper}
         on:tileClick={handleTileClick}
       />
       <!-- <img class="absolute inset-0" src={board.svg} /> -->
@@ -177,8 +182,9 @@
         <Button
           class="bg-fractalorange border-2 border-black grow"
           size="lg"
-          disabled={!move.changes.length}
-          on:click={saveMove}>Save Move</Button
+          disabled={!move.changes.length || saving}
+          on:click={saveMove}
+          >{#if !saving}Save Move{:else}<Spinner size="4" class="mr-2" /> Saving...{/if}</Button
         >
       </div>
       <Palette

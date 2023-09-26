@@ -1,3 +1,4 @@
+import { BOARD_SIZE } from "$lib/helpers";
 import type { Color, GameMove, PixelChange } from "../types";
 
 export const gameMoveToBytes = (gameMove: GameMove): Uint8Array => {
@@ -38,7 +39,7 @@ export const generateRandomGameMove = (): GameMove => {
     const changes: PixelChange[] = [];
     for (let i = 0; i < numOfChanges; i++) {
         changes.push({
-            x: getRandomInt(BOARD_SIZE),
+            x: getRandomInt(BOARD_SIZE + 1),
             y: getRandomInt(BOARD_SIZE),
             color: getRandomColor(),
             graphic_option: getRandomInt(32)  // Assuming 16 graphic options
@@ -46,5 +47,3 @@ export const generateRandomGameMove = (): GameMove => {
     }
     return { changes };
 };
-
-const BOARD_SIZE = 50; 
