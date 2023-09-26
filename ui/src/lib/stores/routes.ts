@@ -1,5 +1,5 @@
 import { writable, type Writable } from "svelte/store";
-import Gallery from "../../routes/Gallery.svelte";
+import Leaderboard from "../../routes/Leaderboard.svelte";
 import Home from "../../routes/Home.svelte";
 
 type Route = (typeof routes)[number];
@@ -11,8 +11,8 @@ export const routes = [
         component: Home,
     },
     {
-        name: "Gallery",
-        component: Gallery,
+        name: "Leaderboard",
+        component: Leaderboard,
     },
 ] as const;
 

@@ -4,7 +4,7 @@ use crate::*;
 use svg::node::element::{Rectangle, Circle, Polygon, Use, Definitions, Group};
 use svg::{Document, Node};
 
-const BOARD_SIZE: usize = 50;
+const BOARD_SIZE: usize = 40;
 
 // #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]

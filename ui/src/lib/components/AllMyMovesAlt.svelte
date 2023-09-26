@@ -40,7 +40,7 @@
 </script>
 
 <div class="flex flex-col gap-y-2">
-  <Heading tag="h4" class="font-pixel">Your moves</Heading>
+  <Heading tag="h3">Your moves</Heading>
   <p class="text-lg">
     Make a snapshot onchain for any of your moves by minting them
   </p>

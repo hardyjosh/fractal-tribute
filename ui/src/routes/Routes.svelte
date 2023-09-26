@@ -19,6 +19,8 @@
   <div class="flex items-center gap-x-6">
     {#each routes as route, i}
       <button
+        class="text-lg"
+        class:font-bold={$currentRoute.name === route.name}
         on:click={() => {
           setRoute(route.name);
         }}>{route.name}</button

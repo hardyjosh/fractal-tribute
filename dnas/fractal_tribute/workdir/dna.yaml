@@ -2,7 +2,7 @@
 manifest_version: "1"
 name: fractal_tribute
 integrity:
-  network_seed: 39639636-6ea2-4463-9804-d2a13f04917b
+  network_seed: fractal-tribute
   properties:
     nft_contract_address: 0x5a47D03888C182859856ADA551eadC6c12dFb853
     payment_token_address: 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889

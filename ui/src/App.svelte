@@ -8,6 +8,7 @@
   import RandomGameMoves from "$lib/components/RandomGameMoves.svelte";
 
   import defs from "../../dnas/fractal_tribute/zomes/integrity/fractal_tribute/src/defs.svg?raw";
+  import { bytesToHex } from "viem";
 
   let ready = false;
 
@@ -16,6 +17,13 @@
     await initWeb3Modal($happ.dnaProperties.chainId);
     await tick();
     ready = true;
+    const appInfo = await $happ.client.appInfo();
+    console.log(appInfo);
+    const dnaHash = bytesToHex(
+      appInfo.cell_info.fractal_tribute[0]?.provisioned.cell_id[0]
+    );
+
+    console.log("🚀 dnaHash", dnaHash);
   });
 </script>
 

@@ -155,7 +155,7 @@
   <svg
     style="transform: translateZ(1);"
     class="absolute inset-0 will-change-auto"
-    viewBox="0 0 500 500"
+    viewBox={`0 0 ${BOARD_SIZE * 10} ${BOARD_SIZE * 10}`}
     xmlns="http://www.w3.org/2000/svg"
   >
     <defs>
