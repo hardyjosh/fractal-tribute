@@ -3,12 +3,12 @@
 <script lang="ts">
   import Shape from "$lib/components/Shape.svelte";
   import type { ShapeOptions } from "$lib/helpers";
-  import { Button } from "flowbite-svelte";
-  import ColorPicker from "svelte-awesome-color-picker";
   import { twMerge } from "tailwind-merge";
   import eyeDropperImg from "$lib/assets/eyedropper.png";
+  import eraserImg from "$lib/assets/eraser.png";
+  import type { BrushTool, Color } from "$lib/types";
 
-  const colors = [
+  const colorsArr = [
     [0, 18, 25],
     [0, 95, 115],
     [10, 147, 150],
@@ -21,42 +21,35 @@
     [155, 34, 38],
   ];
 
-  // export let color: { r: number; g: number; b: number } = {
-  //   r: 255,
-  //   g: 0,
-  //   b: 0,
-  // };
-
-  export let color: { r: number; g: number; b: number } = colors.map((c) => ({
+  const colors: Color[] = colorsArr.map((c) => ({
     r: c[0],
     g: c[1],
     b: c[2],
-  }))[0];
+  }));
+
+  export let color: Color = colors[0];
 
   let rgb;
   export let graphic_option: ShapeOptions = 0;
-  export let eyeDropper: boolean = false;
+  export let brushTool: BrushTool = "none";
+
   export const setColor = (_color) => {
+    // if for some reason the new colour isn't in our list, just ignore this
+    if (!colors.find((c) => colorsEqual(c, _color))) return;
     rgb = { ..._color, a: 1 };
     rgb = rgb;
     color = _color;
   };
 
-  let pickedColor;
+  let pickedColor: Color = color;
 
-  // $: if (pickedColor)
-  //   color = {
-  //     r: Math.floor(pickedColor.rgba.r),
-  //     g: Math.floor(pickedColor.rgba.g),
-  //     b: Math.floor(pickedColor.rgba.b),
-  //   };
+  $: if (pickedColor) color = pickedColor;
 
-  $: if (pickedColor)
-    color = {
-      r: pickedColor[0],
-      g: pickedColor[1],
-      b: pickedColor[2],
-    };
+  // helper for checking if colours are equal
+  const colorsEqual = (a, b) => {
+    console.log(a, b);
+    return a.r == b.r && a.g == b.g && a.b == b.b;
+  };
 </script>
 
 <div
@@ -66,17 +59,27 @@
     Colour
   </div>
   <div class="w-full flex flex-row items-start justify-start">
-    <div class="flex flex-col mr-8">
+    <div class="flex flex-col mr-8 gap-y-2">
       <button
         on:click={() => {
-          eyeDropper = true;
+          brushTool = "eye-dropper";
         }}
         color="none"
         class={twMerge(
           "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
-          eyeDropper && " border-black"
+          brushTool == "eye-dropper" && " border-black"
         )}
         ><img alt="eye dropper icon" class="w-8" src={eyeDropperImg} /></button
+      >
+      <button
+        on:click={() => {
+          brushTool = "eraser";
+        }}
+        color="none"
+        class={twMerge(
+          "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
+          brushTool == "eraser" && " border-black"
+        )}><img alt="eye dropper icon" class="w-8" src={eraserImg} /></button
       >
     </div>
     <div class="grid grid-cols-5 gap-4">
@@ -84,28 +87,22 @@
         <button
           on:click={() => {
             pickedColor = color;
-            eyeDropper = false;
+            brushTool = "none";
           }}
           class={twMerge(
             "flex flex-col items-center p-2 rounded-md border-gray-400 border h-12 hover:border-gray-800 cursor-pointer",
-            pickedColor === color && !eyeDropper && "border-2 border-black"
+            colorsEqual(pickedColor, color) &&
+              brushTool == "none" &&
+              "border-2 border-black"
           )}
         >
           <div
             class="aspect-square w-8 h-8"
-            style={`background-color: rgb(${color})`}
+            style={`background-color: rgb(${color.r} ${color.g} ${color.b})`}
           /></button
         >
       {/each}
     </div>
-
-    <!-- <ColorPicker
-      bind:color={pickedColor}
-      bind:rgb
-      isAlpha={false}
-      isOpen
-      isInput={false}
-    /> -->
   </div>
   <div class="bg-primary-50 font-semibold p-2 border border-black rounded-md">
     Shape
@@ -115,11 +112,11 @@
       <button
         on:click={() => {
           graphic_option = i;
-          eyeDropper = false;
+          brushTool = "none";
         }}
         class={twMerge(
           "flex flex-col items-center py-2 rounded-md border-gray-400 border h-12 hover:border-gray-800 cursor-pointer",
-          graphic_option === i && !eyeDropper && "border-2 border-black"
+          graphic_option === i && brushTool == "none" && "border-2 border-black"
         )}
       >
         <Shape {color} shapeOption={i} />

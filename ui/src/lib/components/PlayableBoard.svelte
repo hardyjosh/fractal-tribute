@@ -2,7 +2,15 @@
   import { account } from "svelte-wagmi-stores";
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import BoardComp from "$lib/components/Board.svelte";
-  import type { Board, BoardWithMetadata, GameMove } from "$lib/types";
+  import type {
+    Board,
+    BoardWithMetadata,
+    Brush,
+    BrushTool,
+    Color,
+    GameMove,
+    PixelChange,
+  } from "$lib/types";
   import { happ } from "$lib/stores";
   import { mergeGameMoveIntoBoard } from "$lib/helpers";
   import Palette from "$lib/components/Palette.svelte";
@@ -36,49 +44,78 @@
 
   let wrapper: HTMLDivElement;
 
-  let palette;
-  let color;
-  let graphic_option;
-  let eyeDropper;
+  let palette: Palette;
+  let brush: Brush;
+  let color: Color;
+  let graphic_option: number;
+  let brushTool: BrushTool;
 
   let saving;
 
-  $: brush = { color, graphic_option, eyeDropper };
+  $: brush = { color, graphic_option, brushTool };
   $: if (board) mergedBoard = mergeGameMoveIntoBoard(board.board, move);
 
   const handleTileClick = (event: CustomEvent<{ x: number; y: number }>) => {
-    // if we're just picking a colour, update the palette
-    if (eyeDropper) {
+    // see if we can find another change for this move, at this location
+    const previousChangeIndex = move.changes.findIndex(
+      (prevChange) =>
+        event.detail.y == prevChange.x && event.detail.x == prevChange.y
+    );
+
+    // if we've made all our moves, don't do anything
+    if (allMovesMade) return;
+
+    // if we're just picking a colour, update the palette and don't do anything else
+    if (brushTool == "eye-dropper") {
       const color = mergedBoard[event.detail.x][event.detail.y]?.color;
       if (!color) return;
       palette.setColor(color);
       return;
     }
 
-    // if we've already placed this tile, don't do anything
-    if (
-      move.changes.find(
-        (change) => change.x == event.detail.x && change.y == event.detail.y
-      )
-    )
-      return;
+    // otherwise...
 
-    // if we've made all our moves, don't do anything
-    if (allMovesMade) return;
+    // if we found a previous change, remove it
+    if (previousChangeIndex > -1) {
+      move.changes.splice(previousChangeIndex, 1);
+    }
 
-    // otherwise, add the change to the move
-    move.changes.push({
-      x: event.detail.y,
-      y: event.detail.x,
-      color: {
-        r: brush.color.r,
-        g: brush.color.g,
-        b: brush.color.b,
-      },
-      graphic_option: brush.graphic_option,
-    });
+    // start creating a new change
+    let change: PixelChange;
 
-    // Clear the undone changes since we're making a new change
+    // if we're erasing and there's already a change at this location for this move
+    if (brushTool == "eraser" && previousChangeIndex > -1) {
+      change = null;
+    } else if (brushTool == "eraser") {
+      // otherwise, we're adding a new change of a white tile
+      change = {
+        x: event.detail.y,
+        y: event.detail.x,
+        color: {
+          r: 255,
+          g: 255,
+          b: 255,
+        },
+        graphic_option: 1,
+      };
+    } else {
+      // otherwise, place the current brush
+      change = {
+        x: event.detail.y,
+        y: event.detail.x,
+        color: {
+          r: brush.color.r,
+          g: brush.color.g,
+          b: brush.color.b,
+        },
+        graphic_option: brush.graphic_option,
+      };
+    }
+
+    // add the new change if there is one
+    if (change) move.changes.push(change);
+
+    // clear the undone changes since we've done something new
     undoneChanges = [];
 
     move = move;
@@ -140,8 +177,6 @@
   let promptSnapshot = false;
   let snapshotMove = false;
   let savedMoveActionHash: ActionHash;
-
-  // $: console.log("brush in playable board", brush);
 </script>
 
 <div class="gap-x-4 items-stretch grid grid-cols-5">
@@ -153,7 +188,6 @@
         {board}
         {brush}
         {move}
-        {eyeDropper}
         on:tileClick={handleTileClick}
       />
       <!-- <img class="absolute inset-0" src={board.svg} /> -->
@@ -190,7 +224,7 @@
       <Palette
         bind:color
         bind:graphic_option
-        bind:eyeDropper
+        bind:brushTool
         bind:this={palette}
       />
     {/if}

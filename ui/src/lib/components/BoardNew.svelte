@@ -9,7 +9,6 @@
   export let board: BoardWithMetadata;
   export let brush: Brush | null = null;
   export let allMovesMade: boolean;
-  export let eyeDropper: boolean = false;
 
   export let move: GameMove;
 
@@ -17,16 +16,18 @@
   let rect: DOMRectReadOnly;
 
   let hoveredTile: { x: number; y: number } | null = null;
-  $: tilePercent = 100 / BOARD_SIZE;
 
   $: if (overlay && (brush || allMovesMade)) {
     // console.log("setting cursor", brush);
     if (allMovesMade) {
       // console.log("setting cursor to not allowed");
       overlay.style.cursor = "not-allowed";
-    } else if (brush?.eyeDropper) {
+    } else if (brush.brushTool == "eye-dropper") {
       // console.log("setting cursor to eye dropper");
       overlay.style.cursor = "url(/color-picker.cur), auto";
+    } else if (brush.brushTool == "eraser") {
+      // console.log("setting cursor to eraser");
+      overlay.style.cursor = "url(/eraser.cur), auto";
     } else {
       // console.log("setting cursor to cell");
       overlay.style.cursor = "cell";
@@ -46,7 +47,7 @@
     if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
       hoveredTile = null;
     } else {
-      if (!eyeDropper) hoveredTile = { x, y };
+      if (brush.brushTool == "none") hoveredTile = { x, y };
     }
   };
 

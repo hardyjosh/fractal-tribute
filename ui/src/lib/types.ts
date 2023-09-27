@@ -57,8 +57,10 @@ export type Tile = {
   changed?: boolean
 };
 
+export type BrushTool = 'eye-dropper' | 'eraser' | 'none';
+
 export type Brush = {
-  eyeDropper: boolean,
+  brushTool: BrushTool,
   color: Color,
   graphic_option: number
 }
