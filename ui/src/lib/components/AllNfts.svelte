@@ -78,11 +78,6 @@
         <div class="aspect-square border-2 border-black rounded-lg">
           {@html board.boardWithMetadata.svg}
         </div>
-        <!-- <img
-          class="border-2 border-black rounded-lg"
-          src={board.boardWithMetadata.svg}
-          alt="game board"
-        /> -->
         <div
           class="rounded-md border-black border-2 flex gap-x-2 p-2 justify-between items-center w-full"
         >
@@ -102,7 +97,6 @@
             size="sm">Mint</Button
           >
         </div>
-        <!-- <MintMove tokenId={bytesToBigint(nftIds[i])} /> -->
       </div>
     {/each}
   {/if}

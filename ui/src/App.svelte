@@ -6,9 +6,8 @@
   import { toasts } from "$lib/components/toasts";
   import Toasts from "$lib/components/toasts/Toasts.svelte";
   import RandomGameMoves from "$lib/components/RandomGameMoves.svelte";
-
   import defs from "../../dnas/fractal_tribute/zomes/integrity/fractal_tribute/src/defs.svg?raw";
-  import { bytesToHex } from "viem";
+  import { encodeHashToBase64 } from "@holochain/client";
 
   let ready = false;
 
@@ -19,7 +18,7 @@
     ready = true;
     const appInfo = await $happ.client.appInfo();
     console.log(appInfo);
-    const dnaHash = bytesToHex(
+    const dnaHash = encodeHashToBase64(
       appInfo.cell_info.fractal_tribute[0]?.provisioned.cell_id[0]
     );
 

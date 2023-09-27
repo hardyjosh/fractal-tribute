@@ -1,90 +1,53 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
   import { onMount, createEventDispatcher } from "svelte";
-  import addresses from "$lib/addresses.json";
-  import { account, walletClient } from "svelte-wagmi-stores";
+  import { account, network } from "svelte-wagmi-stores";
   import { type ActionHash } from "@holochain/client";
   import {
     happ,
     nftContract,
-    paymentToken,
     paymentTokenAddress,
     web3modal,
   } from "$lib/stores";
-  import { Button, Spinner, Heading } from "flowbite-svelte";
+  import { Button, Spinner, Heading, Alert } from "flowbite-svelte";
   import {
     hexToBigInt,
     keccak256,
     type Address,
     parseEther,
-    formatUnits,
+    type Hex,
   } from "viem";
   import { snapshotEvaluable } from "$lib/helpers";
-  import {
-    fetchToken,
-    waitForTransaction,
-    type FetchTokenResult,
-  } from "@wagmi/core";
-  import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
+  import { waitForTransaction } from "@wagmi/core";
 
   const dispatch = createEventDispatcher();
 
-  export let move: ActionHash;
+  export let isPostMove: boolean = false;
   export let open: boolean;
 
+  export let move: ActionHash;
   $: _move = hexToBigInt(keccak256(move));
 
   const price = parseEther("0");
 
-  let allowance: bigint, balance: bigint;
-  let token: FetchTokenResult;
-
   let key: Address;
-  let checkedKey = false;
+  $: mismatchingKey = $account?.address && key && $account?.address !== key;
+  $: wrongNetwork =
+    $account?.address && $happ.dnaProperties.chainId !== $network?.chain?.id;
 
   onMount(async () => {
-    token = await fetchToken({ address: $paymentTokenAddress });
-    await getKey();
-    checkedKey = true;
+    key = await $happ.getEvmAddress();
   });
 
-  const getKey = async () => {
-    key = await $happ.getEvmAddress();
-  };
-
-  const getAllowanceAndBalance = async () => {
-    allowance = await $paymentToken.read({
-      functionName: "allowance",
-      args: [$account?.address, addresses.instance as Address],
-    });
-
-    balance = await $paymentToken.read({
-      functionName: "balanceOf",
-      args: [$account?.address],
-    });
-  };
-
-  $: if ($walletClient) getAllowanceAndBalance();
+  let hash: Hex;
 
   $: ({ write, status, error } = $nftContract.write({
     functionName: "flow",
     args: [snapshotEvaluable, [_move], []],
-    onSuccess: ({ hash }) => {
-      waitForTransaction({ hash, confirmations: 5 }).then(() => {
+    onSuccess: ({ hash: _hash }) => {
+      hash = _hash;
+      waitForTransaction({ hash: _hash, confirmations: 5 }).then(() => {
         dispatch("snapshotMinted");
-      });
-    },
-  }));
-
-  $: ({
-    write: allowanceWrite,
-    status: allowanceStatus,
-    error: allowanceError,
-  } = $paymentToken.write({
-    functionName: "approve",
-    args: [addresses.instance as Address, price],
-    onSuccess: ({ hash }) => {
-      waitForTransaction({ hash, confirmations: 5 }).then(() => {
-        getAllowanceAndBalance();
       });
     },
   }));
@@ -93,122 +56,96 @@
     await $happ.createTokenIdForGameMove(move);
     await write();
   };
-
-  $: balanceOk = balance >= price;
-  $: allowanceOk = allowance >= price;
-
-  $: ready =
-    balance !== undefined && allowance !== undefined && token !== undefined;
-
-  $: console.log($error);
 </script>
 
-<div class="flex flex-col justify-center gap-y-4">
-  <Heading tag="h4">Create snapshot</Heading>
-  {#if !checkedKey}
-    <Spinner />
-  {:else if !key}
-    <p>
-      Before you can mint a snapshot you need to bind your Ethereum wallet to
-      your Holochain agent key.
-    </p>
-    {#if !$account.isConnected}
-      <Button
-        class="bg-fractalorange border-2 border-black self-start"
-        on:click={() => {
-          $web3modal.openModal();
-        }}>Connect wallet</Button
-      >
+{#if $status == "idle" || $status == "error"}
+  <div in:fade class="flex flex-col justify-center gap-y-4">
+    {#if isPostMove}
+      <Heading tag="h4">Nice move!</Heading>
+      <Heading tag="h5">Would you like to mint a snapshot?</Heading>
     {:else}
-      <CreateEvmKeyBinding on:evmKeyBindingCreated={getKey} />
+      <Heading tag="h4">Create snapshot</Heading>
     {/if}
-  {:else if !$account.isConnected}
-    <p>You need to connect your wallet to mint a snapshot</p>
-    <Button
-      class="bg-fractalorange border-2 border-black self-start"
-      on:click={() => {
-        $web3modal.openModal();
-      }}>Connect wallet</Button
-    >
-  {:else if $account?.isConnected && $account.address !== key}
+    <p>Creating a snapshot is free, you'll just need to pay the gas fee.</p>
     <p>
-      You previously bound the Ethereum wallet {key} to your Holochain agent key.
+      One you have created your snapshot, other players (and the public) will be
+      able to mint your snapshot to push it up the leaderboard.
     </p>
     <p>
-      You'll need switch to this account in your wallet before you can mint.
+      The MATIC collected will be sent to the game pool to be redistributed to
+      players at the end of the game
     </p>
-  {:else if $account.isConnected && !ready}
-    <Spinner />
-  {:else if $account.isConnected && ready}
-    {#if !balanceOk}
-      <p>You don't have enough {token?.name} to mint this move</p>
-    {:else if !allowanceOk}
-      <p>
-        Before you can mint, you first need to approve the NFT contract to spend
-        your {token?.name}
-      </p>
+    <div class="flex gap-x-2">
       <Button
-        class="bg-fractalorange border-2 border-black self-start  "
-        disabled={$allowanceStatus === "loading"}
-        on:click={allowanceWrite}
+        class="border-2 border-black"
+        color="none"
+        on:click={() => {
+          open = false;
+        }}>Maybe later</Button
       >
-        {#if $allowanceStatus === "loading"}
-          <Spinner size="4" class="mr-2" /> Approving
-        {:else}
-          Approve spend
-        {/if}
-      </Button>
-    {:else if balanceOk && allowanceOk}
-      {#if $status !== "success"}
-        <p>
-          <!-- Creating a snapshot costs {formatUnits(price, token.decimals)}
-          {token.symbol}. -->
-          Creating a snapshot is free, you'll just need to pay the gas fee.
-        </p>
-        <p>
-          One you have created your snapshot, other players (and the public)
-          will be able to mint your snapshot to push it up the leaderboard.
-        </p>
-        <p>
-          The MATIC collected will be sent to the game pool to be redistributed
-          to players at the end of the game
-        </p>
-        <div class="flex gap-x-2">
-          <Button
-            class="border-2 border-black"
-            color="none"
-            on:click={() => {
-              open = false;
-            }}>Cancel</Button
-          >
-          <Button
-            class="bg-fractalorange border-2 border-black"
-            disabled={$status === "loading"}
-            on:click={snapshotMove}
-          >
-            {#if $status === "loading"}
-              <Spinner size="4" class="mr-2" /> Minting snapshot
-            {:else}
-              Mint snapshot
-            {/if}
-          </Button>
-        </div>
-        {#if $error}
-          <p class="text-red-300">{$error?.shortMessage || $error}</p>
-        {/if}
-      {:else if $status === "success"}
-        <p>Snapshot minted!</p>
+      {#if $account?.isConnected}
         <Button
           class="bg-fractalorange border-2 border-black"
+          disabled={mismatchingKey || wrongNetwork}
+          on:click={snapshotMove}
+        >
+          Mint snapshot
+        </Button>
+      {:else}
+        <Button
+          class="bg-fractalorange border-2 border-black self-start"
           on:click={() => {
-            open = false;
-          }}>Close</Button
+            $web3modal.openModal();
+          }}>Connect wallet</Button
         >
       {/if}
+    </div>
+    {#if $status == "error"}
+      <p transition:fade class="text-red-500">
+        {$error?.details || $error?.shortMessage || $error}
+      </p>
     {/if}
-
-    {#if $allowanceError}
-      <p>{$allowanceError}</p>
+    {#if wrongNetwork}
+      <Alert>
+        <p>
+          You're connected to the wrong network. Please switch to the{" "}
+          {$happ.dnaProperties.chainId === 137 ? "Polygon" : "Mumbai"}{" "}
+          network.
+        </p>
+      </Alert>
+    {:else if mismatchingKey}
+      <Alert>
+        <p>
+          You previously bound the Ethereum wallet {key} to your Holochain agent
+          key.
+        </p>
+        <p>
+          You'll need switch to this account in your wallet before you can mint.
+        </p>
+      </Alert>
     {/if}
-  {/if}
-</div>
+  </div>
+{:else if $status === "loading"}
+  <div in:fade class="flex flex-col items-center gap-y-4 my-12">
+    <Spinner size="10" class="mr-2" />
+    <Heading tag="h4" class="text-center">Minting snapshot</Heading>
+    <span>Please check your wallet to confirm</span>
+  </div>
+{:else if $status === "success"}
+  <div in:fade class="flex flex-col items-center gap-y-4 my-12">
+    <Heading class="text-center" tag="h4">Snapshot minted!</Heading>
+    <a
+      href={`${$network.chain.blockExplorers.default.url}/tx/${hash}`}
+      target="_blank"
+      class="underline"
+    >
+      View on explorer</a
+    >
+    <Button
+      class="bg-fractalorange border-2 border-black"
+      on:click={() => {
+        open = false;
+      }}>Done</Button
+    >
+  </div>
+{/if}

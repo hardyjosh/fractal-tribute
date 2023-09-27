@@ -143,10 +143,9 @@
     try {
       const record = await $happ.createGameMove(move);
       savedMoveActionHash = record.signed_action.hashed.hash;
-      snapshotMove = false;
       saving = true;
       await getBoard();
-      promptSnapshot = true;
+      snapshotMove = true;
       dispatch("moveSaved");
       saving = false;
       move = {
@@ -174,7 +173,6 @@
   });
 
   // modal
-  let promptSnapshot = false;
   let snapshotMove = false;
   let savedMoveActionHash: ActionHash;
 </script>
@@ -231,41 +229,11 @@
   </div>
 </div>
 
-<Modal bind:open={promptSnapshot}>
-  {#if !snapshotMove}
-    <Heading tag="h4">Nice move!</Heading>
-    <p>Would you like to mint a snapshot?</p>
-    <p>
-      Minting a snapshot allows you to earn some percent of the pools earning.
-    </p>
-    <p>
-      If you change your mind later, you can mint a snapshot of any of your
-      moves.
-    </p>
-    <div class="flex gap-x-2">
-      <Button
-        on:click={() => {
-          promptSnapshot = false;
-        }}
-        color="none"
-        class="border-2 border-black"
-      >
-        No thanks
-      </Button>
-      <Button
-        on:click={() => {
-          snapshotMove = true;
-        }}
-        class="bg-fractalorange border-2 border-black"
-      >
-        Mint
-      </Button>
-    </div>
-  {:else}
-    <SnapshotMove
-      move={savedMoveActionHash}
-      bind:open={promptSnapshot}
-      on:snapshotMinted
-    />
-  {/if}
+<Modal bind:open={snapshotMove}>
+  <SnapshotMove
+    move={savedMoveActionHash}
+    bind:open={snapshotMove}
+    on:snapshotMinted
+    isPostMove
+  />
 </Modal>
