@@ -3,6 +3,7 @@
   import { createEventDispatcher } from "svelte";
   import { BOARD_SIZE } from "$lib/helpers";
   import type { BoardWithMetadata, GameMove } from "$lib/types";
+  import ShapeSvgAlt from "$lib/components/ShapeSvgAlt.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -18,18 +19,13 @@
   let hoveredTile: { x: number; y: number } | null = null;
 
   $: if (overlay && (brush || allMovesMade)) {
-    // console.log("setting cursor", brush);
     if (allMovesMade) {
-      // console.log("setting cursor to not allowed");
       overlay.style.cursor = "not-allowed";
     } else if (brush.brushTool == "eye-dropper") {
-      // console.log("setting cursor to eye dropper");
       overlay.style.cursor = "url(/color-picker.cur), auto";
     } else if (brush.brushTool == "eraser") {
-      // console.log("setting cursor to eraser");
       overlay.style.cursor = "url(/eraser.cur), auto";
     } else {
-      // console.log("setting cursor to cell");
       overlay.style.cursor = "cell";
     }
   }
@@ -83,74 +79,20 @@
     xmlns="http://www.w3.org/2000/svg"
   >
     {#each move.changes as change}
-      {#if change.graphic_option < 16}
-        <rect
-          x={change.y * 100}
-          y={change.x * 100}
-          width="100"
-          height="100"
-          fill="white"
-        />
-        <rect
-          x={change.y * 100}
-          y={change.x * 100}
-          width="100"
-          height="100"
-          fill={`rgb(${change.color.r}, ${change.color.g}, ${change.color.b})`}
-          mask={`url(#m_${(change.graphic_option % 16) + 1})`}
-        />
-      {:else}
-        <rect
-          x={change.y * 100}
-          y={change.x * 100}
-          width="100"
-          height="100"
-          fill={`rgb(${change.color.r}, ${change.color.g}, ${change.color.b})`}
-        />
-        <rect
-          x={change.y * 100}
-          y={change.x * 100}
-          width="100"
-          height="100"
-          fill="white"
-          mask={`url(#m_${(change.graphic_option % 16) + 1})`}
-        />
-      {/if}
+      <ShapeSvgAlt
+        color={change.color}
+        x={change.y * 100}
+        y={change.x * 100}
+        shapeOption={change.graphic_option}
+      />
     {/each}
     {#if hoveredTile}
-      {#if brush?.graphic_option < 16}
-        <rect
-          x={hoveredTile.x * 100}
-          y={hoveredTile.y * 100}
-          width="100"
-          height="100"
-          fill="white"
-        />
-        <rect
-          x={hoveredTile.x * 100}
-          y={hoveredTile.y * 100}
-          width="100"
-          height="100"
-          fill={`rgb(${brush?.color.r}, ${brush?.color.g}, ${brush?.color.b})`}
-          mask={`url(#m_${(brush?.graphic_option % 16) + 1})`}
-        />
-      {:else}
-        <rect
-          x={hoveredTile.x * 100}
-          y={hoveredTile.y * 100}
-          width="100"
-          height="100"
-          fill={`rgb(${brush?.color.r}, ${brush?.color.g}, ${brush?.color.b})`}
-        />
-        <rect
-          x={hoveredTile.x * 100}
-          y={hoveredTile.y * 100}
-          width="100"
-          height="100"
-          fill="white"
-          mask={`url(#m_${(brush?.graphic_option % 16) + 1})`}
-        />
-      {/if}
+      <ShapeSvgAlt
+        color={brush?.color}
+        x={hoveredTile.x * 100}
+        y={hoveredTile.y * 100}
+        shapeOption={brush?.graphic_option}
+      />
     {/if}
   </svg>
 

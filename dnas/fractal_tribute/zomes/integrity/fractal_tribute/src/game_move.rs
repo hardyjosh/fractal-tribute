@@ -1,5 +1,6 @@
 use hdi::prelude::*;
 use crate::{*, dna_properties::_get_dna_properties};
+use crate::board::GRAPHIC_OPTIONS;
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
@@ -99,12 +100,22 @@ pub fn validate_create_game_move(
         )
     }
 
+    
+    
     // check that all of the pixel changes are within the bounds of the board
+    // we also only support 33 graphic options
     for change in _game_move.changes.iter() {
         if change.x > BOARD_SIZE - 1 || change.y > BOARD_SIZE - 1 {
             return Ok(
                 ValidateCallbackResult::Invalid(
                     String::from(format!("Pixel change coordinates must be between 0 and {}", BOARD_SIZE - 1)),
+                ),
+            )
+        }
+        if change.graphic_option > GRAPHIC_OPTIONS as u8 * 2 + 1 {
+            return Ok(
+                ValidateCallbackResult::Invalid(
+                    String::from(format!("Graphic option must be between 0 and {}", GRAPHIC_OPTIONS as u8 * 2 + 1)),
                 ),
             )
         }

@@ -5,7 +5,7 @@ use svg::node::element::{Rectangle, Circle, Polygon, Use, Definitions, Group};
 use svg::{Document, Node};
 
 pub const BOARD_SIZE: usize = 40;
-
+pub const GRAPHIC_OPTIONS: usize = 17;
 // #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct Board {
@@ -90,7 +90,7 @@ impl Board {
         let mut document = Document::new()
             .set("viewBox", (0, 0, BOARD_SIZE * 100, BOARD_SIZE * 100));
     
-        let mut groups: Vec<Group> = vec![Group::new(); 16];  // Create 16 empty groups
+        let mut groups: Vec<Group> = vec![Group::new(); GRAPHIC_OPTIONS];  // Create 16 empty groups
         let mut bg_group = Group::new();
     
         for (x, col) in self.tiles.iter().enumerate() {
@@ -112,20 +112,24 @@ impl Board {
     
                 if let Some(color) = tile.color {
                     let fill = format!("rgb({},{},{})", color.r, color.g, color.b);
-                    if tile.graphic_option < Some(16) {
-                        bg_rect = bg_rect.set("fill", "white");
-                        rect = rect.set("fill", fill);
-    
-                    } else {
+                
+                    if tile.graphic_option == Some(GRAPHIC_OPTIONS as u8 * 2 + 1) {
                         bg_rect = bg_rect.set("fill", fill);
-                        rect = rect.set("fill", "white");
+                    } else {
+                        if tile.graphic_option < Some(GRAPHIC_OPTIONS as u8) {
+                            bg_rect = bg_rect.set("fill", "white");
+                            rect = rect.set("fill", fill);
+                        } else {
+                            bg_rect = bg_rect.set("fill", fill);
+                            rect = rect.set("fill", "white");
+                        }
+                
+                        if let Some(mut graphic_option) = tile.graphic_option {
+                            graphic_option %= GRAPHIC_OPTIONS as u8;
+                            groups[graphic_option as usize].append(rect);
+                        }
                     }
-                    if let Some(mut graphic_option) = tile.graphic_option {
-                        graphic_option = graphic_option % 16;
-                        // Add the rect to the appropriate group based on its mask.
-                        groups[graphic_option as usize].append(rect);
-                    }
-                    // Add the bg_rect to the bg_group
+                    
                     bg_group.append(bg_rect);
                 }
             }
@@ -136,7 +140,7 @@ impl Board {
     
         // Add mask attribute to groups and add them to the document
         for (i, group) in groups.iter_mut().enumerate() {
-            let mask_attr = format!("url(#m_{})", i % 16 + 1);
+            let mask_attr = format!("url(#m_{})", i % GRAPHIC_OPTIONS + 1);
             group.assign("mask", mask_attr);
             document = document.add(group.clone());
         }

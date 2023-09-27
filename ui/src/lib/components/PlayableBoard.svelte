@@ -96,7 +96,7 @@
           g: 255,
           b: 255,
         },
-        graphic_option: 1,
+        graphic_option: 32,
       };
     } else {
       // otherwise, place the current brush

@@ -55,34 +55,33 @@
 <div
   class="flex flex-col justify-center items-stretch rounded-lg border-2 border-black bg-primary-25 grow p-4 gap-y-2"
 >
+  <div class="flex flex-row mr-8 gap-x-2">
+    <button
+      on:click={() => {
+        brushTool = "eye-dropper";
+      }}
+      color="none"
+      class={twMerge(
+        "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
+        brushTool == "eye-dropper" && " border-black"
+      )}><img alt="eye dropper icon" class="w-8" src={eyeDropperImg} /></button
+    >
+    <button
+      on:click={() => {
+        brushTool = "eraser";
+      }}
+      color="none"
+      class={twMerge(
+        "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
+        brushTool == "eraser" && " border-black"
+      )}><img alt="eye dropper icon" class="w-8" src={eraserImg} /></button
+    >
+  </div>
   <div class="bg-primary-50 font-semibold p-2 border border-black rounded-md">
     Colour
   </div>
   <div class="w-full flex flex-row items-start justify-start">
-    <div class="flex flex-col mr-8 gap-y-2">
-      <button
-        on:click={() => {
-          brushTool = "eye-dropper";
-        }}
-        color="none"
-        class={twMerge(
-          "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
-          brushTool == "eye-dropper" && " border-black"
-        )}
-        ><img alt="eye dropper icon" class="w-8" src={eyeDropperImg} /></button
-      >
-      <button
-        on:click={() => {
-          brushTool = "eraser";
-        }}
-        color="none"
-        class={twMerge(
-          "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
-          brushTool == "eraser" && " border-black"
-        )}><img alt="eye dropper icon" class="w-8" src={eraserImg} /></button
-      >
-    </div>
-    <div class="grid grid-cols-5 gap-4">
+    <div class="grid grid-cols-5 gap-4 w-full">
       {#each colors as color}
         <button
           on:click={() => {
@@ -105,10 +104,10 @@
     </div>
   </div>
   <div class="bg-primary-50 font-semibold p-2 border border-black rounded-md">
-    Shape
+    Pattern
   </div>
   <div class="grid grid-cols-5 gap-4">
-    {#each new Array(32) as _, i}
+    {#each new Array(35) as _, i}
       <button
         on:click={() => {
           graphic_option = i;

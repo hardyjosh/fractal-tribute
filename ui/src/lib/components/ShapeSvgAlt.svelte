@@ -1,37 +1,44 @@
 <script lang="ts">
-  import { ShapeOptions } from "$lib/helpers";
-  import defs from "../../../../dnas/fractal_tribute/zomes/integrity/fractal_tribute/src/defs.svg?raw";
+  import { GRAPHIC_OPTIONS } from "$lib/helpers";
 
-  export let shapeOption: ShapeOptions;
+  export let shapeOption;
   export let color: { r: number; g: number; b: number };
+  export let x: number = 0;
+  export let y: number = 0;
 </script>
 
-<!-- {@html defs} -->
-
-{#if shapeOption < 16}
-  <rect x="0" y="0" width="100" height="100" fill="white" />
+{#if shapeOption == GRAPHIC_OPTIONS * 2}
   <rect
-    x="0"
-    y="0"
+    {x}
+    {y}
     width="100"
     height="100"
     fill="rgb({color.r} {color.g} {color.b})"
-    mask={`url(#m_${(shapeOption % 16) + 1})`}
+  />
+{:else if shapeOption < GRAPHIC_OPTIONS}
+  <rect x="0" y="0" width="100" height="100" fill="white" />
+  <rect
+    {x}
+    {y}
+    width="100"
+    height="100"
+    fill="rgb({color.r} {color.g} {color.b})"
+    mask={`url(#m_${(shapeOption % GRAPHIC_OPTIONS) + 1})`}
   />
 {:else}
   <rect
-    x="0"
-    y="0"
+    {x}
+    {y}
     width="100"
     height="100"
     fill="rgb({color.r} {color.g} {color.b})"
   />
   <rect
-    x="0"
-    y="0"
+    {x}
+    {y}
     width="100"
     height="100"
     fill="white"
-    mask={`url(#m_${(shapeOption % 16) + 1})`}
+    mask={`url(#m_${(shapeOption % GRAPHIC_OPTIONS) + 1})`}
   />
 {/if}

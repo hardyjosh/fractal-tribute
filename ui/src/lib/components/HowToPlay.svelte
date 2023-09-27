@@ -5,6 +5,8 @@
   import { Button, Heading, Input } from "flowbite-svelte";
   import { createEventDispatcher } from "svelte";
 
+  export let hasEvmAddress: boolean;
+
   const dispatch = createEventDispatcher();
 
   let howToPlayStep = 0;
@@ -59,9 +61,16 @@
     haven’t installed the game, you can also find your claim at
     https://fractal-tribute.com.
   </div>
-  <Button class="bg-fractalorange border-2 border-black" on:click={inc}
-    >Next: Get Started!</Button
-  >
+  {#if !hasEvmAddress}
+    <Button class="bg-fractalorange border-2 border-black" on:click={inc}
+      >Next: Get Started!</Button
+    >
+  {:else}
+    <Button
+      class="bg-fractalorange border-2 border-black"
+      on:click={completeOnboarding}>Ok, I'm ready to play!</Button
+    >
+  {/if}
 {:else if howToPlayStep === 4}
   <Heading tag="h5">Welcome</Heading>
   <span>What is your name?</span>

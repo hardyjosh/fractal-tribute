@@ -13,12 +13,13 @@
   let countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
   setContext(countdownContext, countdown);
 
-  let open: boolean = true;
+  let open: boolean = false;
+  let evm_address = null;
 
   onMount(async () => {
-    const evm_address = await $happ.getEvmAddress();
-    if (evm_address) {
-      open = false;
+    evm_address = await $happ.getEvmAddress();
+    if (!evm_address) {
+      open = true;
     }
   });
 </script>
@@ -58,6 +59,7 @@
 
 <Modal bind:open>
   <HowToPlay
+    hasEvmAddress={!!evm_address}
     on:onboarding-complete={() => {
       open = false;
     }}
