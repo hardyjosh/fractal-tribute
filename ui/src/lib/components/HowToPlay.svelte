@@ -74,6 +74,7 @@
 {:else if howToPlayStep === 4}
   <Heading tag="h5">Welcome</Heading>
   <span>What is your name?</span>
+  <span>Choose carefully, you can't change this later!</span>
   <Input type="text" bind:value={name} />
   <Button class="bg-fractalorange border-2 border-black" on:click={inc}
     >Create my Profile</Button

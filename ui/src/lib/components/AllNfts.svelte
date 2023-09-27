@@ -8,6 +8,7 @@
   import MintMove from "$lib/components/MintMove.svelte";
   import { hexToBigInt, type Hex, bytesToHex } from "viem";
   import { nfts } from "$lib/stores/nfts";
+  import Identicon from "$lib/components/Identicon.svelte";
 
   export let heading = "Latest snapshots";
   export let showWinnerPanel = false;
@@ -79,23 +80,34 @@
           {@html board.boardWithMetadata.svg}
         </div>
         <div
-          class="rounded-md border-black border-2 flex gap-x-2 p-2 justify-between items-center w-full"
+          class="rounded-lg border-black border-2 flex gap-x-2 p-4 justify-between items-center w-full"
         >
           <div class="flex flex-col">
-            <span class="text-gray-500 font-light"
-              >{formatAddress(
-                encodeHashToBase64(board.boardWithMetadata.creator)
-              )}</span
-            >
-            <span>{board.supply} minted</span>
+            <div class="flex gap-x-2 items-center">
+              <Identicon agentHash={board.boardWithMetadata.creator} />
+              <div class="flex flex-col leading-none gap-y-1">
+                <span class="text-gray-500">
+                  {#await $happ.getProfile(board.boardWithMetadata.creator) then profile}
+                    {profile.name}
+                  {:catch error}
+                    {formatAddress(
+                      encodeHashToBase64(board.boardWithMetadata.creator)
+                    )}
+                  {/await}
+                </span>
+                <span>{board.supply} minted</span>
+              </div>
+            </div>
           </div>
-          <Button
-            on:click={() => {
-              mintMove(board.id);
-            }}
-            class="!bg-primary-500 border-black border-2"
-            size="sm">Mint</Button
-          >
+          <div class="flex flex-col gap-y-1">
+            <Button
+              on:click={() => {
+                mintMove(board.id);
+              }}
+              class="!bg-primary-500 border-black border-2"
+              size="sm">Mint</Button
+            >
+          </div>
         </div>
       </div>
     {/each}
