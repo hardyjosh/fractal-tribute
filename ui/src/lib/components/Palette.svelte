@@ -47,7 +47,6 @@
 
   // helper for checking if colours are equal
   const colorsEqual = (a, b) => {
-    console.log(a, b);
     return a.r == b.r && a.g == b.g && a.b == b.b;
   };
 </script>

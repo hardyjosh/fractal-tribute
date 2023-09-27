@@ -17,12 +17,11 @@
     await tick();
     ready = true;
     const appInfo = await $happ.client.appInfo();
-    console.log(appInfo);
     const dnaHash = encodeHashToBase64(
       appInfo.cell_info.fractal_tribute[0]?.provisioned.cell_id[0]
     );
 
-    console.log("🚀 dnaHash", dnaHash);
+    // console.log("🚀 dnaHash", dnaHash);
   });
 </script>
 
@@ -35,6 +34,6 @@
     <Routes />
   {/if}
 </div>
-<!-- <RandomGameMoves /> -->
+<RandomGameMoves />
 
 <Toasts {toasts} />

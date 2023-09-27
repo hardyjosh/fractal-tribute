@@ -50,7 +50,7 @@
   {#if moveActions?.length}
     <div class="flex overflow-scroll gap-4">
       {#each moveActions as action, i}
-        <IntersectionObserver element={wrappers[i]} let:intersecting>
+        <IntersectionObserver once element={wrappers[i]} let:intersecting>
           <div
             bind:this={wrappers[i]}
             class="flex flex-col gap-y-2 snap-start basis-1/5-gap-4 flex-none"

@@ -139,15 +139,16 @@
     move = move;
   };
 
-  const saveMove = async () => {
+  const saveMove = async (promptSnapshot: boolean) => {
     try {
       const record = await $happ.createGameMove(move);
       savedMoveActionHash = record.signed_action.hashed.hash;
       saving = true;
       await getBoard();
-      snapshotMove = true;
       dispatch("moveSaved");
+      await new Promise((resolve) => setTimeout(resolve, 500));
       saving = false;
+      if (promptSnapshot) snapshotMove = true;
       move = {
         changes: [],
       };
@@ -179,7 +180,6 @@
 
 <div class="gap-x-4 items-stretch grid grid-cols-5">
   <div bind:this={wrapper} class="col-span-3 relative">
-    <!-- <BoardComp board={mergedBoard} bind:brush on:tileClick={handleTileClick} /> -->
     {#if board}
       <BoardNew
         {allMovesMade}
@@ -188,7 +188,6 @@
         {move}
         on:tileClick={handleTileClick}
       />
-      <!-- <img class="absolute inset-0" src={board.svg} /> -->
     {/if}
   </div>
   <div class="col-span-2">
@@ -215,8 +214,13 @@
           class="bg-fractalorange border-2 border-black grow"
           size="lg"
           disabled={!move.changes.length || saving}
-          on:click={saveMove}
-          >{#if !saving}Save Move{:else}<Spinner size="4" class="mr-2" /> Saving...{/if}</Button
+          on:click={() => saveMove(false)}>Save Move</Button
+        >
+        <Button
+          class="bg-fractalorange border-2 border-black grow"
+          size="lg"
+          disabled={!move.changes.length || saving}
+          on:click={() => saveMove(true)}>Save & Mint Snapshot</Button
         >
       </div>
       <Palette
@@ -228,6 +232,13 @@
     {/if}
   </div>
 </div>
+
+<Modal size="sm" bind:open={saving}>
+  <div class="flex flex-col items-center justify-center p-4 gap-y-4">
+    <Spinner size="10" />
+    <span class="text-lg">Saving move...</span>
+  </div>
+</Modal>
 
 <Modal bind:open={snapshotMove}>
   <SnapshotMove

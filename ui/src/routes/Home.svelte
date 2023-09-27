@@ -4,16 +4,21 @@
   import AllNfts from "$lib/components/AllNfts.svelte";
   import BuildParticipation from "$lib/components/Participation.svelte";
   import PlayableBoard from "$lib/components/PlayableBoard.svelte";
+  import { nfts } from "$lib/stores/nfts";
+  import { waitForTransaction } from "@wagmi/core";
 
-  let allMyMoves: AllMyMoves;
+  let allMyMoves: AllMyMovesAlt;
 </script>
 
 <div class="flex flex-col w-full gap-y-10">
   <PlayableBoard
     on:moveSaved={allMyMoves.updateMyBoards}
-    on:snapshotMinted={() => {
-      allMyMoves.updateMyBoards();
-      allMyMoves.updateNftIds();
+    on:snapshotMinted={({ detail: hash }) => {
+      console.log({ hash });
+      waitForTransaction({ hash, confirmations: 3 }).then(() => {
+        allMyMoves.updateMyBoards();
+        nfts.fetch();
+      });
     }}
   />
   <!-- <PlayableBoard /> -->

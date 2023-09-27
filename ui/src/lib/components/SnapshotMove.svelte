@@ -46,9 +46,7 @@
     args: [snapshotEvaluable, [_move], []],
     onSuccess: ({ hash: _hash }) => {
       hash = _hash;
-      waitForTransaction({ hash: _hash, confirmations: 5 }).then(() => {
-        dispatch("snapshotMinted");
-      });
+      dispatch("snapshotMinted", hash);
     },
   }));
 
@@ -58,11 +56,10 @@
   };
 </script>
 
-{#if $status == "idle" || $status == "error"}
+{#if ($status == "idle" || $status == "error") && !hash}
   <div in:fade class="flex flex-col justify-center gap-y-4">
     {#if isPostMove}
       <Heading tag="h4">Nice move!</Heading>
-      <Heading tag="h5">Would you like to mint a snapshot?</Heading>
     {:else}
       <Heading tag="h4">Create snapshot</Heading>
     {/if}
@@ -131,7 +128,7 @@
     <Heading tag="h4" class="text-center">Minting snapshot</Heading>
     <span>Please check your wallet to confirm</span>
   </div>
-{:else if $status === "success"}
+{:else if $status === "success" || hash}
   <div in:fade class="flex flex-col items-center gap-y-4 my-12">
     <Heading class="text-center" tag="h4">Snapshot minted!</Heading>
     <a

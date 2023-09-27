@@ -16,7 +16,7 @@
     fill="rgb({color.r} {color.g} {color.b})"
   />
 {:else if shapeOption < GRAPHIC_OPTIONS}
-  <rect x="0" y="0" width="100" height="100" fill="white" />
+  <rect {x} {y} width="100" height="100" fill="white" />
   <rect
     {x}
     {y}
