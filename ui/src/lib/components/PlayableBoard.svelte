@@ -50,6 +50,8 @@
   let graphic_option: number;
   let brushTool: BrushTool;
 
+  let hideGrid: boolean = false;
+
   let saving;
 
   $: brush = { color, graphic_option, brushTool };
@@ -180,15 +182,26 @@
 
 <div class="gap-x-4 items-stretch grid grid-cols-5">
   <div bind:this={wrapper} class="col-span-3 relative">
-    {#if board}
-      <BoardNew
-        {allMovesMade}
-        {board}
-        {brush}
-        {move}
-        on:tileClick={handleTileClick}
-      />
-    {/if}
+    <BoardNew
+      {allMovesMade}
+      {board}
+      {brush}
+      {move}
+      {hideGrid}
+      on:tileClick={handleTileClick}
+    />
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <button
+      on:click={() => {
+        hideGrid = !hideGrid;
+      }}
+    >
+      {#if !hideGrid}
+        Hide grid
+      {:else}
+        Show grid
+      {/if}
+    </button>
   </div>
   <div class="col-span-2">
     {#if moveStatus == MoveStatus.Ready}

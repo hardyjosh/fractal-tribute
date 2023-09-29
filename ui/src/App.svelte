@@ -34,6 +34,5 @@
     <Routes />
   {/if}
 </div>
-<RandomGameMoves />
 
 <Toasts {toasts} />

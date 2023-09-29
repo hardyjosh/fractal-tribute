@@ -19,6 +19,7 @@
   } from "viem";
   import { snapshotEvaluable } from "$lib/helpers";
   import { waitForTransaction } from "@wagmi/core";
+  import { Confetti } from "svelte-confetti";
 
   const dispatch = createEventDispatcher();
 
@@ -54,6 +55,8 @@
     await $happ.createTokenIdForGameMove(move);
     await write();
   };
+
+  $: console.log($error);
 </script>
 
 {#if ($status == "idle" || $status == "error") && !hash}
@@ -129,15 +132,29 @@
     <span>Please check your wallet to confirm</span>
   </div>
 {:else if $status === "success" || hash}
+  <div class="fixed inset-0 translate-x-1/2">
+    <Confetti
+      x={[-4, 4]}
+      y={[0, 1]}
+      fallDistance="1500px"
+      amount={500}
+      cone={true}
+      delay={[0, 700]}
+    />
+  </div>
   <div in:fade class="flex flex-col items-center gap-y-4 my-12">
-    <Heading class="text-center" tag="h4">Snapshot minted!</Heading>
-    <a
-      href={`${$network.chain.blockExplorers.default.url}/tx/${hash}`}
-      target="_blank"
-      class="underline"
-    >
-      View on explorer</a
-    >
+    <div class="rounded-full bg-gray-100 p-6 text-4xl">🎉</div>
+    <Heading class="text-center" tag="h4">Minting successful!</Heading>
+    <p>
+      Snapshot minted!
+      <a
+        href={`${$network.chain.blockExplorers.default.url}/tx/${hash}`}
+        target="_blank"
+        class="underline"
+      >
+        View on explorer</a
+      >
+    </p>
     <Button
       class="bg-fractalorange border-2 border-black"
       on:click={() => {

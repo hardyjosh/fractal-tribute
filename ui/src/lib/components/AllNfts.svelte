@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
   import { formatAddress } from "$lib/helpers";
   import { happ } from "$lib/stores";
   import { Button, Heading, Modal } from "flowbite-svelte";
@@ -10,11 +11,10 @@
   import { nfts } from "$lib/stores/nfts";
   import Identicon from "$lib/components/Identicon.svelte";
 
-  export let heading = "Latest snapshots";
-  export let showWinnerPanel = false;
+  export let wrap: boolean = false;
 
   let boards: BoardWithMetadataAndId[] = [];
-  let boardsWithSupply: (BoardWithMetadataAndId & { supply: number })[] = [];
+  let boardsWithSupply: (BoardWithMetadataAndId & { supply: number })[];
 
   const prepareHappNfts = async () => {
     boards = await $happ.getBoardsFromTokenIds($nfts.map((nft) => nft.id));
@@ -22,9 +22,7 @@
       const nft = $nfts.find((nft) => bytesToHex(nft.id) == board.id);
       return { ...board, supply: nft.supply };
     });
-    if (showWinnerPanel) {
-      boardsWithSupply.sort((a, b) => b.supply - a.supply);
-    }
+    boardsWithSupply.sort((a, b) => b.supply - a.supply);
   };
 
   $: if ($nfts) prepareHappNfts();
@@ -38,13 +36,10 @@
   };
 </script>
 
-<div class="flex flex-col gap-y-2">
-  <Heading tag="h3">{heading}</Heading>
-  <p class="text-lg">Vote for your favourite snapshots by minting them</p>
-</div>
-<div class="flex overflow-scroll gap-4">
-  {#if !boardsWithSupply || boardsWithSupply?.length == 0}
+{#if boardsWithSupply}
+  {#if boardsWithSupply?.length == 0}
     <div
+      in:fade|global={{ duration: 200 }}
       class="w-full rounded-lg border-2 border-black flex flex-col gap-2 items-center justify-center h-80"
     >
       <img src={no_snapshots} alt="no snapshots" />
@@ -55,65 +50,54 @@
       </p>
     </div>
   {:else}
-    {#if showWinnerPanel}
-      <div
-        class="bg-fractalorange border-black border-2 rounded-lg w-60 flex flex-col items-center justify-center p-4 gap-y-2"
-      >
+    <div
+      in:fade|global={{ duration: 200 }}
+      class:flex-wrap={wrap}
+      class="flex overflow-scroll gap-4"
+    >
+      {#each boardsWithSupply as board, i}
         <div
-          class="h-20 w-20 rounded-full bg-white bg-opacity-20 flex flex-col items-center justify-center mb-6"
+          class="relative flex flex-col gap-y-2 flex-none snap-start basis-1/5-gap-4"
         >
-          <span class="text-3xl">🎉</span>
-        </div>
-        <div class="text-xl text-white font-medium text-center">
-          Current Winners
-        </div>
-        <p class="text-white text-center">
-          The most collected snapshots for this game
-        </p>
-      </div>
-    {/if}
-    {#each boardsWithSupply as board, i}
-      <div
-        class="relative flex flex-col gap-y-2 basis-1/5-gap-4 flex-none snap-start"
-      >
-        <div class="aspect-square border-2 border-black rounded-lg">
-          {@html board.boardWithMetadata.svg}
-        </div>
-        <div
-          class="rounded-lg border-black border-2 flex gap-x-2 p-4 justify-between items-center w-full"
-        >
-          <div class="flex flex-col">
-            <div class="flex gap-x-2 items-center">
-              <Identicon agentHash={board.boardWithMetadata.creator} />
-              <div class="flex flex-col leading-none gap-y-1">
-                <span class="text-gray-500">
-                  {#await $happ.getProfile(board.boardWithMetadata.creator) then profile}
-                    {profile.name}
-                  {:catch error}
-                    {formatAddress(
-                      encodeHashToBase64(board.boardWithMetadata.creator)
-                    )}
-                  {/await}
-                </span>
-                <span>{board.supply} minted</span>
+          <div class="aspect-square border-2 border-black rounded-lg">
+            {@html board.boardWithMetadata.svg}
+          </div>
+          <div
+            class="rounded-lg border-black border-2 flex gap-x-2 p-4 justify-between items-center w-full"
+          >
+            <div class="flex flex-col">
+              <div class="flex gap-x-2 items-center">
+                <Identicon agentHash={board.boardWithMetadata.creator} />
+                <div class="flex flex-col leading-none gap-y-1">
+                  <span class="text-gray-500">
+                    {#await $happ.getProfile(board.boardWithMetadata.creator) then profile}
+                      {profile.name}
+                    {:catch error}
+                      {formatAddress(
+                        encodeHashToBase64(board.boardWithMetadata.creator)
+                      )}
+                    {/await}
+                  </span>
+                  <span>{board.supply} minted</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="flex flex-col gap-y-1">
-            <Button
-              on:click={() => {
-                mintMove(board.id);
-              }}
-              class="!bg-primary-500 border-black border-2"
-              size="sm">Mint</Button
-            >
+            <div class="flex flex-col gap-y-1">
+              <Button
+                on:click={() => {
+                  mintMove(board.id);
+                }}
+                class="!bg-primary-500 border-black border-2"
+                size="sm">Mint</Button
+              >
+            </div>
           </div>
         </div>
-      </div>
-    {/each}
+      {/each}
+    </div>
   {/if}
-</div>
+{/if}
 
-<Modal bind:open={mintMoveModal}>
+<Modal permanent bind:open={mintMoveModal}>
   <MintMove bind:open={mintMoveModal} {tokenId} />
 </Modal>

@@ -39,6 +39,7 @@
     rgb = { ..._color, a: 1 };
     rgb = rgb;
     color = _color;
+    pickedColor = _color;
   };
 
   let pickedColor: Color = color;
@@ -89,9 +90,7 @@
           }}
           class={twMerge(
             "flex flex-col items-center p-2 rounded-md border-gray-400 border h-12 hover:border-gray-800 cursor-pointer",
-            colorsEqual(pickedColor, color) &&
-              brushTool == "none" &&
-              "border-2 border-black"
+            colorsEqual(pickedColor, color) && "border-2 border-black"
           )}
         >
           <div

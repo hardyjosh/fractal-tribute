@@ -7,7 +7,6 @@
   import { Button, Modal } from "flowbite-svelte";
   import { QuestionCircleOutline } from "flowbite-svelte-icons";
   import { countdownContext } from "$lib/contexts";
-  import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
   import HowToPlay from "$lib/components/HowToPlay.svelte";
 
   let countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
@@ -57,7 +56,7 @@
 
 <svelte:component this={$currentRoute.component} />
 
-<Modal bind:open>
+<Modal permanent={!evm_address} bind:open defaultClass="rounded-2xl">
   <HowToPlay
     hasEvmAddress={!!evm_address}
     on:onboarding-complete={() => {

@@ -9,6 +9,7 @@
   import { onMount } from "svelte";
   import { fetchBalance } from "@wagmi/core";
   import { happ } from "$lib/stores";
+  import { Confetti } from "svelte-confetti";
 
   export let tokenId: bigint;
   export let open: boolean;
@@ -60,7 +61,7 @@
   {#if $status == "idle" || $status == "error"}
     <Heading tag="h4">Mint snapshot</Heading>
     <p>
-      Minting a snapshot costs {formatEther(price)} MATIC.
+      Collecting another player's snapshot costs {formatEther(price)} MATIC.
     </p>
     <p>
       By minting this snapshot you are helping push this version of the artwork
@@ -134,15 +135,29 @@
       <span>Please check your wallet to confirm</span>
     </div>
   {:else if $status === "success"}
+    <div class="fixed inset-0 translate-x-1/2 pointer-events-none">
+      <Confetti
+        x={[-4, 4]}
+        y={[0, 1]}
+        fallDistance="1500px"
+        amount={500}
+        cone={true}
+        delay={[0, 700]}
+      />
+    </div>
     <div in:fade class="flex flex-col items-center gap-y-4 my-12">
-      <Heading class="text-center" tag="h4">Snapshot minted!</Heading>
-      <a
-        href={`${$network.chain.blockExplorers.default.url}/tx/${hash}`}
-        target="_blank"
-        class="underline"
-      >
-        View on explorer</a
-      >
+      <div class="rounded-full bg-gray-100 p-6 text-4xl">🎉</div>
+      <Heading class="text-center" tag="h4">Minting successful!</Heading>
+      <p>
+        Snapshot minted!
+        <a
+          href={`${$network.chain.blockExplorers.default.url}/tx/${hash}`}
+          target="_blank"
+          class="underline"
+        >
+          View on explorer</a
+        >
+      </p>
       <Button
         class="bg-fractalorange border-2 border-black"
         on:click={() => {

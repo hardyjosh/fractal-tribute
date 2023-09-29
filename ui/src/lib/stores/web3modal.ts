@@ -41,10 +41,7 @@ export const initWeb3Modal = async (chainId: number) => {
 
     const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
-
-    // necessary if you're using SSR, because there's no window for the modal to attach to
     const web3modalInst = new Web3Modal({ projectId }, ethereumClient);
     web3modalInst.setDefaultChain(chain);
     web3modal.set(web3modalInst);
-
 }

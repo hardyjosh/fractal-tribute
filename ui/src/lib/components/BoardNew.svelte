@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
   import type { Brush } from "$lib/types";
   import { createEventDispatcher } from "svelte";
   import { BOARD_SIZE } from "$lib/helpers";
@@ -10,6 +11,7 @@
   export let board: BoardWithMetadata;
   export let brush: Brush | null = null;
   export let allMovesMade: boolean;
+  export let hideGrid: boolean = false;
 
   export let move: GameMove;
 
@@ -65,13 +67,15 @@
     bind:this={overlay}
     class="absolute inset-0 z-50"
   />
-  <div
-    class="absolute inset-0 will-change-auto"
-    style="transform: translateZ(0);"
-  >
-    {@html board.svg}
-  </div>
-
+  {#if board}
+    <div
+      in:fade
+      class="absolute inset-0 will-change-auto"
+      style="transform: translateZ(0);"
+    >
+      {@html board.svg}
+    </div>
+  {/if}
   <svg
     style="transform: translateZ(1);"
     class="absolute inset-0 will-change-auto"
@@ -99,6 +103,7 @@
   <svg
     style="transform: translateZ(1);"
     class="absolute inset-0 will-change-auto"
+    class:invisible={hideGrid}
     viewBox={`0 0 ${BOARD_SIZE * 10} ${BOARD_SIZE * 10}`}
     xmlns="http://www.w3.org/2000/svg"
   >
