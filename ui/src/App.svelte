@@ -22,7 +22,7 @@
       appInfo.cell_info.fractal_tribute[0]?.provisioned.cell_id[0]
     );
 
-    // console.log("🚀 dnaHash", dnaHash);
+    console.log("🚀 dnaHash", dnaHash);
   });
 </script>
 

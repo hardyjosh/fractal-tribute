@@ -21,7 +21,7 @@ const IS_HOLO = ["true", "1", "t"].includes(
 export const initHapp = async () => {
     if (IS_HOLO) {
         client = await WebSdk.connect({
-            chaperoneUrl: import.meta.env.VITE_APP_CHAPERONE_URL,
+            chaperoneUrl: "http://chaperone-demo.holo.hosting",
             authFormCustomization: {
                 appName: "svelte-holo-test",
             },

@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "vite --clearScreen false --port $UI_PORT",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
