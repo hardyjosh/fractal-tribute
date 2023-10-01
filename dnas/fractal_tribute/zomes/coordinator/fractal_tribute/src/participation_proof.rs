@@ -1,3 +1,5 @@
+use fractal_tribute_integrity::dna_properties::DnaProperties;
+use fractal_tribute_integrity::dna_properties::_get_dna_properties;
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
 use crate::{all_game_moves::*, evm_key_binding::*};
@@ -16,6 +18,8 @@ pub fn create_participation_proof(proof: ParticipationProof) -> ExternResult<Rec
                 WasmErrorInner::Guest(String::from("Could not find the newly created ParticipationProof"))
             ),
         )?;
+    let path = Path::from("signed participation proof");
+    create_link(path.path_entry_hash()?, participation_proof_hash.clone(), LinkTypes::SignedParticipationProof, ())?;
     Ok(record)
 }
 
@@ -45,6 +49,8 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
         }
     }
 
+    let DnaProperties { nft_contract_address, payment_token_address, ..} = _get_dna_properties(())?;
+
     let agent_participations_result: ExternResult<Vec<AgentParticipation>> = agent_pixels_changed
         .into_iter()
         .map(|(agent, pixels_changed)| {
@@ -54,7 +60,6 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
             let evm_key = get_agent_evm_address(agent.clone())?;
             let mut evm_key_slice = [0u8; 32];
             evm_key_slice[12..].copy_from_slice(&evm_key[..]);
-            let evm_key_uint: U256 = evm_key_slice.try_into().unwrap();
 
             let percentage_of_total_pixels_changed = pixels_changed as f32 / total_pixels_changed as f32;
 
@@ -70,11 +75,11 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
             let mut percentage_buf = [0; 32];
             percentage_uint.to_big_endian(&mut percentage_buf);
 
-            let token_address: U256 = "0x2Eb1D24aB0eC5FD0058ab5073F1EA2d8A59783E5".parse().unwrap();
+            let token_address: U256 = payment_token_address.parse().unwrap();
             let mut token_address_buf = [0; 32];
             token_address.to_big_endian(&mut token_address_buf);
 
-            let contract_address: U256 = "0x6c10ca75f0eEfdefC7652F21633ae904038F16a9".parse().unwrap();
+            let contract_address: U256 = nft_contract_address.parse().unwrap();
             let mut contract_address_buf = [0; 32];
             contract_address.to_big_endian(&mut contract_address_buf);
             let start = 32 - 256 / 8;
@@ -82,7 +87,7 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
             let message = encode_packed(&[Token::Bytes(evm_key_slice.to_vec()), Token::Bytes(percentage_buf[start..32].to_vec()), Token::Bytes(token_address_buf[start..32].to_vec()),Token::Bytes(contract_address_buf[start..32].to_vec())])
                 .map_err(|_| wasm_error!("Could not encode message"))?;
 
-            // debug!("message: {:?}", message);
+            debug!("message: {:?}", message);
 
             let message_bytes = hash_keccak256(message).map_err(|_| wasm_error!("Could not hash message"))?;
 
@@ -112,4 +117,40 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
         total_pixels_changed,
         agent_participations,
     })
+}
+
+#[hdk_extern]
+pub fn get_signed_participation(evm_key: Vec<u8>) -> ExternResult<AgentParticipation> {
+    let base = Path::from("signed participation proof");
+    let links = get_links(base.path_entry_hash()?, LinkTypes::SignedParticipationProof, None)?;
+    let get_input: Vec<GetInput> = links
+    .into_iter()
+    .map(|link| GetInput::new(
+        ActionHash::from(link.target).into(),
+        GetOptions::default(),
+    ))
+    .collect();
+    let records: Vec<Record> = HDK
+        .with(|hdk| hdk.borrow().get(get_input))?
+        .into_iter()
+        .filter_map(|r| r)
+        .collect();
+    if (records.len() == 0) {
+        return Err(wasm_error!("No signed participation proof found"));
+    }
+    let record = records[0].clone();
+    let participation_proof: ParticipationProof = match &record.entry {
+        RecordEntry::Present(Entry::App(app_entry_bytes)) => {
+            match std::convert::TryInto::<ParticipationProof>::try_into(app_entry_bytes.clone().into_sb()) {
+                Ok(participation_proof) => participation_proof,
+                Err(_) => return Err(wasm_error!("Could not convert record to ParticipationProof")),
+            }
+        },
+        _ => return Err(wasm_error!("Could not convert record to ParticipationProof")),
+    };
+    let agent_participation = participation_proof.agent_participations.into_iter().find(|agent_participation| agent_participation.evm_key == evm_key);
+    match agent_participation {
+        Some(agent_participation) => Ok(agent_participation),
+        None => Err(wasm_error!("Could not find agent participation for evm key")),
+    }
 }

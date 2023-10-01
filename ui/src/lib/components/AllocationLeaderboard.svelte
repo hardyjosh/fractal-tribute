@@ -35,7 +35,7 @@
       </div>
       <div class="flex items-center">
         <div class="border-r border-gray-300 pr-2 mr-2">
-          {agent.percentage_of_total_pixels_changed}%
+          {(agent.percentage_of_total_pixels_changed * 100).toPrecision(4)}%
         </div>
         <div>{agent.pixels_changed} pixels</div>
       </div>

@@ -8,6 +8,7 @@
   import RandomGameMoves from "$lib/components/RandomGameMoves.svelte";
   import defs from "../../dnas/fractal_tribute/zomes/integrity/fractal_tribute/src/defs.svg?raw";
   import { encodeHashToBase64 } from "@holochain/client";
+  import AdminModal from "$lib/components/AdminModal.svelte";
 
   let ready = false;
 
@@ -36,3 +37,4 @@
 </div>
 
 <Toasts {toasts} />
+<AdminModal />

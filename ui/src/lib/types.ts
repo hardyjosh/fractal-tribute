@@ -104,9 +104,24 @@ export type AgentParticipation = {
   signature_bytes: Uint8Array;
 }
 
+export type InputAgentParticipation = {
+  agent: Array<number>;
+  evm_key: Array<number>;
+  pixels_changed: number;
+  percentage_of_total_pixels_changed: number;
+  rank: number;
+  message_bytes: Array<number>;
+  signature_bytes: Array<number>;
+}
+
 export type ParticipationProof = {
   total_pixels_changed: number;
   agent_participations: AgentParticipation[];
+}
+
+export type InputParticipationProof = {
+  total_pixels_changed: number;
+  agent_participations: InputAgentParticipation[];
 }
 
 // NFTS

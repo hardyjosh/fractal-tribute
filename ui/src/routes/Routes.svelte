@@ -8,9 +8,14 @@
   import { QuestionCircleOutline } from "flowbite-svelte-icons";
   import { countdownContext } from "$lib/contexts";
   import HowToPlay from "$lib/components/HowToPlay.svelte";
+  import { ADDITIONAL_MINT_PERIOD } from "$lib/constants";
 
-  let countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
-  setContext(countdownContext, countdown);
+  const countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
+  const snapshotEndCountdown = createCountdownStore(
+    new Date($happ.dnaProperties.gameEndTime.getTime() + ADDITIONAL_MINT_PERIOD)
+  );
+
+  setContext(countdownContext, { countdown, snapshotEndCountdown });
 
   let open: boolean = false;
   let evm_address = null;
@@ -36,9 +41,13 @@
       >
     {/each}
     <div class="border-2 rounded-lg p-3 self-stretch grow border-black">
-      <span>Game ends in: </span><span class="text-green-600 font-bold"
-        >{formatCountdown($countdown)}</span
-      >
+      {#if $countdown?.timeRemaining}
+        <span>Game ends in: </span><span class="text-green-600 font-bold"
+          >{formatCountdown($countdown)}</span
+        >
+      {:else}
+        <span>Game ended</span>
+      {/if}
     </div>
     <Button
       on:click={() => {

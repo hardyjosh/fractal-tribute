@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher, getContext, onMount } from "svelte";
   import { actionHashAndAccountToTokenId } from "$lib/helpers";
   import type { BoardWithMetadata } from "$lib/types";
   import type { ActionHash } from "@holochain/client";
@@ -8,8 +8,12 @@
   import { happ } from "$lib/stores";
   import { Spinner } from "flowbite-svelte";
   import { nfts } from "$lib/stores/nfts";
+  import { countdownContext, type CountdownContextType } from "$lib/contexts";
 
   const dispatch = createEventDispatcher();
+  const { countdown, snapshotEndCountdown } = getContext(
+    countdownContext
+  ) as CountdownContextType;
 
   export let actionHash: ActionHash;
   export let key: Hex;
@@ -43,6 +47,7 @@
     >
   {:else}
     <Button
+      disabled={!$snapshotEndCountdown?.timeRemaining}
       on:click={() => {
         dispatch("snapshot");
         // snapshotMove(board.creationHash);

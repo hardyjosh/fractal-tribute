@@ -28,7 +28,8 @@ pub enum LinkTypes {
     TokenIdToGameMove,
     AllGameMoves,
     AgentToEvmKeyBinding,
-    AgentToProfile
+    AgentToProfile,
+    SignedParticipationProof
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -253,6 +254,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
+                LinkTypes::SignedParticipationProof => {
+                    validate_create_link_signed_participation_proof(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
             }
         }
         OpType::RegisterDeleteLink {
@@ -293,6 +302,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
                 LinkTypes::AgentToProfile => {
                     validate_delete_link_agent_to_profile(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::SignedParticipationProof => {
+                    validate_delete_link_signed_participation_proof(
                         action,
                         original_action,
                         base_address,
@@ -601,6 +619,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 tag,
                             )
                         }
+                        LinkTypes::SignedParticipationProof => {
+                            validate_create_link_signed_participation_proof(
+                                action,
+                                base_address,
+                                target_address,
+                                tag,
+                            )
+                        }
                     }
                 }
                 OpRecord::DeleteLink { original_action_hash, base_address, action } => {
@@ -655,6 +681,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::AgentToProfile => {
                             validate_delete_link_agent_to_profile(
+                                action,
+                                create_link.clone(),
+                                base_address,
+                                create_link.target_address,
+                                create_link.tag,
+                            )
+                        }
+                        LinkTypes::SignedParticipationProof => {
+                            validate_delete_link_signed_participation_proof(
                                 action,
                                 create_link.clone(),
                                 base_address,

@@ -12,7 +12,7 @@ import { NativeTokenFlowERC1155Caller } from '../src/NativeTokenFlowCaller.sol';
 
 contract Deploy is Script {
     ICloneableFactoryV2 public constant factory = ICloneableFactoryV2(0x70dD832A82481d4e1d15A3B50Db904719e2d3341);
-    address public constant implementation = 0x2f1a7d6dF220508b4E06e62b8D6bAdAc8e38a11C;
+    address public constant implementation = 0xC1Ef6887b8722b8B666e4C3d0EE74bDeECb098F1;
     address public constant deployer = 0x0a2392aB861834305dB90A8825af102C02B6929C;
 
     address public constant wmatic = 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889;
@@ -43,9 +43,9 @@ contract Deploy is Script {
     }
 
     function decodeLogs(Vm.Log[] memory entries) internal returns (Addresses memory addresses) {
-        (, addresses.interpreter, addresses.store, addresses.snapshotExp) = abi.decode(entries[4].data, (address, address, address, address));
-        (, , , addresses.mintExp) = abi.decode(entries[7].data, (address, address, address, address));
-        (, , , addresses.claimExp) = abi.decode(entries[10].data, (address, address, address, address));
+        (, addresses.interpreter, addresses.store, addresses.snapshotExp) = abi.decode(entries[5].data, (address, address, address, address));
+        (, , , addresses.mintExp) = abi.decode(entries[8].data, (address, address, address, address));
+        (, , , addresses.claimExp) = abi.decode(entries[11].data, (address, address, address, address));
     }
 
     function writeAddressesToJson(Addresses memory addresses) internal {
@@ -76,7 +76,7 @@ contract Deploy is Script {
         canTransfer.deployer = IExpressionDeployerV1(deployer);
 
         FlowERC1155Config memory config;
-        config.uri = "";
+        config.uri = "http://hi.com";
         config.evaluableConfig = canTransfer;
         config.flowConfig = new EvaluableConfig[](3);
         config.flowConfig[0] = snapshot;

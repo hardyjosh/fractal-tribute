@@ -1,8 +1,5 @@
 <script lang="ts">
   import type { Board } from "$lib/types";
-  import { twMerge } from "tailwind-merge";
-  import { createEventDispatcher } from "svelte";
-  import Shape from "$lib/components/Shape.svelte";
   import ShapeSvg from "$lib/components/ShapeSvg.svelte";
 
   export let board: Board;

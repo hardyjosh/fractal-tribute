@@ -13,7 +13,8 @@
 #payment-token 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889
 #snapshot-price 0
 #mint-price 1e15
-#snapshot-end-time 1696149116
+#snapshot-end-time 1696199760
+#additional-mint-period 60 /* time in seconds for how long minting should be active after the snapshot time ends */
 
 #pool-amount 0x7dcc3e0b65d87abfb19508b671b26139dbe32871289b025ab4df45ad2f5481dd /* keccack256('pool-amount') */ 
 #total-claimed-key 0xc6b7deb4e2f8b011c443c5ec0687465fc0468b096ad0fc5cb8e2f1a302a1a73b /* keccack256('total-claimed') */
@@ -63,9 +64,7 @@ tokenid: context<1 0 >(),
 mint-amount: context<1 1>(),
 recipient: context<1 2>(),
 
-/* mint ends a week after snapshotting ends */
-/* 60 * 60 * 24 * 7  = 604800*/
-mint-end-time: add(snapshot-end-time 604800),
+mint-end-time: add(snapshot-end-time additional-mint-period),
 
 /* ensure that the mint period is still active */
 :ensure(lt(now() mint-end-time)),
@@ -124,12 +123,14 @@ coupon-hash: context-column-hash<3>(),
 :ensure(not(get(coupon-hash))),
 :set(coupon-hash 1),
 
-        /* ensure that the coupon is signed by the game master */
-        /* ensure that the coupon is for the caller */
-        /* ensure that the token in the coupon is the payment token */
-        /* ensure that the coupon is for this contract */
+/* ensure that the mint period is over */
+/* ensure that the coupon is signed by the game master */
+/* ensure that the coupon is for the caller */
+/* ensure that the token in the coupon is the payment token */
+/* ensure that the coupon is for this contract */
 :ensure(
     every(
+        gt(now() add(additional-mint-period snapshot-end-time))
         eq(coupon-signer game-master-address)
         eq(claimant you)
         eq(token payment-token)

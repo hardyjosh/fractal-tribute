@@ -6,6 +6,9 @@
   import { createEventDispatcher } from "svelte";
   import singlelogo from "$lib/assets/single-logo.svg";
   import mintsnapshot from "$lib/assets/mint-snapshot.svg";
+  import howtoplay1 from "$lib/assets/how-to-play-1.svg";
+  import howtoplay2 from "$lib/assets/how-to-play-2.svg";
+  import howtoplay4 from "$lib/assets/how-to-play-4.svg";
 
   export let hasEvmAddress: boolean;
 
@@ -28,8 +31,8 @@
   class="flex flex-col justify-between items-center gap-y-6 max-w-[650px] min-h-[500px] p-6"
 >
   {#if howToPlayStep === 0}
-    <div in:fade class="flex flex-col gap-y-5 text-center">
-      <img src={singlelogo} alt="fractal tribute logo" />
+    <div in:fade class="flex flex-col gap-y-5 text-center items-center">
+      <img class="w-32" src={singlelogo} alt="fractal tribute logo" />
       <Heading tag="h2">Welcome to Fractal Tribute!</Heading>
       <Heading tag="h6" class="font-semibold"
         >A peer-to-peer fully distributed, collaborative artistic NFT game.</Heading
@@ -48,7 +51,8 @@
       >Next: How to Play</Button
     >
   {:else if howToPlayStep === 1}
-    <div in:fade class="flex flex-col gap-y-5 text-center">
+    <div in:fade class="flex flex-col gap-y-5 text-center items-center">
+      <img class="w-80" src={howtoplay1} alt="" />
       <p>
         Creators make moves by placing pixels with colors and patterns… 20
         placements can be made in each move.
@@ -62,8 +66,8 @@
       >Next: About the NFTs</Button
     >
   {:else if howToPlayStep === 2}
-    <div in:fade class="flex flex-col gap-y-5 text-center">
-      <img src={mintsnapshot} alt="mint snapshot" />
+    <div in:fade class="flex flex-col gap-y-5 text-center items-center">
+      <img class="w-80" src={mintsnapshot} alt="mint snapshot" />
       <p>
         After a creator mints a snapshot, others can mint them as well,
         indicating which snapshots are their favorites in the series.
@@ -80,7 +84,8 @@
       >Next: How Claims Work</Button
     >
   {:else if howToPlayStep === 3}
-    <div in:fade class="flex flex-col gap-y-5 text-center">
+    <div in:fade class="flex flex-col gap-y-5 text-center items-center">
+      <img class="w-80" src={howtoplay4} alt="" />
       <p>
         Sale of game NFTs will close 24 hours after the game ending. Following
         that, creators can return to the game to claim their fraction of NFT
@@ -122,6 +127,10 @@
   {:else if howToPlayStep === 6}
     <div in:fade class="flex flex-col gap-y-5 text-center">
       <Heading tag="h4">That's it! Be creative and have fun 💫</Heading>
+      <p>
+        To see these instructions again, click on "how to play" on the top
+        right.
+      </p>
     </div>
     <Button
       class="bg-fractalorange border-2 border-black"

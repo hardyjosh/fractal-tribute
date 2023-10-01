@@ -1,7 +1,10 @@
 <script lang="ts">
-  import { account } from "svelte-wagmi-stores";
-  import { onMount, onDestroy, createEventDispatcher } from "svelte";
-  import BoardComp from "$lib/components/Board.svelte";
+  import {
+    onMount,
+    onDestroy,
+    createEventDispatcher,
+    getContext,
+  } from "svelte";
   import type {
     Board,
     BoardWithMetadata,
@@ -14,16 +17,20 @@
   import { happ } from "$lib/stores";
   import { mergeGameMoveIntoBoard } from "$lib/helpers";
   import Palette from "$lib/components/Palette.svelte";
-  import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
-  import { Button, Modal, Heading, Spinner } from "flowbite-svelte";
+  import { Button, Modal, Spinner } from "flowbite-svelte";
   import { UndoOutline, RedoOutline } from "flowbite-svelte-icons";
   import { addToast } from "$lib/components/toasts";
   import type { ActionHash } from "@holochain/client";
   import SnapshotMove from "$lib/components/SnapshotMove.svelte";
   import BoardNew from "$lib/components/BoardNew.svelte";
   import { CHANGES_PER_MOVE } from "$lib/constants";
+  import { countdownContext, type CountdownContextType } from "$lib/contexts";
+  import { formatCountdown } from "$lib/stores/countdown";
 
   const dispatch = createEventDispatcher();
+  const { countdown, snapshotEndCountdown } = getContext(
+    countdownContext
+  ) as CountdownContextType;
 
   enum MoveStatus {
     Thinking,
@@ -50,7 +57,7 @@
   let graphic_option: number;
   let brushTool: BrushTool;
 
-  let hideGrid: boolean = false;
+  let hideGrid: boolean;
 
   let saving;
 
@@ -156,7 +163,10 @@
       };
       undoneChanges = [];
     } catch (e) {
-      addToast("error", `Error saving move: ${e?.data?.data || e}`);
+      addToast(
+        "error",
+        `Error saving move: ${e?.message || e?.data?.data || e}`
+      );
     }
   };
 
@@ -190,60 +200,71 @@
       {hideGrid}
       on:tileClick={handleTileClick}
     />
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <button
-      on:click={() => {
-        hideGrid = !hideGrid;
-      }}
-    >
-      {#if !hideGrid}
-        Hide grid
-      {:else}
-        Show grid
+  </div>
+  {#if $countdown?.timeRemaining}
+    <div class="col-span-2">
+      {#if moveStatus == MoveStatus.Ready}
+        <div class="p-4 border-2 border-black rounded-lg mb-4">
+          You've made {move.changes.length}/{CHANGES_PER_MOVE} changes.
+        </div>
+        <div class="flex gap-x-2 mb-4">
+          <Button
+            color="none"
+            class="border-2 border-black grow"
+            size="lg"
+            disabled={!move.changes.length}
+            on:click={undo}><RedoOutline class="mr-2 w-4" />Undo</Button
+          >
+          <Button
+            color="none"
+            class="border-2 border-black grow"
+            size="lg"
+            disabled={!undoneChanges?.length}
+            on:click={redo}><UndoOutline class="mr-2 w-4" />Redo</Button
+          >
+          <Button
+            class="bg-fractalorange border-2 border-black grow"
+            size="lg"
+            disabled={!move.changes.length || saving}
+            on:click={() => saveMove(false)}>Save Move</Button
+          >
+          <Button
+            class="bg-fractalorange border-2 border-black grow"
+            size="lg"
+            disabled={!move.changes.length || saving}
+            on:click={() => saveMove(true)}>Save & Mint Snapshot</Button
+          >
+        </div>
+        <Palette
+          bind:color
+          bind:graphic_option
+          bind:brushTool
+          bind:this={palette}
+          bind:hideGrid
+        />
       {/if}
-    </button>
-  </div>
-  <div class="col-span-2">
-    {#if moveStatus == MoveStatus.Ready}
+    </div>
+  {:else}
+    <div class="col-span-2 h-full">
       <div class="p-4 border-2 border-black rounded-lg mb-4">
-        You've made {move.changes.length}/{CHANGES_PER_MOVE} changes.
+        <p>This game has ended!</p>
+        <p>
+          This means no new moves can be made and no new snapshots can be
+          created, however you are free to collect existing snapshot NFTs.
+        </p>
+        {#if $snapshotEndCountdown.timeRemaining}
+          <p>
+            Claims will open in {formatCountdown($snapshotEndCountdown)}
+          </p>
+        {:else}
+          <p>
+            Claims are now open! Head over to the leaderboard to see what your
+            share of the pool is and claim.
+          </p>
+        {/if}
       </div>
-      <div class="flex gap-x-2 mb-4">
-        <Button
-          color="none"
-          class="border-2 border-black grow"
-          size="lg"
-          disabled={!move.changes.length}
-          on:click={undo}><RedoOutline class="mr-2 w-4" />Undo</Button
-        >
-        <Button
-          color="none"
-          class="border-2 border-black grow"
-          size="lg"
-          disabled={!undoneChanges?.length}
-          on:click={redo}><UndoOutline class="mr-2 w-4" />Redo</Button
-        >
-        <Button
-          class="bg-fractalorange border-2 border-black grow"
-          size="lg"
-          disabled={!move.changes.length || saving}
-          on:click={() => saveMove(false)}>Save Move</Button
-        >
-        <Button
-          class="bg-fractalorange border-2 border-black grow"
-          size="lg"
-          disabled={!move.changes.length || saving}
-          on:click={() => saveMove(true)}>Save & Mint Snapshot</Button
-        >
-      </div>
-      <Palette
-        bind:color
-        bind:graphic_option
-        bind:brushTool
-        bind:this={palette}
-      />
-    {/if}
-  </div>
+    </div>
+  {/if}
 </div>
 
 <Modal size="sm" bind:open={saving}>

@@ -10,6 +10,7 @@
   import { fetchBalance } from "@wagmi/core";
   import { happ } from "$lib/stores";
   import { Confetti } from "svelte-confetti";
+  import { price } from "$lib/constants";
 
   export let tokenId: bigint;
   export let open: boolean;
@@ -20,8 +21,6 @@
     fetchBalance({ address: $account.address }).then(
       (r) => (balance = r.value)
     );
-
-  const price = parseEther("0.001");
 
   let key: Address;
   $: mismatchingKey = $account?.address && key && $account?.address !== key;

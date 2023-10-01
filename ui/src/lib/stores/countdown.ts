@@ -2,6 +2,7 @@
 import { derived, writable } from 'svelte/store';
 
 export type CountdownObject = {
+    timeRemaining: number,
     days: [number, number],
     hours: [number, number],
     minutes: [number, number],
@@ -21,6 +22,7 @@ const calculateTimeRemaining = (endTimestamp: number, currentTimestamp: number):
     const seconds = Math.floor((diff / 1000) % 60);
 
     return {
+        timeRemaining: diff,
         days: [Math.floor(days / 10), days % 10],
         hours: [Math.floor(hours / 10), hours % 10],
         minutes: [Math.floor(minutes / 10), minutes % 10],

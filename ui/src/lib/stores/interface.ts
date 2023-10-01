@@ -1,9 +1,9 @@
-import type { Board, BoardWithMetadataAndId, EvmKeyBinding, GameMove, GameMoveWithActionHash, IncomingBoardWithMetadataAndId, ParticipationProof, BoardWithMetadata, IncomingBoardWithMetadata, DnaProperties, TransformedDnaProperties, Profile } from '$lib/types';
+import type { Board, BoardWithMetadataAndId, EvmKeyBinding, GameMove, GameMoveWithActionHash, IncomingBoardWithMetadataAndId, ParticipationProof, BoardWithMetadata, IncomingBoardWithMetadata, DnaProperties, TransformedDnaProperties, Profile, AgentParticipation } from '$lib/types';
 import type { AppAgentClient, Record, ActionHash } from '@holochain/client';
 import { writable } from 'svelte/store';
-import { type Address, getAddress, bytesToHex, concat } from 'viem'
+import { type Address, getAddress, bytesToHex, concat, hexToBytes } from 'viem'
 import { decode } from "@msgpack/msgpack";
-import { gameMoveToBytes, parseBoardBytes, parseIncomingBoardWithMetadata, parseIncomingBoardWithMetadataAndId, tokenIdToLinkBase } from '$lib/helpers';
+import { gameMoveToBytes, parseBoardBytes, parseIncomingBoardWithMetadata, parseIncomingBoardWithMetadataAndId, tokenIdToLinkBase, transformParticipationProof } from '$lib/helpers';
 import { transformDnaProperties } from '$lib/helpers/dna-properties';
 import type WebSdkApi from '@holo-host/web-sdk';
 import WebSdk from "@holo-host/web-sdk";
@@ -170,6 +170,7 @@ export class DnaInterface {
         } catch (e) {
             console.log(e?.data?.data)
             console.log(e)
+            throw (e)
         }
     }
 
@@ -336,6 +337,36 @@ export class DnaInterface {
                 payload: null,
             }) as Record
             return record as any as ParticipationProof
+        } catch (e) {
+            console.log(e?.data?.data || e)
+        }
+    }
+
+    async createParticipationProof(participationProof: ParticipationProof): Promise<Record> {
+        const _participationProof = transformParticipationProof(participationProof);
+        try {
+            return await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'create_participation_proof',
+                payload: _participationProof,
+            }) as Record
+        } catch (e) {
+            console.log(e?.data?.data || e)
+        }
+    }
+
+    async getSignedParticipation(evmKey: Address): Promise<AgentParticipation> {
+        try {
+            const participation = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_signed_participation',
+                payload: Array.from(hexToBytes(evmKey)),
+            }) as AgentParticipation
+            return participation
         } catch (e) {
             console.log(e?.data?.data || e)
         }

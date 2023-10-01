@@ -2,7 +2,7 @@
   import { fade } from "svelte/transition";
   import { formatAddress } from "$lib/helpers";
   import { happ } from "$lib/stores";
-  import { Button, Heading, Modal } from "flowbite-svelte";
+  import { Button, Modal } from "flowbite-svelte";
   import type { BoardWithMetadataAndId } from "$lib/types";
   import { encodeHashToBase64 } from "@holochain/client";
   import no_snapshots from "$lib/assets/no_snapshots.svg";

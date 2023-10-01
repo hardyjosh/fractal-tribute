@@ -32,7 +32,7 @@ contract NftTest is Test, SignContext {
     Token paymentToken = Token(0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889);
 
     ICloneableFactoryV2 public factory = ICloneableFactoryV2(0x70dD832A82481d4e1d15A3B50Db904719e2d3341);
-    address public implementation = 0x2f1a7d6dF220508b4E06e62b8D6bAdAc8e38a11C;
+    address public implementation = 0xC1Ef6887b8722b8B666e4C3d0EE74bDeECb098F1;
     IExpressionDeployerV1 public deployer = IExpressionDeployerV1(0x0a2392aB861834305dB90A8825af102C02B6929C);
 
     NativeTokenFlowERC1155Caller public nativeTokenFlowCaller;
@@ -94,9 +94,9 @@ contract NftTest is Test, SignContext {
         address _instance = factory.clone(implementation, abi.encode(config));
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        (, address _interpreter, address _store, address _snapshotExp) = abi.decode(entries[4].data, (address, address, address, address));
-        (, , , address _mintExp) = abi.decode(entries[7].data, (address, address, address, address));
-        (, , , address _claimExp) = abi.decode(entries[10].data, (address, address, address, address));
+        (, address _interpreter, address _store, address _snapshotExp) = abi.decode(entries[5].data, (address, address, address, address));
+        (, , , address _mintExp) = abi.decode(entries[8].data, (address, address, address, address));
+        (, , , address _claimExp) = abi.decode(entries[11].data, (address, address, address, address));
 
         instance = IFlowERC1155V3(_instance);
         instanceAs1155 = IERC1155(_instance);
@@ -118,7 +118,6 @@ contract NftTest is Test, SignContext {
 
         // alice mints a snapshot
         vm.startPrank(alice);
-        paymentToken.approve(address(instance), 1000e18);
 
         instance.flow(snapshotEvaluable, context, new SignedContextV1[](0));
 
@@ -150,8 +149,10 @@ contract NftTest is Test, SignContext {
         // [2] the token address
         // [3] the address of this contract
 
+        address claimer = makeAddr("claimer");
+
         uint256[] memory couponContext = new uint256[](4);
-        couponContext[0] = uint256(uint160(joe));
+        couponContext[0] = uint256(uint160(claimer));
         couponContext[1] = 5e17; // 50%
         couponContext[2] = uint256(uint160(address(paymentToken))); 
         couponContext[3] = uint256(uint160(address(instance)));
@@ -160,8 +161,9 @@ contract NftTest is Test, SignContext {
         SignedContextV1[] memory signedContext = new SignedContextV1[](1);
         signedContext[0] = signContext(stewardKey, couponContext);
 
-        // now joe can claim
-        vm.startPrank(joe);
+        // now claimer can claim
+        vm.startPrank(claimer);
         instance.flow(claimEvaluable, new uint256[](0), signedContext);
+        assertEq(paymentToken.balanceOf(address(claimer)), 1e16 * 5e17 / 1e18);
     }
 }

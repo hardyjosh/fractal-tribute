@@ -1,11 +1,13 @@
 <script lang="ts">
   import { happ } from "$lib/stores";
   import type { BoardWithMetadata, ParticipationProof } from "$lib/types";
-  import { onMount } from "svelte";
+  import { getContext, onMount } from "svelte";
   import Participation from "$lib/components/Participation.svelte";
   import AllNfts from "$lib/components/AllNfts.svelte";
   import { Heading } from "flowbite-svelte";
   import AllocationLeaderboard from "$lib/components/AllocationLeaderboard.svelte";
+  import Claim from "$lib/components/Claim.svelte";
+  import { countdownContext, type CountdownContextType } from "$lib/contexts";
 
   let tabOption: "most-minted" | "highest-allocation" = "most-minted";
   let participations: ParticipationProof;
@@ -17,6 +19,7 @@
 
 <div class="flex flex-col gap-y-24">
   <Participation {participations} />
+
   <div class="flex flex-col gap-y-4">
     <div class="flex gap-x-4 items-center">
       <Heading tag="h3" class="w-auto">Leaderboard</Heading>

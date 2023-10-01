@@ -1,18 +1,21 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { nfts } from "$lib/stores/nfts";
   import { happ, paymentTokenAddress } from "$lib/stores";
-  import type {
-    AgentParticipation,
-    Board,
-    ParticipationProof,
-  } from "$lib/types";
-  import { Button, Heading } from "flowbite-svelte";
-  import { bytesToHex, formatUnits, type Address, type Hex } from "viem";
+  import type { AgentParticipation, ParticipationProof } from "$lib/types";
+  import { Heading } from "flowbite-svelte";
+  import { bytesToHex, formatUnits, type Hex } from "viem";
   import addresses from "$lib/addresses.json";
   import { fetchToken, readContract, type FetchTokenResult } from "@wagmi/core";
-  import { setRoute } from "$lib/stores/routes";
   import { IERC20 } from "$lib/abi/IERC20";
   import ParticipationStat from "$lib/components/ParticipationStat.svelte";
+  import { getContext } from "svelte";
+  import { countdownContext, type CountdownContextType } from "$lib/contexts";
+  import Claim from "$lib/components/Claim.svelte";
+  import { price } from "$lib/constants";
+
+  const { countdown, snapshotEndCountdown } = getContext(
+    countdownContext
+  ) as CountdownContextType;
 
   export let participations: ParticipationProof;
   let myParticipation: AgentParticipation;
@@ -26,12 +29,14 @@
     myParticipation = participations.agent_participations.find(
       (p) => bytesToHex(p.agent) == bytesToHex(myPubKey)
     );
-    poolSize = await readContract({
-      address: $happ.dnaProperties.paymentTokenAddress,
-      abi: IERC20,
-      functionName: "balanceOf",
-      args: [addresses.instance as Hex],
-    });
+
+    const totalCollected = $nfts.reduce(
+      (acc, nft) => acc + Number(nft.supply),
+      0
+    );
+    const totalSnapshots = $nfts.length;
+    poolSize = (BigInt(totalCollected) - BigInt(totalSnapshots)) * price;
+
     token = await fetchToken({ address: $paymentTokenAddress });
     poolsizeFormatted = formatUnits(poolSize, token.decimals);
     ready = true;
@@ -62,13 +67,18 @@
       name="Total pool size"
       value={`${poolsizeFormatted} MATIC`}
     />
-    <ParticipationStat
-      {ready}
-      name="Your current allocation"
-      value={`${(
-        myParticipation?.percentage_of_total_pixels_changed *
-          Number(poolsizeFormatted) || 0
-      ).toPrecision(2)} MATIC`}
-    />
+    <div class="flex flex-col gap-y-2">
+      <ParticipationStat
+        {ready}
+        name="Your current allocation"
+        value={`${(
+          myParticipation?.percentage_of_total_pixels_changed *
+            Number(poolsizeFormatted) || 0
+        ).toPrecision(2)} MATIC`}
+      />
+      {#if !$countdown?.timeRemaining && participations}
+        <Claim {participations} />
+      {/if}
+    </div>
   </div>
 </div>

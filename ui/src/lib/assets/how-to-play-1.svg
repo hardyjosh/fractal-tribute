@@ -1,0 +1,15 @@
+<svg width="343" height="325" viewBox="0 0 343 325" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="37.5" y1="2.37562e-08" x2="37.5" y2="325" stroke="black" stroke-opacity="0.25"/>
+<line x1="128.5" y1="2.37562e-08" x2="128.5" y2="325" stroke="black" stroke-opacity="0.25"/>
+<line x1="219.5" y1="2.37562e-08" x2="219.5" y2="325" stroke="black" stroke-opacity="0.25"/>
+<line x1="309.5" y1="2.37562e-08" x2="309.5" y2="325" stroke="black" stroke-opacity="0.25"/>
+<line x1="343" y1="26.5" x2="1" y2="26.5" stroke="black" stroke-opacity="0.25"/>
+<line x1="343" y1="117.5" x2="1" y2="117.5" stroke="black" stroke-opacity="0.25"/>
+<line x1="343" y1="208.5" x2="1" y2="208.5" stroke="black" stroke-opacity="0.25"/>
+<line x1="343" y1="299.5" y2="299.5" stroke="black" stroke-opacity="0.25"/>
+<rect x="38" y="27" width="90" height="90" fill="#001219"/>
+<rect x="220" y="209" width="90" height="90" fill="#E9D8A6"/>
+<rect x="38" y="209" width="90" height="90" fill="#CA6702"/>
+<rect x="129" y="118" width="90" height="90" fill="#0A9396"/>
+<rect x="220" y="27" width="90" height="90" fill="#94D2BD"/>
+</svg>
