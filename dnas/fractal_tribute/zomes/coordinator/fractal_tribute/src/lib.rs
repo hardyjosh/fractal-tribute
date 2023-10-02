@@ -34,7 +34,7 @@ pub fn set_cap_tokens() -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    // set_cap_tokens()?;
+    set_cap_tokens()?;
     Ok(InitCallbackResult::Pass)
 }
 #[derive(Serialize, Deserialize, Debug)]

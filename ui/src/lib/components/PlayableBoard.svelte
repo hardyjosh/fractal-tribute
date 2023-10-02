@@ -17,7 +17,7 @@
   import { happ } from "$lib/stores";
   import { mergeGameMoveIntoBoard } from "$lib/helpers";
   import Palette from "$lib/components/Palette.svelte";
-  import { Button, Modal, Spinner } from "flowbite-svelte";
+  import { Button, Modal, Spinner, Heading } from "flowbite-svelte";
   import { UndoOutline, RedoOutline } from "flowbite-svelte-icons";
   import { addToast } from "$lib/components/toasts";
   import type { ActionHash } from "@holochain/client";
@@ -246,15 +246,18 @@
     </div>
   {:else}
     <div class="col-span-2 h-full">
-      <div class="p-4 border-2 border-black rounded-lg mb-4">
-        <p>This game has ended!</p>
+      <div
+        class="p-4 border-2 border-black rounded-lg mb-4 flex flex-col items-center text-center text-xl gap-y-6 py-12"
+      >
+        <Heading tag="h4">This game has ended!</Heading>
         <p>
           This means no new moves can be made and no new snapshots can be
-          created, however you are free to collect existing snapshot NFTs.
+          created.
         </p>
         {#if $snapshotEndCountdown.timeRemaining}
-          <p>
-            Claims will open in {formatCountdown($snapshotEndCountdown)}
+          <p class="font-bold">
+            However, you are free to collect existing snapshot NFTs until claims
+            open in {formatCountdown($snapshotEndCountdown)}
           </p>
         {:else}
           <p>

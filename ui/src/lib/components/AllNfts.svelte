@@ -10,6 +10,12 @@
   import { hexToBigInt, type Hex, bytesToHex } from "viem";
   import { nfts } from "$lib/stores/nfts";
   import Identicon from "$lib/components/Identicon.svelte";
+  import { getContext } from "svelte";
+  import { countdownContext, type CountdownContextType } from "$lib/contexts";
+
+  const { countdown, snapshotEndCountdown } = getContext(
+    countdownContext
+  ) as CountdownContextType;
 
   export let wrap: boolean = false;
 
@@ -34,6 +40,8 @@
     mintMoveModal = true;
     tokenId = hexToBigInt(id);
   };
+
+  $: console.log($snapshotEndCountdown.timeRemaining == 0);
 </script>
 
 {#if boardsWithSupply}
@@ -87,6 +95,7 @@
                 on:click={() => {
                   mintMove(board.id);
                 }}
+                disabled={$snapshotEndCountdown?.timeRemaining == 0}
                 class="!bg-primary-500 border-black border-2"
                 size="sm">Mint</Button
               >

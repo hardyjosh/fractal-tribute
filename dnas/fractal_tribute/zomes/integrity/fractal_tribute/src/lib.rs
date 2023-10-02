@@ -52,207 +52,140 @@ pub fn validate_agent_joining(
 }
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
-    match op.to_type::<EntryTypes, LinkTypes>()? {
-        OpType::StoreEntry(store_entry) => {
-            match store_entry {
-                OpEntry::CreateEntry { app_entry, action } => {
-                    match app_entry {
-                        EntryTypes::GameMove(game_move) => {
-                            validate_create_game_move(
-                                EntryCreationAction::Create(action),
-                                game_move,
-                            )
-                        }
-                        EntryTypes::EvmKeyBinding(evm_key_binding) => {
-                            validate_create_evm_key_binding(
-                                EntryCreationAction::Create(action),
-                                evm_key_binding,
-                            )
-                        }
-                        EntryTypes::ParticipationProof(participation_proof) => {
-                            validate_create_participation_proof(
-                                EntryCreationAction::Create(action),
-                                participation_proof,
-                            )
-                        }
-                        EntryTypes::Profile(profile) => {
-                            validate_create_profile(
-                                EntryCreationAction::Create(action),
-                                profile,
-                            )
-                        }
-
+    match op.to_type::<EntryTypes, LinkTypes>() {
+        Ok(opt) => match opt {
+            OpType::StoreEntry(store_entry) => match store_entry {
+                OpEntry::CreateEntry { app_entry, action } => match app_entry {
+                    EntryTypes::GameMove(game_move) => {
+                        validate_create_game_move(EntryCreationAction::Create(action), game_move)
                     }
-                }
-                OpEntry::UpdateEntry { app_entry, action, .. } => {
-                    match app_entry {
-                        EntryTypes::GameMove(game_move) => {
-                            validate_create_game_move(
-                                EntryCreationAction::Update(action),
-                                game_move,
-                            )
-                        }
-                        EntryTypes::EvmKeyBinding(evm_key_binding) => {
-                            validate_create_evm_key_binding(
-                                EntryCreationAction::Update(action),
-                                evm_key_binding,
-                            )
-                        }
-                        EntryTypes::ParticipationProof(participation_proof) => {
-                            validate_create_participation_proof(
-                                EntryCreationAction::Update(action),
-                                participation_proof,
-                            )
-                        }
-                        EntryTypes::Profile(profile) => {
-                            validate_create_profile(
-                                EntryCreationAction::Update(action),
-                                profile,
-                            )
-                        }
+                    EntryTypes::EvmKeyBinding(evm_key_binding) => validate_create_evm_key_binding(
+                        EntryCreationAction::Create(action),
+                        evm_key_binding,
+                    ),
+                    EntryTypes::ParticipationProof(participation_proof) => {
+                        validate_create_participation_proof(
+                            EntryCreationAction::Create(action),
+                            participation_proof,
+                        )
                     }
-                }
+                    EntryTypes::Profile(profile) => {
+                        validate_create_profile(EntryCreationAction::Create(action), profile)
+                    }
+                },
+                OpEntry::UpdateEntry {
+                    app_entry, action, ..
+                } => match app_entry {
+                    EntryTypes::GameMove(game_move) => {
+                        validate_create_game_move(EntryCreationAction::Update(action), game_move)
+                    }
+                    EntryTypes::EvmKeyBinding(evm_key_binding) => validate_create_evm_key_binding(
+                        EntryCreationAction::Update(action),
+                        evm_key_binding,
+                    ),
+                    EntryTypes::ParticipationProof(participation_proof) => {
+                        validate_create_participation_proof(
+                            EntryCreationAction::Update(action),
+                            participation_proof,
+                        )
+                    }
+                    EntryTypes::Profile(profile) => {
+                        validate_create_profile(EntryCreationAction::Update(action), profile)
+                    }
+                },
                 _ => Ok(ValidateCallbackResult::Valid),
-            }
-        }
-        OpType::RegisterUpdate(update_entry) => {
-            match update_entry {
+            },
+            OpType::RegisterUpdate(update_entry) => match update_entry {
                 OpUpdate::Entry {
                     original_action,
                     original_app_entry,
                     app_entry,
                     action,
-                } => {
-                    match (app_entry, original_app_entry) {
-                        (
-                            EntryTypes::EvmKeyBinding(evm_key_binding),
-                            EntryTypes::EvmKeyBinding(original_evm_key_binding),
-                        ) => {
-                            validate_update_evm_key_binding(
-                                action,
-                                evm_key_binding,
-                                original_action,
-                                original_evm_key_binding,
-                            )
-                        }
-                        (
-                            EntryTypes::GameMove(game_move),
-                            EntryTypes::GameMove(original_game_move),
-                        ) => {
-                            validate_update_game_move(
-                                action,
-                                game_move,
-                                original_action,
-                                original_game_move,
-                            )
-                        }
-                        (
-                            EntryTypes::ParticipationProof(participation_proof),
-                            EntryTypes::ParticipationProof(original_participation_proof),
-                        ) => {
-                            validate_update_participation_proof(
-                                action,
-                                participation_proof,
-                                original_action,
-                                original_participation_proof,
-                            )
-                        }
-                        (
-                            EntryTypes::Profile(profile),
-                            EntryTypes::Profile(original_profile),
-                        ) => {
-                            validate_update_profile(
-                                action,
-                                profile,
-                                original_action,
-                                original_profile,
-                            )
-                        }
-                        _ => {
-                            Ok(
-                                ValidateCallbackResult::Invalid(
-                                    "Original and updated entry types must be the same"
-                                        .to_string(),
-                                ),
-                            )
-                        }
-                    }
-                }
-                _ => Ok(ValidateCallbackResult::Valid),
-            }
-        }
-        OpType::RegisterDelete(delete_entry) => {
-            match delete_entry {
-                OpDelete::Entry { original_action, original_app_entry, action } => {
-                    match original_app_entry {
-                        EntryTypes::GameMove(game_move) => {
-                            validate_delete_game_move(action, original_action, game_move)
-                        }
-                        EntryTypes::EvmKeyBinding(evm_key_binding) => {
-                            validate_delete_evm_key_binding(
-                                action,
-                                original_action,
-                                evm_key_binding,
-                            )
-                        }
-                        EntryTypes::ParticipationProof(participation_proof) => {
-                            validate_delete_participation_proof(
-                                action,
-                                original_action,
-                                participation_proof,
-                            )
-                        }
-                        EntryTypes::Profile(profile) => {
-                            validate_delete_profile(
-                                action,
-                                original_action,
-                                profile,
-                            )
-                        }
-                    }
-                }
-                _ => Ok(ValidateCallbackResult::Valid),
-            }
-        }
-        OpType::RegisterCreateLink {
-            link_type,
-            base_address,
-            target_address,
-            tag,
-            action,
-        } => {
-            match link_type {
-                LinkTypes::TokenIdToGameMove => {
-                    validate_create_link_tokenid_to_game_move(
+                } => match (app_entry, original_app_entry) {
+                    (
+                        EntryTypes::EvmKeyBinding(evm_key_binding),
+                        EntryTypes::EvmKeyBinding(original_evm_key_binding),
+                    ) => validate_update_evm_key_binding(
                         action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
+                        evm_key_binding,
+                        original_action,
+                        original_evm_key_binding,
+                    ),
+                    (EntryTypes::GameMove(game_move), EntryTypes::GameMove(original_game_move)) => {
+                        validate_update_game_move(
+                            action,
+                            game_move,
+                            original_action,
+                            original_game_move,
+                        )
+                    }
+                    (
+                        EntryTypes::ParticipationProof(participation_proof),
+                        EntryTypes::ParticipationProof(original_participation_proof),
+                    ) => validate_update_participation_proof(
+                        action,
+                        participation_proof,
+                        original_action,
+                        original_participation_proof,
+                    ),
+                    (EntryTypes::Profile(profile), EntryTypes::Profile(original_profile)) => {
+                        validate_update_profile(action, profile, original_action, original_profile)
+                    }
+                    _ => Ok(ValidateCallbackResult::Invalid(
+                        "Original and updated entry types must be the same".to_string(),
+                    )),
+                },
+                _ => Ok(ValidateCallbackResult::Valid),
+            },
+            OpType::RegisterDelete(delete_entry) => match delete_entry {
+                OpDelete::Entry {
+                    original_action,
+                    original_app_entry,
+                    action,
+                } => match original_app_entry {
+                    EntryTypes::GameMove(game_move) => {
+                        validate_delete_game_move(action, original_action, game_move)
+                    }
+                    EntryTypes::EvmKeyBinding(evm_key_binding) => {
+                        validate_delete_evm_key_binding(action, original_action, evm_key_binding)
+                    }
+                    EntryTypes::ParticipationProof(participation_proof) => {
+                        validate_delete_participation_proof(
+                            action,
+                            original_action,
+                            participation_proof,
+                        )
+                    }
+                    EntryTypes::Profile(profile) => {
+                        validate_delete_profile(action, original_action, profile)
+                    }
+                },
+                _ => Ok(ValidateCallbackResult::Valid),
+            },
+            OpType::RegisterCreateLink {
+                link_type,
+                base_address,
+                target_address,
+                tag,
+                action,
+            } => match link_type {
+                LinkTypes::TokenIdToGameMove => validate_create_link_tokenid_to_game_move(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
                 LinkTypes::AllGameMoves => {
-                    validate_create_link_all_game_moves(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
+                    validate_create_link_all_game_moves(action, base_address, target_address, tag)
                 }
-                LinkTypes::AgentToEvmKeyBinding => {
-                    validate_create_link_agent_to_evm_key_binding(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
+                LinkTypes::AgentToEvmKeyBinding => validate_create_link_agent_to_evm_key_binding(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
                 LinkTypes::AgentToProfile => {
-                    validate_create_link_agent_to_profile(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
+                    validate_create_link_agent_to_profile(action, base_address, target_address, tag)
                 }
                 LinkTypes::SignedParticipationProof => {
                     validate_create_link_signed_participation_proof(
@@ -262,53 +195,43 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
-            }
-        }
-        OpType::RegisterDeleteLink {
-            link_type,
-            base_address,
-            target_address,
-            tag,
-            original_action,
-            action,
-        } => {
-            match link_type {
-                LinkTypes::TokenIdToGameMove => {
-                    validate_delete_link_tokenid_to_game_move(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::AllGameMoves => {
-                    validate_delete_link_all_game_moves(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::AgentToEvmKeyBinding => {
-                    validate_delete_link_agent_to_evm_key_binding(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::AgentToProfile => {
-                    validate_delete_link_agent_to_profile(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
+            },
+            OpType::RegisterDeleteLink {
+                link_type,
+                base_address,
+                target_address,
+                tag,
+                original_action,
+                action,
+            } => match link_type {
+                LinkTypes::TokenIdToGameMove => validate_delete_link_tokenid_to_game_move(
+                    action,
+                    original_action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
+                LinkTypes::AllGameMoves => validate_delete_link_all_game_moves(
+                    action,
+                    original_action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
+                LinkTypes::AgentToEvmKeyBinding => validate_delete_link_agent_to_evm_key_binding(
+                    action,
+                    original_action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
+                LinkTypes::AgentToProfile => validate_delete_link_agent_to_profile(
+                    action,
+                    original_action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
                 LinkTypes::SignedParticipationProof => {
                     validate_delete_link_signed_participation_proof(
                         action,
@@ -318,38 +241,26 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
-            }
-        }
-        OpType::StoreRecord(store_record) => {
-            match store_record {
-                OpRecord::CreateEntry { app_entry, action } => {
-                    match app_entry {
-                        EntryTypes::GameMove(game_move) => {
-                            validate_create_game_move(
-                                EntryCreationAction::Create(action),
-                                game_move,
-                            )
-                        }
-                        EntryTypes::EvmKeyBinding(evm_key_binding) => {
-                            validate_create_evm_key_binding(
-                                EntryCreationAction::Create(action),
-                                evm_key_binding,
-                            )
-                        }
-                        EntryTypes::ParticipationProof(participation_proof) => {
-                            validate_create_participation_proof(
-                                EntryCreationAction::Create(action),
-                                participation_proof,
-                            )
-                        }
-                        EntryTypes::Profile(profile) => {
-                            validate_create_profile(
-                                EntryCreationAction::Create(action),
-                                profile,
-                            )
-                        }
+            },
+            OpType::StoreRecord(store_record) => match store_record {
+                OpRecord::CreateEntry { app_entry, action } => match app_entry {
+                    EntryTypes::GameMove(game_move) => {
+                        validate_create_game_move(EntryCreationAction::Create(action), game_move)
                     }
-                }
+                    EntryTypes::EvmKeyBinding(evm_key_binding) => validate_create_evm_key_binding(
+                        EntryCreationAction::Create(action),
+                        evm_key_binding,
+                    ),
+                    EntryTypes::ParticipationProof(participation_proof) => {
+                        validate_create_participation_proof(
+                            EntryCreationAction::Create(action),
+                            participation_proof,
+                        )
+                    }
+                    EntryTypes::Profile(profile) => {
+                        validate_create_profile(EntryCreationAction::Create(action), profile)
+                    }
+                },
                 OpRecord::UpdateEntry {
                     original_action_hash,
                     app_entry,
@@ -362,12 +273,10 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         Action::Create(create) => EntryCreationAction::Create(create),
                         Action::Update(update) => EntryCreationAction::Update(update),
                         _ => {
-                            return Ok(
-                                ValidateCallbackResult::Invalid(
-                                    "Original action for an update must be a Create or Update action"
-                                        .to_string(),
-                                ),
-                            );
+                            return Ok(ValidateCallbackResult::Invalid(
+                                "Original action for an update must be a Create or Update action"
+                                    .to_string(),
+                            ));
                         }
                     };
                     match app_entry {
@@ -385,11 +294,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                     Some(game_move) => game_move,
                                     None => {
                                         return Ok(
-                                            ValidateCallbackResult::Invalid(
-                                                "The updated entry type must be the same as the original entry type"
-                                                    .to_string(),
-                                            ),
-                                        );
+                                                    ValidateCallbackResult::Invalid(
+                                                        "The updated entry type must be the same as the original entry type"
+                                                            .to_string(),
+                                                    ),
+                                                );
                                     }
                                 };
                                 validate_update_game_move(
@@ -408,19 +317,20 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 evm_key_binding.clone(),
                             )?;
                             if let ValidateCallbackResult::Valid = result {
-                                let original_evm_key_binding: Option<EvmKeyBinding> = original_record
-                                    .entry()
-                                    .to_app_option()
-                                    .map_err(|e| wasm_error!(e))?;
+                                let original_evm_key_binding: Option<EvmKeyBinding> =
+                                    original_record
+                                        .entry()
+                                        .to_app_option()
+                                        .map_err(|e| wasm_error!(e))?;
                                 let original_evm_key_binding = match original_evm_key_binding {
                                     Some(evm_key_binding) => evm_key_binding,
                                     None => {
                                         return Ok(
-                                            ValidateCallbackResult::Invalid(
-                                                "The updated entry type must be the same as the original entry type"
-                                                    .to_string(),
-                                            ),
-                                        );
+                                                    ValidateCallbackResult::Invalid(
+                                                        "The updated entry type must be the same as the original entry type"
+                                                            .to_string(),
+                                                    ),
+                                                );
                                     }
                                 };
                                 validate_update_evm_key_binding(
@@ -439,21 +349,23 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 participation_proof.clone(),
                             )?;
                             if let ValidateCallbackResult::Valid = result {
-                                let original_participation_proof: Option<ParticipationProof> = original_record
-                                    .entry()
-                                    .to_app_option()
-                                    .map_err(|e| wasm_error!(e))?;
-                                let original_participation_proof = match original_participation_proof {
-                                    Some(participation_proof) => participation_proof,
-                                    None => {
-                                        return Ok(
-                                            ValidateCallbackResult::Invalid(
-                                                "The updated entry type must be the same as the original entry type"
-                                                    .to_string(),
-                                            ),
-                                        );
-                                    }
-                                };
+                                let original_participation_proof: Option<ParticipationProof> =
+                                    original_record
+                                        .entry()
+                                        .to_app_option()
+                                        .map_err(|e| wasm_error!(e))?;
+                                let original_participation_proof =
+                                    match original_participation_proof {
+                                        Some(participation_proof) => participation_proof,
+                                        None => {
+                                            return Ok(
+                                                    ValidateCallbackResult::Invalid(
+                                                        "The updated entry type must be the same as the original entry type"
+                                                            .to_string(),
+                                                    ),
+                                                );
+                                        }
+                                    };
                                 validate_update_participation_proof(
                                     action,
                                     participation_proof,
@@ -478,11 +390,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                     Some(profile) => profile,
                                     None => {
                                         return Ok(
-                                            ValidateCallbackResult::Invalid(
-                                                "The updated entry type must be the same as the original entry type"
-                                                    .to_string(),
-                                            ),
-                                        );
+                                                    ValidateCallbackResult::Invalid(
+                                                        "The updated entry type must be the same as the original entry type"
+                                                            .to_string(),
+                                                    ),
+                                                );
                                     }
                                 };
                                 validate_update_profile(
@@ -497,19 +409,21 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     }
                 }
-                OpRecord::DeleteEntry { original_action_hash, action, .. } => {
+                OpRecord::DeleteEntry {
+                    original_action_hash,
+                    action,
+                    ..
+                } => {
                     let original_record = must_get_valid_record(original_action_hash)?;
                     let original_action = original_record.action().clone();
                     let original_action = match original_action {
                         Action::Create(create) => EntryCreationAction::Create(create),
                         Action::Update(update) => EntryCreationAction::Update(update),
                         _ => {
-                            return Ok(
-                                ValidateCallbackResult::Invalid(
-                                    "Original action for a delete must be a Create or Update action"
-                                        .to_string(),
-                                ),
-                            );
+                            return Ok(ValidateCallbackResult::Invalid(
+                                "Original action for a delete must be a Create or Update action"
+                                    .to_string(),
+                            ));
                         }
                     };
                     let app_entry_type = match original_action.entry_type() {
@@ -523,11 +437,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         None => {
                             if original_action.entry_type().visibility().is_public() {
                                 return Ok(
-                                    ValidateCallbackResult::Invalid(
-                                        "Original record for a delete of a public entry must contain an entry"
-                                            .to_string(),
-                                    ),
-                                );
+                                            ValidateCallbackResult::Invalid(
+                                                "Original record for a delete of a public entry must contain an entry"
+                                                    .to_string(),
+                                            ),
+                                        );
                             } else {
                                 return Ok(ValidateCallbackResult::Valid);
                             }
@@ -541,20 +455,16 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         Some(app_entry) => app_entry,
                         None => {
                             return Ok(
-                                ValidateCallbackResult::Invalid(
-                                    "Original app entry must be one of the defined entry types for this zome"
-                                        .to_string(),
-                                ),
-                            );
+                                        ValidateCallbackResult::Invalid(
+                                            "Original app entry must be one of the defined entry types for this zome"
+                                                .to_string(),
+                                        ),
+                                    );
                         }
                     };
                     match original_app_entry {
                         EntryTypes::GameMove(original_game_move) => {
-                            validate_delete_game_move(
-                                action,
-                                original_action,
-                                original_game_move,
-                            )
+                            validate_delete_game_move(action, original_action, original_game_move)
                         }
                         EntryTypes::EvmKeyBinding(original_evm_key_binding) => {
                             validate_delete_evm_key_binding(
@@ -571,11 +481,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             )
                         }
                         EntryTypes::Profile(original_profile) => {
-                            validate_delete_profile(
-                                action,
-                                original_action,
-                                original_profile,
-                            )
+                            validate_delete_profile(action, original_action, original_profile)
                         }
                     }
                 }
@@ -585,61 +491,55 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     tag,
                     link_type,
                     action,
-                } => {
-                    match link_type {
-                        LinkTypes::TokenIdToGameMove => {
-                            validate_create_link_tokenid_to_game_move(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        }
-                        LinkTypes::AllGameMoves => {
-                            validate_create_link_all_game_moves(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        }
-                        LinkTypes::AgentToEvmKeyBinding => {
-                            validate_create_link_agent_to_evm_key_binding(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        }
-                        LinkTypes::AgentToProfile => {
-                            validate_create_link_agent_to_profile(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        }
-                        LinkTypes::SignedParticipationProof => {
-                            validate_create_link_signed_participation_proof(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        }
+                } => match link_type {
+                    LinkTypes::TokenIdToGameMove => validate_create_link_tokenid_to_game_move(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    ),
+                    LinkTypes::AllGameMoves => validate_create_link_all_game_moves(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    ),
+                    LinkTypes::AgentToEvmKeyBinding => {
+                        validate_create_link_agent_to_evm_key_binding(
+                            action,
+                            base_address,
+                            target_address,
+                            tag,
+                        )
                     }
-                }
-                OpRecord::DeleteLink { original_action_hash, base_address, action } => {
+                    LinkTypes::AgentToProfile => validate_create_link_agent_to_profile(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    ),
+                    LinkTypes::SignedParticipationProof => {
+                        validate_create_link_signed_participation_proof(
+                            action,
+                            base_address,
+                            target_address,
+                            tag,
+                        )
+                    }
+                },
+                OpRecord::DeleteLink {
+                    original_action_hash,
+                    base_address,
+                    action,
+                } => {
                     let record = must_get_valid_record(original_action_hash)?;
                     let create_link = match record.action() {
                         Action::CreateLink(create_link) => create_link.clone(),
                         _ => {
-                            return Ok(
-                                ValidateCallbackResult::Invalid(
-                                    "The action that a DeleteLink deletes must be a CreateLink"
-                                        .to_string(),
-                                ),
-                            );
+                            return Ok(ValidateCallbackResult::Invalid(
+                                "The action that a DeleteLink deletes must be a CreateLink"
+                                    .to_string(),
+                            ));
                         }
                     };
                     let link_type = match LinkTypes::from_type(
@@ -652,24 +552,20 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match link_type {
-                        LinkTypes::TokenIdToGameMove => {
-                            validate_delete_link_tokenid_to_game_move(
-                                action,
-                                create_link.clone(),
-                                base_address,
-                                create_link.target_address,
-                                create_link.tag,
-                            )
-                        }
-                        LinkTypes::AllGameMoves => {
-                            validate_delete_link_all_game_moves(
-                                action,
-                                create_link.clone(),
-                                base_address,
-                                create_link.target_address,
-                                create_link.tag,
-                            )
-                        }
+                        LinkTypes::TokenIdToGameMove => validate_delete_link_tokenid_to_game_move(
+                            action,
+                            create_link.clone(),
+                            base_address,
+                            create_link.target_address,
+                            create_link.tag,
+                        ),
+                        LinkTypes::AllGameMoves => validate_delete_link_all_game_moves(
+                            action,
+                            create_link.clone(),
+                            base_address,
+                            create_link.target_address,
+                            create_link.tag,
+                        ),
                         LinkTypes::AgentToEvmKeyBinding => {
                             validate_delete_link_agent_to_evm_key_binding(
                                 action,
@@ -679,15 +575,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.tag,
                             )
                         }
-                        LinkTypes::AgentToProfile => {
-                            validate_delete_link_agent_to_profile(
-                                action,
-                                create_link.clone(),
-                                base_address,
-                                create_link.target_address,
-                                create_link.tag,
-                            )
-                        }
+                        LinkTypes::AgentToProfile => validate_delete_link_agent_to_profile(
+                            action,
+                            create_link.clone(),
+                            base_address,
+                            create_link.target_address,
+                            create_link.tag,
+                        ),
                         LinkTypes::SignedParticipationProof => {
                             validate_delete_link_signed_participation_proof(
                                 action,
@@ -710,28 +604,28 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 OpRecord::CloseChain { .. } => Ok(ValidateCallbackResult::Valid),
                 OpRecord::InitZomesComplete { .. } => Ok(ValidateCallbackResult::Valid),
                 _ => Ok(ValidateCallbackResult::Valid),
-            }
-        }
-        OpType::RegisterAgentActivity(agent_activity) => {
-            match agent_activity {
+            },
+            OpType::RegisterAgentActivity(agent_activity) => match agent_activity {
                 OpActivity::CreateAgent { agent, action } => {
                     let previous_action = must_get_action(action.prev_action)?;
                     match previous_action.action() {
-                        Action::AgentValidationPkg(
-                            AgentValidationPkg { membrane_proof, .. },
-                        ) => validate_agent_joining(agent, membrane_proof),
-                        _ => {
-                            Ok(
-                                ValidateCallbackResult::Invalid(
-                                    "The previous action for a `CreateAgent` action must be an `AgentValidationPkg`"
-                                        .to_string(),
-                                ),
-                            )
-                        }
-                    }
+                                Action::AgentValidationPkg(
+                                    AgentValidationPkg { membrane_proof, .. },
+                                ) => validate_agent_joining(agent, membrane_proof),
+                                _ => {
+                                    Ok(
+                                        ValidateCallbackResult::Invalid(
+                                            "The previous action for a `CreateAgent` action must be an `AgentValidationPkg`"
+                                                .to_string(),
+                                        ),
+                                    )
+                                }
+                            }
                 }
                 _ => Ok(ValidateCallbackResult::Valid),
-            }
-        }
+            },
+        },
+        Err(e) => Ok(ValidateCallbackResult::Valid),
     }
 }
+

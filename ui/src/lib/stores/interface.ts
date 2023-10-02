@@ -26,7 +26,6 @@ export const initHapp = async () => {
                 appName: "svelte-holo-test",
             },
         });
-
         const waitForAgentState = () => new Promise(resolve => {
             (client as WebSdk).on("agent-state", (agent_state) => {
                 if (agent_state.isAvailable && !agent_state.isAnonymous) {
