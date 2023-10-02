@@ -10,22 +10,31 @@ use hdk::prelude::*;
 use fractal_tribute_integrity::*;
 
 pub fn set_cap_tokens() -> ExternResult<()> {
-    let mut functions: BTreeSet<(ZomeName, String)> = BTreeSet::new();
-    functions.insert((zome_info()?.name, "get_dna_properties".into()));
-    functions.insert((zome_info()?.name, "get_profile".into()));
-    functions.insert((zome_info()?.name, "get_number_of_moves".into()));
-    functions.insert((zome_info()?.name, "get_latest_board".into()));
-    functions.insert((zome_info()?.name, "get_board_at_move".into()));
-    functions.insert((zome_info()?.name, "get_board_from_link".into()));
-    functions.insert((zome_info()?.name, "get_boards_from_links".into()));
-    functions.insert((zome_info()?.name, "token_id_to_metadata".into()));
-    functions.insert((zome_info()?.name, "build_agent_participation".into()));
-    functions.insert((zome_info()?.name, "get_signed_participation".into()));
+    let mut fns = BTreeSet::new();
+
+    fns.insert((zome_info()?.name, "get_dna_properties".into()));
+    fns.insert((zome_info()?.name, "get_profile".into()));
+    fns.insert((zome_info()?.name, "get_number_of_moves".into()));
+    fns.insert((zome_info()?.name, "get_latest_board".into()));
+    fns.insert((zome_info()?.name, "get_board_at_move".into()));
+    fns.insert((zome_info()?.name, "get_board_from_link".into()));
+    fns.insert((zome_info()?.name, "get_boards_from_links".into()));
+    fns.insert((zome_info()?.name, "token_id_to_metadata".into()));
+    fns.insert((zome_info()?.name, "build_agent_participation".into()));
+    fns.insert((zome_info()?.name, "get_signed_participation".into()));
+
+    let functions = GrantedFunctions::Listed(fns);
+    create_cap_grant(CapGrantEntry {
+        tag: "".into(),
+        access: CapAccess::Unrestricted,
+        functions,
+    })?;
     Ok(())
 }
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
+    // set_cap_tokens()?;
     Ok(InitCallbackResult::Pass)
 }
 #[derive(Serialize, Deserialize, Debug)]

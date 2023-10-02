@@ -132,7 +132,7 @@
     <span>Please check your wallet to confirm</span>
   </div>
 {:else if $status === "success" || hash}
-  <div class="fixed inset-0 translate-x-1/2">
+  <div class="fixed inset-0 translate-x-1/2 pointer-events-none">
     <Confetti
       x={[-4, 4]}
       y={[0, 1]}

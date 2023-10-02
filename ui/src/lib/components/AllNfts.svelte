@@ -69,7 +69,7 @@
               <div class="flex gap-x-2 items-center">
                 <Identicon agentHash={board.boardWithMetadata.creator} />
                 <div class="flex flex-col leading-none gap-y-1">
-                  <span class="text-gray-500">
+                  <span class="text-gray-500 w-28 overflow-ellipsis truncate">
                     {#await $happ.getProfile(board.boardWithMetadata.creator) then profile}
                       {profile.name}
                     {:catch error}

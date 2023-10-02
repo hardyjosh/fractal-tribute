@@ -15,7 +15,11 @@
   const dispatch = createEventDispatcher();
 
   let howToPlayStep = 0;
-  let name;
+  let name, badNameCharLength;
+
+  $: if (name) {
+    badNameCharLength = name.length < 2 || name.length > 15;
+  }
 
   const inc = () => {
     howToPlayStep++;
@@ -116,9 +120,14 @@
       <Heading tag="h5">What is your name?</Heading>
       <span>Choose carefully, you can't change this later!</span>
       <Input defaultClass="text-center" type="text" bind:value={name} />
+      {#if badNameCharLength}
+        <p transition:fade class="text-red-500">
+          Name must be between 2 and 15 characters
+        </p>
+      {/if}
     </div>
     <Button
-      disabled={!name}
+      disabled={!name || badNameCharLength}
       class="bg-fractalorange border-2 border-black"
       on:click={inc}>Create my Profile</Button
     >

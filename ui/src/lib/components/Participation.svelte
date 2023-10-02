@@ -76,7 +76,7 @@
             Number(poolsizeFormatted) || 0
         ).toPrecision(2)} MATIC`}
       />
-      {#if !$countdown?.timeRemaining && participations}
+      {#if !$snapshotEndCountdown?.timeRemaining && participations && myParticipation?.percentage_of_total_pixels_changed > 0}
         <Claim {participations} />
       {/if}
     </div>
