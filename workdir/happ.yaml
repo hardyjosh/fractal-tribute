@@ -10,7 +10,7 @@ roles:
     dna:
       bundled: "../dnas/fractal_tribute/workdir/fractal_tribute.dna"
       modifiers:
-        network_seed: fractal-tribute
+        network_seed: ~
         properties: ~
         origin_time: ~
         quantum_time: ~

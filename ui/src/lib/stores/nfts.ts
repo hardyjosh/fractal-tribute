@@ -33,7 +33,7 @@ export const fetchNftIds = async (): Promise<NFT[]> => {
         console.log("There was an error fetching the data", error);
     }
 
-    const balanceUrl = `https://polygon-mumbai.g.alchemy.com/nft/v2/${alchemyKey}/getOwnersForCollection?contractAddress=${addresses.instance}&withTokenBalances=true`;
+    const balanceUrl = `https://polygon-mainnet.g.alchemy.com/nft/v2/${alchemyKey}/getOwnersForCollection?contractAddress=${addresses.instance}&withTokenBalances=true`;
 
     try {
         const response = await fetch(balanceUrl, {

@@ -23,7 +23,9 @@
   let boardsWithSupply: (BoardWithMetadataAndId & { supply: number })[];
 
   const prepareHappNfts = async () => {
+    console.log($nfts);
     boards = await $happ.getBoardsFromTokenIds($nfts.map((nft) => nft.id));
+    console.log(boards);
     boardsWithSupply = boards.map((board) => {
       const nft = $nfts.find((nft) => bytesToHex(nft.id) == board.id);
       return { ...board, supply: nft.supply };
