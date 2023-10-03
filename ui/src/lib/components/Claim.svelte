@@ -11,13 +11,12 @@
 
   let open: boolean = false;
   export let participations: ParticipationProof;
-  let evmKey: Address;
+  export let evmKey: Address = null;
   let agentParticipation: AgentParticipation;
 
   onMount(async () => {
-    evmKey = await $happ.getEvmAddress();
+    if (!evmKey) evmKey = await $happ.getEvmAddress();
     agentParticipation = await $happ.getSignedParticipation(evmKey);
-    console.log(agentParticipation);
   });
 
   let hash: Hex;
@@ -88,7 +87,7 @@
       <span>Please check your wallet to confirm</span>
     </div>
   {:else if $status === "success" || hash}
-    <div class="fixed inset-0 translate-x-1/2">
+    <div class="fixed inset-0 translate-x-1/2 pointer-events-none">
       <Confetti
         x={[-4, 4]}
         y={[0, 1]}

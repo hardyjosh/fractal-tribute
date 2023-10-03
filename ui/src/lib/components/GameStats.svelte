@@ -9,10 +9,15 @@
   import ParticipationStat from "$lib/components/ParticipationStat.svelte";
   import { getContext, onMount } from "svelte";
   import type { ParticipationProof } from "$lib/types";
+  import { formatCountdown } from "$lib/stores/countdown";
+  import { countdownContext, type CountdownContextType } from "$lib/contexts";
 
   const participations = getContext(
     "participations"
   ) as Writable<ParticipationProof>;
+  const { countdown, snapshotEndCountdown } = getContext(
+    countdownContext
+  ) as CountdownContextType;
   let poolsizeFormatted: string;
   let ready: boolean;
 
@@ -49,6 +54,13 @@
       {ready}
       name="Total pixels changed"
       value={$participations?.total_pixels_changed.toString()}
+    />
+    <ParticipationStat
+      {ready}
+      name="Time remaining"
+      value={$countdown.timeRemaining
+        ? formatCountdown($countdown)
+        : "Game ended"}
     />
   </div>
 </div>

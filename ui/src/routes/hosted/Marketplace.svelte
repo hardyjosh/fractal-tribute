@@ -4,9 +4,14 @@
   import { fade } from "svelte/transition";
   import { happ } from "$lib/stores";
   import type { BoardWithMetadata } from "$lib/types";
-  import { onDestroy, onMount } from "svelte";
+  import { getContext, onDestroy, onMount } from "svelte";
   import GameStats from "$lib/components/GameStats.svelte";
   import AllNfts from "$lib/components/AllNfts.svelte";
+  import { countdownContext, type CountdownContextType } from "$lib/contexts";
+
+  const { countdown, snapshotEndCountdown } = getContext(
+    countdownContext
+  ) as CountdownContextType;
 
   let board: BoardWithMetadata;
 
@@ -27,7 +32,7 @@
 </script>
 
 <div class="flex flex-row gap-x-8 pt-8 items-center">
-  <div in:fade class="flex flex-col gap-y-5 text-center items-center w-1/2">
+  <!-- <div in:fade class="flex flex-col gap-y-5 text-center items-center w-1/2">
     <img class="w-32" src={singlelogo} alt="fractal tribute logo" />
     <Heading tag="h2">Welcome to Fractal Tribute!</Heading>
     <Heading tag="h6" class="font-semibold"
@@ -42,11 +47,11 @@
       class="bg-fractalorange border-2 border-black rounded-2xl py-4 px-8 text-xl font-semibold text-white mt-4"
       >Download app</a
     >
-    <div class="w-full mt-12">
-      <GameStats />
-    </div>
+  </div> -->
+  <div class="w-full mt-12">
+    <GameStats />
   </div>
-
+  <!-- 
   <div
     class="flex flex-row border-black border-2 rounded-lg overflow-hidden relative w-1/2 aspect-square bg-transparent"
   >
@@ -57,23 +62,25 @@
         style="transform: translateZ(0);"
       >
         <div>
-          <div
-            class="absolute top-5 left-5 flex gap-x-2 items-center rounded-full bg-white border-gray-300 border px-4 py-2"
-          >
-            <div class="rounded-full bg-red-600 animate-pulse w-5 h-5" />
-            <span class="font-bold">LIVE</span>
-          </div>
+          {#if $countdown?.timeRemaining}
+            <div
+              class="absolute top-5 left-5 flex gap-x-2 items-center rounded-full bg-white border-gray-300 border px-4 py-2"
+            >
+              <div class="rounded-full bg-red-600 animate-pulse w-5 h-5" />
+              <span class="font-bold">LIVE</span>
+            </div>
+          {/if}
           {@html board.svg}
         </div>
       </div>
     {/if}
-  </div>
+  </div> -->
 </div>
 <div class="w-full flex flex-col gap-y-6">
-  <Heading tag="h3" class="mt-14">All snapshots</Heading>
+  <Heading tag="h3" class="mt-14">Snapshot marketplace</Heading>
   <span class="text-xl"
     >By minting another player's snapshot you are pushing them up the
     leaderboard!</span
   >
-  <AllNfts />
+  <AllNfts wrap />
 </div>

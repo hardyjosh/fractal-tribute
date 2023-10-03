@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Spinner } from "flowbite-svelte";
-  import { isHolo } from "./lib/stores/isHolo.ts";
+  import { isHolo } from "$lib/stores";
   import "./app.postcss";
   import Routes from "$routes/Routes.svelte";
   import { onMount, tick } from "svelte";
@@ -12,6 +12,7 @@
   import { encodeHashToBase64 } from "@holochain/client";
   import AdminModal from "$lib/components/AdminModal.svelte";
   import HostedRoutes from "$routes/HostedRoutes.svelte";
+  import logo from "$lib/assets/logo.svg";
 
   let ready = false;
 
@@ -44,7 +45,10 @@
       <Routes />
     {/if}
   {:else if $isHolo}
-    <div class="w-screen h-screen flex items-center justify-center">
+    <div
+      class="w-screen h-screen flex flex-col gap-y-4 items-center justify-center fixed inset-0"
+    >
+      <img class="w-96" src={logo} />
       <Spinner />
     </div>
   {/if}
