@@ -29,11 +29,11 @@ contract NftTest is Test, SignContext {
 
     // this is hardcoded in the flow expression
     address gameMaster = 0x504093896403Aa2888e24ddE68c14e3435c2DEc5;
-    Token paymentToken = Token(0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889);
+    Token paymentToken = Token(0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270);
 
-    ICloneableFactoryV2 public factory = ICloneableFactoryV2(0x70dD832A82481d4e1d15A3B50Db904719e2d3341);
-    address public implementation = 0xC1Ef6887b8722b8B666e4C3d0EE74bDeECb098F1;
-    IExpressionDeployerV1 public deployer = IExpressionDeployerV1(0x0a2392aB861834305dB90A8825af102C02B6929C);
+    ICloneableFactoryV2 public factory = ICloneableFactoryV2(0x662706Ee4196959dFBbE2a327100B96FBc343505);
+    address public implementation = 0xAFdb6b495F10Ec70213412e97f8EBc1bcEd6152d;
+    IExpressionDeployerV1 public deployer = IExpressionDeployerV1(0x6e8640784E7A4f576d8aA9Ba463d1741180d702d);
 
     NativeTokenFlowERC1155Caller public nativeTokenFlowCaller;
 
@@ -118,6 +118,7 @@ contract NftTest is Test, SignContext {
 
         // alice mints a snapshot
         vm.startPrank(alice);
+        vm.warp(0);
 
         instance.flow(snapshotEvaluable, context, new SignedContextV1[](0));
 
@@ -160,6 +161,8 @@ contract NftTest is Test, SignContext {
         uint256 stewardKey = vm.envUint("STEWARD_KEY");
         SignedContextV1[] memory signedContext = new SignedContextV1[](1);
         signedContext[0] = signContext(stewardKey, couponContext);
+
+        vm.warp(1696345200 + 2 days);
 
         // now claimer can claim
         vm.startPrank(claimer);

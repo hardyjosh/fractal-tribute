@@ -11,11 +11,11 @@ import { NativeTokenFlowERC1155Caller } from '../src/NativeTokenFlowCaller.sol';
 
 
 contract Deploy is Script {
-    ICloneableFactoryV2 public constant factory = ICloneableFactoryV2(0x70dD832A82481d4e1d15A3B50Db904719e2d3341);
-    address public constant implementation = 0xC1Ef6887b8722b8B666e4C3d0EE74bDeECb098F1;
-    address public constant deployer = 0x0a2392aB861834305dB90A8825af102C02B6929C;
+    ICloneableFactoryV2 public constant factory = ICloneableFactoryV2(0x662706Ee4196959dFBbE2a327100B96FBc343505);
+    address public constant implementation = 0xAFdb6b495F10Ec70213412e97f8EBc1bcEd6152d;
+    address public constant deployer = 0x6e8640784E7A4f576d8aA9Ba463d1741180d702d;
 
-    address public constant wmatic = 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889;
+    address public constant wmatic = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
 
     using stdJson for string;
     using Strings for uint256;
@@ -98,3 +98,5 @@ contract Deploy is Script {
 
 
 // source .env && forge script script/Deploy.s.sol:Deploy --fork-url $RPC_URL --private-key $PRIVATE_KEY --broadcast
+// polygon
+// source .env && forge script script/Deploy.s.sol:Deploy --fork-url $POLYGON_RPC_URL --private-key $PRIVATE_KEY --broadcast
