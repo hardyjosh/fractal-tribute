@@ -35,80 +35,26 @@ contract NftTest is Test, SignContext {
     address public implementation = 0xAFdb6b495F10Ec70213412e97f8EBc1bcEd6152d;
     IExpressionDeployerV1 public deployer = IExpressionDeployerV1(0x6e8640784E7A4f576d8aA9Ba463d1741180d702d);
 
-    NativeTokenFlowERC1155Caller public nativeTokenFlowCaller;
+    NativeTokenFlowERC1155Caller public nativeTokenFlowCaller = new NativeTokenFlowERC1155Caller(0xcD043e255A805aB39D4632Aa61FEA9b6e142c6A3);
 
-    IFlowERC1155V3 public instance;
-    IERC1155 public instanceAs1155;
+    IFlowERC1155V3 public instance = IFlowERC1155V3(0x95CDE7E9B0840874301E75de92e12b63Fd117Ff4);
+    IERC1155 public instanceAs1155 = IERC1155(0x95CDE7E9B0840874301E75de92e12b63Fd117Ff4);
 
-    IInterpreterStoreV1 store;
-    IInterpreterV1 interpreter;
+    IInterpreterStoreV1 store = IInterpreterStoreV1(0x0d6c4DA68fc7dD6D22920F6E655011C8f2b5B4A4);
+    IInterpreterV1 interpreter = IInterpreterV1(0x334261036dF6c3dEB62a33C92D8695d9A5bAf598);
 
     Evaluable snapshotEvaluable;
     Evaluable mintEvaluable;
     Evaluable claimEvaluable;
 
     function setUp() public {
-
-        nativeTokenFlowCaller = new NativeTokenFlowERC1155Caller(address(paymentToken));
-
-        EvaluableConfig memory snapshot;
-        string memory snapshotJson = vm.readFile(
-            string.concat(vm.projectRoot(), "/src/snapshot.json")
-        );
-        snapshot.sources = snapshotJson.readBytesArray('.sources');
-        snapshot.constants = snapshotJson.readUintArray('.constants');
-        snapshot.deployer = IExpressionDeployerV1(deployer);
-
-        EvaluableConfig memory mint;
-        string memory mintJson = vm.readFile(
-            string.concat(vm.projectRoot(), "/src/mint.json")
-        );
-        mint.sources = mintJson.readBytesArray('.sources');
-        mint.constants = mintJson.readUintArray('.constants');
-        mint.deployer = IExpressionDeployerV1(deployer);
-
-        EvaluableConfig memory claim;
-        string memory claimJson = vm.readFile(
-            string.concat(vm.projectRoot(), "/src/claim.json")
-        );
-        claim.sources = claimJson.readBytesArray('.sources');
-        claim.constants = claimJson.readUintArray('.constants');
-        claim.deployer = IExpressionDeployerV1(deployer);
-
-        EvaluableConfig memory canTransfer;
-        canTransfer.sources = new bytes[](0);
-        canTransfer.constants = new uint256[](0);
-        canTransfer.deployer = IExpressionDeployerV1(deployer);
-
-        FlowERC1155Config memory config;
-        config.uri = "";
-        config.evaluableConfig = canTransfer;
-        config.flowConfig = new EvaluableConfig[](3);
-        config.flowConfig[0] = snapshot;
-        config.flowConfig[1] = mint;
-        config.flowConfig[2] = claim;
-
-        vm.broadcast();
-        vm.recordLogs();
-
-        address _instance = factory.clone(implementation, abi.encode(config));
-
-        Vm.Log[] memory entries = vm.getRecordedLogs();
-        (, address _interpreter, address _store, address _snapshotExp) = abi.decode(entries[5].data, (address, address, address, address));
-        (, , , address _mintExp) = abi.decode(entries[8].data, (address, address, address, address));
-        (, , , address _claimExp) = abi.decode(entries[11].data, (address, address, address, address));
-
-        instance = IFlowERC1155V3(_instance);
-        instanceAs1155 = IERC1155(_instance);
-        interpreter = IInterpreterV1(_interpreter);
-        store = IInterpreterStoreV1(_store);
         
-        snapshotEvaluable = Evaluable({interpreter: interpreter, store: store, expression: _snapshotExp});
-        mintEvaluable = Evaluable({interpreter: interpreter, store: store, expression: _mintExp});
-        claimEvaluable = Evaluable({interpreter: interpreter, store: store, expression: _claimExp});
+        snapshotEvaluable = Evaluable({interpreter: interpreter, store: store, expression: 0xCe6B3507e111D58117C20c8679840adD81752275});
+        mintEvaluable = Evaluable({interpreter: interpreter, store: store, expression: 0x2aCd33a558e6E3734717742CC722E5cE5870AbA8});
+        claimEvaluable = Evaluable({interpreter: interpreter, store: store, expression: 0x58218c5F81f1adEe69628De8657356348E1126A9});
     }
 
-    function testSimple() public {
+    function testFork() public {
         // make a snapshot for some id
         uint256 contentHash = 1;
         uint256[] memory context = new uint256[](1);
@@ -118,7 +64,7 @@ contract NftTest is Test, SignContext {
 
         // alice mints a snapshot
         vm.startPrank(alice);
-        vm.warp(1696355000);
+        vm.warp(1696356779);
 
         instance.flow(snapshotEvaluable, context, new SignedContextV1[](0));
 

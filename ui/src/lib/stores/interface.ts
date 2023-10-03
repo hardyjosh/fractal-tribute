@@ -67,6 +67,7 @@ export class DnaInterface {
 
     async init() {
         this.dnaProperties = await this.getDnaInfo()
+        console.log(this.dnaProperties)
     }
 
     async getDnaInfo(): Promise<TransformedDnaProperties> {
