@@ -1,6 +1,6 @@
 <script lang="ts">
   import { happ } from "$lib/stores";
-  import { setContext } from "svelte";
+  import { onMount, setContext } from "svelte";
   import { createCountdownStore, formatCountdown } from "$lib/stores/countdown";
   import logo from "$lib/assets/logo.svg";
   import { Button, Modal } from "flowbite-svelte";
@@ -12,6 +12,8 @@
   import Home from "$routes/hosted/Home.svelte";
   import Snapshots from "$routes/hosted/Snapshots.svelte";
   import Contributors from "$routes/hosted/Contributors.svelte";
+  import Participation from "$lib/components/Participation.svelte";
+  import type { ParticipationProof } from "$lib/types";
 
   const countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
   const snapshotEndCountdown = createCountdownStore(
@@ -46,6 +48,13 @@
     const newRoute = routes.find((r) => r.name === name);
     if (newRoute) currentRoute.set(newRoute);
   };
+
+  const participations = writable<ParticipationProof>();
+  setContext("participations", participations);
+
+  onMount(async () => {
+    $participations = await $happ.buildAgentParticipation();
+  });
 </script>
 
 <div class="flex gap-x-2 mb-4 items-center justify-between">

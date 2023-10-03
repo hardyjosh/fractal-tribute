@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Spinner } from "flowbite-svelte";
   import { isHolo } from "./lib/stores/isHolo.ts";
   import "./app.postcss";
   import Routes from "$routes/Routes.svelte";
@@ -42,6 +43,10 @@
     {:else}
       <Routes />
     {/if}
+  {:else if $isHolo}
+    <div class="w-screen h-screen flex items-center justify-center">
+      <Spinner />
+    </div>
   {/if}
 </div>
 

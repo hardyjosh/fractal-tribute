@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { happ } from "$lib/stores";
   import AllMyMovesAlt from "$lib/components/AllMyMovesAlt.svelte";
   import AllNfts from "$lib/components/AllNfts.svelte";
   import BuildParticipation from "$lib/components/Participation.svelte";

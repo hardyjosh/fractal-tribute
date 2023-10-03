@@ -76,7 +76,7 @@ contract Deploy is Script {
         canTransfer.deployer = IExpressionDeployerV1(deployer);
 
         FlowERC1155Config memory config;
-        config.uri = "http://hi.com";
+        config.uri = "https://gateway-hrl.holo.host/uhCkkM7ixonFmCwGm3tYnG7N0xo6M_rfRgNbujEDtTUpnW097zIBZ/{id}";
         config.evaluableConfig = canTransfer;
         config.flowConfig = new EvaluableConfig[](3);
         config.flowConfig[0] = snapshot;

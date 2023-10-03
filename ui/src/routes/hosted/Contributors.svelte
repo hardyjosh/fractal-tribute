@@ -2,15 +2,14 @@
   import AllocationLeaderboard from "$lib/components/AllocationLeaderboard.svelte";
   import { happ } from "$lib/stores";
   import type { ParticipationProof } from "$lib/types";
-  import { onMount } from "svelte";
+  import { getContext, onMount } from "svelte";
+  import type { Writable } from "svelte/store";
 
-  let participations: ParticipationProof;
-
-  onMount(async () => {
-    participations = await $happ.buildAgentParticipation();
-  });
+  const participations = getContext(
+    "participations"
+  ) as Writable<ParticipationProof>;
 </script>
 
 {#if participations}
-  <AllocationLeaderboard {participations} />
+  <AllocationLeaderboard participations={$participations} />
 {/if}
