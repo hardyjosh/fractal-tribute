@@ -28,13 +28,15 @@ export const initHapp = async () => {
         });
         const waitForAgentState = () => new Promise(resolve => {
             (client as WebSdk).on("agent-state", (agent_state) => {
-                if (agent_state.isAvailable && !agent_state.isAnonymous) {
+                console.log('agent state boo', agent_state)
+                if (agent_state?.isAvailable) {
+                    console.log('should resolve')
                     resolve(null);
                 }
             });
         });
 
-        (client as WebSdk).signUp({ cancellable: false });
+        // (client as WebSdk).signUp({ cancellable: false });
 
         await waitForAgentState();
     } else {

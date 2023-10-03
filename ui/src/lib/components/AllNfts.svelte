@@ -40,8 +40,6 @@
     mintMoveModal = true;
     tokenId = hexToBigInt(id);
   };
-
-  $: console.log($snapshotEndCountdown.timeRemaining == 0);
 </script>
 
 {#if boardsWithSupply}

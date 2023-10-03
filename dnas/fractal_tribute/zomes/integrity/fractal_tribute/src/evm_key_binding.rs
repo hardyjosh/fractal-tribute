@@ -31,7 +31,7 @@ pub fn validate_create_evm_key_binding(
         )
     }
 
-    if *_action.action_seq() != 4u32 {
+    if *_action.action_seq() != 5u32 {
         return Ok(
             ValidateCallbackResult::Invalid(
                 String::from("EVM pubkey binding must be the first action after genesis"),

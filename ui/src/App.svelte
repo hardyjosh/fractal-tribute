@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { isHolo } from "./lib/stores/isHolo.ts";
   import "./app.postcss";
   import Routes from "$routes/Routes.svelte";
   import { onMount, tick } from "svelte";
@@ -9,10 +10,14 @@
   import defs from "../../dnas/fractal_tribute/zomes/integrity/fractal_tribute/src/defs.svg?raw";
   import { encodeHashToBase64 } from "@holochain/client";
   import AdminModal from "$lib/components/AdminModal.svelte";
+  import HostedRoutes from "$routes/HostedRoutes.svelte";
 
   let ready = false;
 
   onMount(async () => {
+    $isHolo = ["true", "1", "t"].includes(
+      import.meta.env.VITE_APP_IS_HOLO?.toLowerCase()
+    );
     await initHapp();
     await initWeb3Modal($happ.dnaProperties.chainId);
     await tick();
@@ -32,7 +37,11 @@
 
 <div class="min-w-screen min-h-screen p-4 container mx-auto">
   {#if $happ && ready}
-    <Routes />
+    {#if $isHolo}
+      <HostedRoutes />
+    {:else}
+      <Routes />
+    {/if}
   {/if}
 </div>
 

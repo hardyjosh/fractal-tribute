@@ -12,7 +12,7 @@ pub fn validate_create_profile(
     _profile: Profile,
 ) -> ExternResult<ValidateCallbackResult> {
 
-    if *_action.action_seq() < 5u32 {
+    if *_action.action_seq() < 6u32 {
         return Ok(
             ValidateCallbackResult::Invalid(
                 String::from("EVM pubkey binding must be the first action after genesis"),

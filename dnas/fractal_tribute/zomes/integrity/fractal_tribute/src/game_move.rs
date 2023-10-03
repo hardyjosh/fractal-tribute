@@ -92,7 +92,7 @@ pub fn validate_create_game_move(
     _game_move: GameMove,
 ) -> ExternResult<ValidateCallbackResult> {
 
-    if *_action.action_seq() < 5u32 {
+    if *_action.action_seq() < 6u32 {
         return Ok(
             ValidateCallbackResult::Invalid(
                 String::from("EVM pubkey binding must be the first action after genesis"),

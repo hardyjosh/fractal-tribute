@@ -50,7 +50,7 @@ pub fn get_evm_address(_:()) -> ExternResult<Option<Vec<u8>>> {
 pub fn _get_evm_address() -> Result<Option<Vec<u8>>, EvmAddressError> {
     let query_filter = ChainQueryFilter::new().include_entries(true);
     let records = query(query_filter).map_err(|_| EvmAddressError::QueryError)?;
-    let record = match records.get(4).cloned() {
+    let record = match records.get(5).cloned() {
         Some(record) => record,
         None => return Ok(None),
     };
