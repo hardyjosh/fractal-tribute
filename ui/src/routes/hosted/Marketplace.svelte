@@ -13,22 +13,22 @@
     countdownContext
   ) as CountdownContextType;
 
-  let board: BoardWithMetadata;
+  // let board: BoardWithMetadata;
 
-  const getBoard = async () => {
-    board = await $happ.getLatestBoard();
-  };
+  // const getBoard = async () => {
+  //   board = await $happ.getLatestBoard();
+  // };
 
-  let pollingInterval;
+  // let pollingInterval;
 
-  onMount(async () => {
-    pollingInterval = setInterval(getBoard, 10000);
-    getBoard();
-  });
+  // onMount(async () => {
+  //   pollingInterval = setInterval(getBoard, 10000);
+  //   getBoard();
+  // });
 
-  onDestroy(() => {
-    clearInterval(pollingInterval);
-  });
+  // onDestroy(() => {
+  //   clearInterval(pollingInterval);
+  // });
 </script>
 
 <div class="flex flex-row gap-x-8 pt-8 items-center">
