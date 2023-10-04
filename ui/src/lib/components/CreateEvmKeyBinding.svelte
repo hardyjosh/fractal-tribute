@@ -112,6 +112,10 @@
       >To continue, please connect a wallet of your choice. Click the button
       below and scan the the QR code with your wallet app</span
     >
+    <span
+      >Your wallet will need to be connected to Polygon to create and collect
+      snapshots.</span
+    >
     <Button
       class="bg-fractalorange border-2 border-black"
       on:click={() => {

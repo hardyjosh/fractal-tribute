@@ -12,9 +12,9 @@
 #game-master-address 0x74423442CEA6B5c90d13C2d7C21B0FcE723ECe6d
 #payment-token 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270
 #snapshot-price 0
-#mint-price 1e15
-#snapshot-end-time 1696406400
-#additional-mint-period 1800 /* time in seconds for how long minting should be active after the snapshot time ends */
+#mint-price 2e16 /* 0.02 */
+#snapshot-end-time 1696608000
+#additional-mint-period 86400 /* time in seconds for how long minting should be active after the snapshot time ends */
 
 #pool-amount 0x7dcc3e0b65d87abfb19508b671b26139dbe32871289b025ab4df45ad2f5481dd /* keccack256('pool-amount') */ 
 #total-claimed-key 0xc6b7deb4e2f8b011c443c5ec0687465fc0468b096ad0fc5cb8e2f1a302a1a73b /* keccack256('total-claimed') */

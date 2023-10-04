@@ -26,6 +26,11 @@
       open = true;
     }
   });
+
+  const openModal = async () => {
+    evm_address = await $happ.getEvmAddress();
+    open = true;
+  };
 </script>
 
 <div class="flex gap-x-2 mb-4 items-center justify-between">
@@ -50,9 +55,7 @@
       {/if}
     </div>
     <Button
-      on:click={() => {
-        open = true;
-      }}
+      on:click={openModal}
       size="lg"
       color="none"
       class="border-2 border-black"

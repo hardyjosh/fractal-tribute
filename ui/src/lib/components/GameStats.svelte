@@ -47,7 +47,7 @@
     />
     <ParticipationStat
       {ready}
-      name="Number of players"
+      name="Number of creators"
       value={$participations?.agent_participations.length.toString()}
     />
     <ParticipationStat
@@ -55,12 +55,20 @@
       name="Total pixels changed"
       value={$participations?.total_pixels_changed.toString()}
     />
-    <ParticipationStat
-      {ready}
-      name="Time remaining"
-      value={$countdown.timeRemaining
-        ? formatCountdown($countdown)
-        : "Game ended"}
-    />
+    {#if $countdown.timeRemaining}
+      <ParticipationStat
+        {ready}
+        name="Game time remaining"
+        value={formatCountdown($countdown)}
+      />
+    {:else if $snapshotEndCountdown.timeRemaining}
+      <ParticipationStat
+        {ready}
+        name="Mint time remaining"
+        value={formatCountdown($snapshotEndCountdown)}
+      />
+    {:else}
+      <ParticipationStat {ready} name="Time remaining" value="Game ended" />
+    {/if}
   </div>
 </div>

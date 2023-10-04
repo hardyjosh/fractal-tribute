@@ -58,6 +58,7 @@
   {:else if !$account?.isConnected}
     <div class="flex flex-col gap-y-4">
       <span class="text-xl font-semibold">Connect your wallet to claim</span>
+      <p>Your wallet must be connected to the Polygon network to claim.</p>
       <Button
         class="bg-fractalorange border-2 border-black"
         on:click={$web3modal.openModal()}>Connect wallet</Button

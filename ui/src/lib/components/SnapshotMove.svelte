@@ -75,6 +75,9 @@
       The MATIC collected will be sent to the game pool to be redistributed to
       players at the end of the game
     </p>
+    <p>
+      Your wallet must be connected to the Polygon network to create a snapshot.
+    </p>
     <div class="flex gap-x-2">
       <Button
         class="border-2 border-black"

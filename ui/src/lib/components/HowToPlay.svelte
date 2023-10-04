@@ -42,7 +42,7 @@
         >A peer-to-peer fully distributed, collaborative artistic NFT game.</Heading
       >
       <p>
-        This game began at 10am UTC on Wednesday, October 4th and ends at 3pm
+        This game began at 12 noon UTC on Wednesday, October 4th and ends at 4pm
         UTC on Friday October 6th.
       </p>
       <p>
@@ -90,16 +90,12 @@
   {:else if howToPlayStep === 3}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">
       <img class="w-80" src={howtoplay4} alt="" />
+      <p>Sale of game NFTs will close 24 hours after the game ending.</p>
       <p>
-        Sale of game NFTs will close 24 hours after the game ending. Following
-        that, creators can return to the game to claim their fraction of NFT
-        minting fees, based on contributions and relative position on the
-        leaderboard.
-      </p>
-      <p>
-        If you haven’t installed the game, you can also find your claim at <A
+        Following that, creators can return to <A
           href="https://fractal-tribute.com">fractal-tribute.com</A
-        >.
+        > or the installed game to claim their fraction of the NFT minting fees based
+        on their contributions.
       </p>
     </div>
     {#if !hasEvmAddress}
