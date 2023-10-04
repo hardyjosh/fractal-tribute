@@ -53,7 +53,7 @@
 <div
   class="max-w-xl w-full rounded-2xl bg-white p-8 border border-gray-100 flex flex-col items-center justify-center mx-auto mt-20 shadow-md"
 >
-  {#if false && $snapshotEndCountdown?.timeRemaining}
+  {#if $snapshotEndCountdown?.timeRemaining}
     <span>Claims open in {formatCountdown($snapshotEndCountdown)}</span>
   {:else if !$account?.isConnected}
     <div class="flex flex-col gap-y-4">

@@ -65,12 +65,12 @@
 
     <Button
       size="lg"
-      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/tag/v0.0.18"
+      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/tag/v0.1.0"
       class="bg-fractalorange border-2 border-black">Download for Mac</Button
     >
     <Button
       size="lg"
-      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/tag/v0.0.18"
+      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/tag/v0.1.0"
       class="bg-fractalorange border-2 border-black"
       >Download for Windows</Button
     >
