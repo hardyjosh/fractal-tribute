@@ -23,7 +23,7 @@ export const signParticipations = async (participation: ParticipationProof, priv
         if (bytesToHex(p.message_bytes) !== hash) throw Error('message hash is incorrect');
         const wallet = get(walletClient);
         console.log(wallet)
-        const signature = await wallet.signMessage({ account: privateKeyToAccount(privateKey || import.meta.env.VITE_STEWARD_KEY), message: { raw: hash } });
+        const signature = await wallet.signMessage({ account: privateKeyToAccount(privateKey as Hex), message: { raw: hash } });
         return {
             ...p,
             signature_bytes: hexToBytes(signature)
