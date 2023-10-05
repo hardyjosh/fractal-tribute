@@ -11,7 +11,10 @@
   let allMyMoves: AllMyMovesAlt;
 </script>
 
-<div class="flex flex-col w-full gap-y-10">
+<div
+  class="flex flex-col w-full gap-y-10 will-change-auto"
+  style="transform: translateZ(0);"
+>
   <PlayableBoard
     on:moveSaved={allMyMoves.updateMyBoards}
     on:snapshotMinted={({ detail: hash }) => {

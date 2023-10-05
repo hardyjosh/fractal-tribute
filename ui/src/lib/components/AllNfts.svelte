@@ -12,12 +12,15 @@
   import Identicon from "$lib/components/Identicon.svelte";
   import { getContext } from "svelte";
   import { countdownContext, type CountdownContextType } from "$lib/contexts";
+  import IntersectionObserver from "svelte-intersection-observer";
+  import NftCard from "$lib/components/NftCard.svelte";
 
   const { countdown, snapshotEndCountdown } = getContext(
     countdownContext
   ) as CountdownContextType;
 
   export let wrap: boolean = false;
+  let wrappers: HTMLElement[] = [];
 
   let boards: BoardWithMetadataAndId[] = [];
   let boardsWithSupply: (BoardWithMetadataAndId & { supply: number })[];
@@ -47,7 +50,6 @@
 {#if boardsWithSupply}
   {#if boardsWithSupply?.length == 0}
     <div
-      in:fade|global={{ duration: 200 }}
       class="w-full rounded-lg border-2 border-black flex flex-col gap-2 items-center justify-center h-80"
     >
       <img src={no_snapshots} alt="no snapshots" />
@@ -59,49 +61,27 @@
     </div>
   {:else}
     <div
-      in:fade|global={{ duration: 200 }}
       class:flex-wrap={wrap}
-      class="flex overflow-scroll gap-4"
+      class="flex overflow-scroll gap-4 will-change-scroll"
     >
-      {#each boardsWithSupply as board, i}
-        <div
-          class="relative flex flex-col gap-y-2 flex-none snap-start basis-1/5-gap-4"
+      {#each boardsWithSupply as board (board.id)}
+        <IntersectionObserver
+          once
+          element={wrappers[board.id]}
+          let:intersecting
         >
-          <div class="aspect-square border-2 border-black rounded-lg">
-            {@html board.boardWithMetadata.svg}
-          </div>
           <div
-            class="rounded-lg border-black border-2 flex gap-x-2 p-4 justify-between items-center w-full"
+            bind:this={wrappers[board.id]}
+            class="relative flex flex-col gap-y-2 flex-none snap-start basis-1/5-gap-4"
           >
-            <div class="flex flex-col">
-              <div class="flex gap-x-2 items-center">
-                <Identicon agentHash={board.boardWithMetadata.creator} />
-                <div class="flex flex-col leading-none gap-y-1">
-                  <span class="text-gray-500 w-28 overflow-ellipsis truncate">
-                    {#await $happ.getProfile(board.boardWithMetadata.creator) then profile}
-                      {profile.name}
-                    {:catch error}
-                      {formatAddress(
-                        encodeHashToBase64(board.boardWithMetadata.creator)
-                      )}
-                    {/await}
-                  </span>
-                  <span>{board.supply} minted</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-col gap-y-1">
-              <Button
-                on:click={() => {
-                  mintMove(board.id);
-                }}
-                disabled={$snapshotEndCountdown?.timeRemaining == 0}
-                class="!bg-primary-500 border-black border-2"
-                size="sm">Mint</Button
-              >
-            </div>
+          {#if intersecting}
+            <NftCard
+              {board}
+              mintDisabled={$snapshotEndCountdown?.timeRemaining == 0}
+            />
+            {/if}
           </div>
-        </div>
+        </IntersectionObserver>
       {/each}
     </div>
   {/if}
