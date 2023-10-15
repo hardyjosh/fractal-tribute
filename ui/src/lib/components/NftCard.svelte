@@ -19,7 +19,8 @@
   };
 </script>
 
-<div class="aspect-square border-2 border-black rounded-lg">
+<div class="aspect-square border-2 border-black rounded-lg relaive">
+  <!-- <img src={board.boardWithMeåtadata.pngSmall} alt="board" /> -->
   {@html board.boardWithMetadata.svg}
 </div>
 <div

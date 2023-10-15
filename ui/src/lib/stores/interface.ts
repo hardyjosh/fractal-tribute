@@ -373,4 +373,18 @@ export class DnaInterface {
             console.log(e?.data?.data || e)
         }
     }
+
+    async svgToPng(svg: string, scale: number): Promise<string> {
+        try {
+            return await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'svg_to_png',
+                payload: { svg, scale },
+            }) as string
+        } catch (e) {
+            console.log(e?.data?.data || e)
+        }
+    }
 }

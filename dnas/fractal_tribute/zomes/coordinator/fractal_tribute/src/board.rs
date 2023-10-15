@@ -10,22 +10,28 @@ use tiny_skia::*;
 use base64::{Engine as _, engine::general_purpose};
 use ethers_core::types::U256;
 
-// currently unused
-pub fn svg_to_png(svg_data: String) -> ExternResult<String> {
+#[hdk_entry_helper]
+pub struct SvgToPngArgs {
+    pub svg_data: String,
+    pub scale: f32,
+}
+
+#[hdk_extern]
+pub fn svg_to_png(args: SvgToPngArgs) -> ExternResult<String> {
     // Parse the SVG string
     let opts = resvg::usvg::Options::default();
-    let utree = usvg::Tree::from_str(&svg_data, &opts)
-        .map_err(|e| wasm_error!(format!("Could not parse SVG: {:?} {}", e, svg_data)))?;
+    let utree = usvg::Tree::from_str(&args.svg_data, &opts)
+        .map_err(|e| wasm_error!(format!("Could not parse SVG: {:?} {}", e, args.svg_data)))?;
     
     let rtree = resvg::Tree::from_usvg(&utree);
     wasm_error!("{:?}", utree.to_string(&XmlOptions::default()));
 
     // Create a pixmap for rendering
-    let mut binding = Pixmap::new(rtree.size.width() as u32, rtree.size.height() as u32)
+    let mut binding = Pixmap::new((rtree.size.width() * args.scale) as u32, (rtree.size.height() * args.scale) as u32)
         .ok_or_else(|| wasm_error!("Could not create Pixmap"))?;
     let mut pixmap = binding.as_mut();
     
-    rtree.render(Transform::from_scale(1.0, 1.0), &mut pixmap);
+    rtree.render(Transform::from_scale(args.scale, args.scale), &mut pixmap);
 
     let pixmap = pixmap.to_owned();
 
@@ -44,12 +50,13 @@ pub fn get_latest_board(_: ()) -> ExternResult<BoardWithMetadata> {
     let board = Board::reconstruct_from_game_moves(&game_moves);
     let bytes = board.to_bytes();
     let svg = board.generate_svg();
-
+    let complete_svg = board.generate_svg_with_defs();
     let creator = HoloHash::from_raw_36([0; 36].to_vec());
     let creation_hash = HoloHash::from_raw_36([0; 36].to_vec());
 
     Ok(
         BoardWithMetadata {
+            complete_svg,
             svg,
             bytes,
             creator,
@@ -63,10 +70,12 @@ pub fn get_board_at_move(move_action_hash: ActionHash) -> ExternResult<BoardWith
     let board = _get_board_at_move(move_action_hash.clone())?;
     let bytes = board.to_bytes();
     let svg = board.generate_svg();
+    let complete_svg = board.generate_svg_with_defs();
     let creator = must_get_valid_record(move_action_hash.clone())?.action().author().clone();
 
     Ok(
         BoardWithMetadata {
+            complete_svg,
             svg,
             bytes,
             creator,

@@ -7,14 +7,12 @@
   import { nfts } from "$lib/stores/nfts";
   import { waitForTransaction } from "@wagmi/core";
   import { Heading } from "flowbite-svelte";
+  import RandomGameMoves from "$lib/components/RandomGameMoves.svelte";
 
   let allMyMoves: AllMyMovesAlt;
 </script>
 
-<div
-  class="flex flex-col w-full gap-y-10 will-change-auto"
-  style="transform: translateZ(0);"
->
+<div class="flex flex-col w-full gap-y-10 will-change-auto">
   <PlayableBoard
     on:moveSaved={allMyMoves.updateMyBoards}
     on:snapshotMinted={({ detail: hash }) => {
@@ -31,6 +29,5 @@
 
   <AllNfts />
   <AllMyMovesAlt bind:this={allMyMoves} />
-
-  <!-- <BuildParticipation /> -->
+  <!-- <RandomGameMoves /> -->
 </div>

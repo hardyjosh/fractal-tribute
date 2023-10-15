@@ -52,6 +52,8 @@
   const handleLeave = (e) => {
     hoveredTile = null;
   };
+
+  $: console.log(board);
 </script>
 
 <div
@@ -74,6 +76,7 @@
       style="transform: translateZ(0);"
     >
       {@html board.svg}
+      <!-- <img class="absolute inset-0" src={board.png} /> -->
     </div>
   {/if}
   <svg

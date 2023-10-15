@@ -31,6 +31,7 @@
   >
     {#if board}
       <!-- <img alt="game board" class="h-full" src={board.svg} /> -->
+      <!-- <img src={board.pngSmall} alt="board" /> -->
       {@html board.svg}
     {:else}
       <Spinner />

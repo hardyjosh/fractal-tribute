@@ -87,6 +87,6 @@
 
 <style lang="postcss">
   .modal-wrapper {
-    transform: translateZ(2px);
+    transform: translateZ(0);
   }
 </style>

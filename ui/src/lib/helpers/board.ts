@@ -69,15 +69,15 @@ export const actionHashAndAccountToTokenId = (actionHash: Uint8Array, account: H
 
 export const parseIncomingBoardWithMetadataAndId = (incomingBoardWithMetadataAndId: IncomingBoardWithMetadataAndId): BoardWithMetadataAndId => {
     const { board, id } = incomingBoardWithMetadataAndId;
-    const { bytes, creator, creation_hash, svg } = board;
+    const { bytes, creator, creation_hash, svg, complete_svg } = board;
     const parsedBoard = parseBoardBytes(bytes);
-    return { boardWithMetadata: { board: parsedBoard, creator, creationHash: creation_hash, svg }, id: bytesToHex(id) };
+    return { boardWithMetadata: { board: parsedBoard, creator, creationHash: creation_hash, svg, completeSvg: complete_svg }, id: bytesToHex(id) };
 }
 
 export const parseIncomingBoardWithMetadata = (incomingBoardWithMetadata: IncomingBoardWithMetadata): BoardWithMetadata => {
-    const { bytes, creator, creation_hash, svg, png } = incomingBoardWithMetadata;
+    const { bytes, creator, creation_hash, svg, complete_svg } = incomingBoardWithMetadata;
     const parsedBoard = parseBoardBytes(bytes);
-    return { board: parsedBoard, creator, creationHash: creation_hash, svg, png };
+    return { board: parsedBoard, creator, creationHash: creation_hash, svg, completeSvg: complete_svg };
 }
 
 export enum ShapeOptions {
