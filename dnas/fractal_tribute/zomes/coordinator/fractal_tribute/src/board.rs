@@ -38,6 +38,11 @@ pub fn svg_to_png(svg_data: String) -> ExternResult<String> {
 }
 
 #[hdk_extern]
+pub fn get_png_pattern_mask(option: u8) -> ExternResult<String> {
+    Ok(Board::generate_png_pattern_mask(option))
+}
+
+#[hdk_extern]
 pub fn get_latest_board(_: ()) -> ExternResult<BoardWithMetadata> {
     let game_moves = get_all_game_moves_from_link_tags(())?;
 

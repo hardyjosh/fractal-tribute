@@ -162,4 +162,29 @@ impl Board {
         format!("data:image/svg+xml;base64,{}", base64::encode(svg_string.clone()))
     }
 
+    pub fn generate_png_pattern_mask(option: u8) -> String {
+        let mut document = Document::new()
+        .set("viewBox", (0, 0, BOARD_SIZE * 100, BOARD_SIZE * 100));
+
+        let defs = Text::new(include_str!("defs.svg"));
+        document = document.add(defs);
+
+        let mut rect = Rectangle::new()
+            .set("x", 0)
+            .set("y", 0)
+            .set("width", BOARD_SIZE * 100)
+            .set("height", BOARD_SIZE * 100)
+            .set("fill", "white");
+
+        let mask_attr = format!("url(#m_{})", option as usize % GRAPHIC_OPTIONS + 1);
+
+        rect.assign("mask", mask_attr);
+
+        document = document.add(rect);
+
+        let document_string = document.to_string();
+
+        format!("data:image/svg+xml;base64,{}", base64::encode(document_string))
+    }
+
 }

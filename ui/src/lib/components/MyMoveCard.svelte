@@ -19,9 +19,11 @@
   export let key: Hex;
 
   let board: BoardWithMetadata;
+  let png: string;
 
   onMount(async () => {
     board = await $happ.getBoardAtMove(actionHash);
+    png = await $happ.svgToPng(board.completeSvg, 0.2);
   });
 </script>
 
@@ -29,9 +31,10 @@
   <div
     class="aspect-square w-full border-2 border-black rounded-md flex flex-col items-center justify-center relative"
   >
-    {#if board}
+    {#if png}
       <!-- <img alt="game board" class="h-full" src={board.svg} /> -->
-      {@html board.svg}
+      <img src={png} alt="board" />
+      <!-- {@html board.svg} -->
     {:else}
       <Spinner />
     {/if}
