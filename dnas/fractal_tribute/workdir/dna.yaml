@@ -4,9 +4,9 @@ name: fractal_tribute
 integrity:
   network_seed: ~
   properties:
-    nft_contract_address: 0x5BA7C2e7ce7031Fd10D9875AaBb3f117512d2996
+    nft_contract_address: 0x4d4FA15B283Ac5813D121eA6aBe137c5283Ca74D
     payment_token_address: 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270
-    game_end_time: 1698500800
+    game_end_time: 1697500800
     game_master_evm_key: 0x74423442CEA6B5c90d13C2d7C21B0FcE723ECe6d
     chain_id: 137
   origin_time: 1679514897361719

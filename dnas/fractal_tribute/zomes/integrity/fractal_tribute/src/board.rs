@@ -23,7 +23,7 @@ pub struct Tile {
 #[derive(Clone, PartialEq)]
 pub struct BoardWithMetadata {
     pub svg: String,
-    // pub png: String,
+    pub complete_svg: String,
     pub bytes: Vec<u8>,
     pub creator: AgentPubKey,
     pub creation_hash: ActionHash,
@@ -152,13 +152,16 @@ impl Board {
         let document = self.generate_svg_document();
         document.to_string()
     }
-    
-    pub fn generate_svg_data_uri(&self) -> String {
+
+    pub fn generate_svg_with_defs(&self) -> String {
         let mut document = self.generate_svg_document();
         let defs = Text::new(include_str!("defs.svg"));
         document = document.add(defs);
-        let svg_string = document.to_string();
-
+        document.to_string()
+    }
+    
+    pub fn generate_svg_data_uri(&self) -> String {
+        let svg_string = self.generate_svg_with_defs();
         format!("data:image/svg+xml;base64,{}", base64::encode(svg_string.clone()))
     }
 

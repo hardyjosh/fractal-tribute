@@ -26,9 +26,7 @@
   let boardsWithSupply: (BoardWithMetadataAndId & { supply: number })[];
 
   const prepareHappNfts = async () => {
-    console.log($nfts);
     boards = await $happ.getBoardsFromTokenIds($nfts.map((nft) => nft.id));
-    console.log(boards);
     boardsWithSupply = boards.map((board) => {
       const nft = $nfts.find((nft) => bytesToHex(nft.id) == board.id);
       return { ...board, supply: nft.supply };
@@ -74,11 +72,11 @@
             bind:this={wrappers[board.id]}
             class="relative flex flex-col gap-y-2 flex-none snap-start basis-1/5-gap-4"
           >
-          {#if intersecting}
-            <NftCard
-              {board}
-              mintDisabled={$snapshotEndCountdown?.timeRemaining == 0}
-            />
+            {#if intersecting}
+              <NftCard
+                {board}
+                mintDisabled={$snapshotEndCountdown?.timeRemaining == 0}
+              />
             {/if}
           </div>
         </IntersectionObserver>
