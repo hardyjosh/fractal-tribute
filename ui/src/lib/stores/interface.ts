@@ -401,4 +401,42 @@ export class DnaInterface {
             console.log(e?.data?.data || e)
         }
     }
+
+    private waitingForBoardToPng = false;
+
+    async boardToPng(board: Board, boardSize: number = 1): Promise<string> {
+
+        // try {
+        //     const rawBytes = await this.client.callZome({
+        //         cap_secret: null,
+        //         role_name,
+        //         zome_name,
+        //         fn_name: 'board_to_png',
+        //         payload: { board: { tiles: board }, board_size: "Large" },
+        //     }) as Uint8Array
+        //     // Convert bytes to Blob
+        //     const blob = new Blob([new Uint8Array(rawBytes)], { type: 'image/jpeg' });
+
+        //     // Create a URL for the Blob
+        //     const blobUrl = URL.createObjectURL(blob);
+        //     return blobUrl
+        // } catch (e) {
+        //     console.log(e?.data?.data || e)
+        // }
+        if (this.waitingForBoardToPng) return
+        this.waitingForBoardToPng = true;
+        try {
+            const img = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'board_to_png',
+                payload: { board: { tiles: board }, board_size: "Large" },
+            }) as string
+            this.waitingForBoardToPng = false;
+            return img
+        } catch (e) {
+            console.log(e?.data?.data || e)
+        }
+    }
 }

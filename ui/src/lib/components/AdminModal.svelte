@@ -27,6 +27,11 @@
     participations = await $happ.buildAgentParticipation();
   };
 
+  function clearLocalStorageAndReload() {
+    localStorage.clear();
+    location.reload();
+  }
+
   const handlePkeyInput = () => {
     error = "";
     if (!isHex(pKey)) {
@@ -134,4 +139,6 @@
   {#if submitted}
     <span class="text-green-500">Submitted!</span>
   {/if}
+  <div class="border-t border-gray-200 my-8" />
+  <Button on:click={clearLocalStorageAndReload}>Clear Local Storage</Button>
 </Modal>

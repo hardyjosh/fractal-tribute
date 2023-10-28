@@ -45,7 +45,11 @@ pub fn svg_to_png(args: SvgToPngArgs) -> ExternResult<String> {
 
 #[hdk_extern]
 pub fn get_png_pattern_mask(option: u8) -> ExternResult<String> {
-    Ok(Board::generate_png_pattern_mask(option))
+    let svg = Board::generate_pattern_mask(option);
+    svg_to_png(SvgToPngArgs {
+        svg_data: svg,
+        scale: 1.0,
+    })
 }
 
 #[hdk_extern]

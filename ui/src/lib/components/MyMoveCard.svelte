@@ -9,6 +9,7 @@
   import { Spinner } from "flowbite-svelte";
   import { nfts } from "$lib/stores/nfts";
   import { countdownContext, type CountdownContextType } from "$lib/contexts";
+  import CanvasBoard from "$lib/components/CanvasBoard.svelte";
 
   const dispatch = createEventDispatcher();
   const { countdown, snapshotEndCountdown } = getContext(
@@ -31,13 +32,16 @@
   <div
     class="aspect-square w-full border-2 border-black rounded-md flex flex-col items-center justify-center relative"
   >
-    {#if png}
-      <!-- <img alt="game board" class="h-full" src={board.svg} /> -->
+    {#if board?.board}
+      <CanvasBoard board={board.board} scale={0.2} />
+    {/if}
+    <!-- {#if png}
+      <img alt="game board" class="h-full" src={board.svg} />
       <img src={png} alt="board" />
-      <!-- {@html board.svg} -->
+      {@html board.svg}
     {:else}
       <Spinner />
-    {/if}
+    {/if} -->
   </div>
   {#if key && $nfts?.find((nft) => bytesToHex(nft.id) == bytesToHex(actionHashAndAccountToTokenId(actionHash, key)))}
     <Button

@@ -3,20 +3,25 @@ use svg::node::Text;
 use crate::*;
 use svg::node::element::{Rectangle, Circle, Polygon, Use, Definitions, Group};
 use svg::{Document, Node};
+use serde::{Deserialize, Deserializer};
 
 pub const BOARD_SIZE: usize = 40;
 pub const GRAPHIC_OPTIONS: usize = 17;
-// #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct Board {
-    tiles: [[Tile; BOARD_SIZE]; BOARD_SIZE],
+    pub tiles: [[Tile; BOARD_SIZE]; BOARD_SIZE],
+}
+
+#[hdk_entry_helper]
+pub struct BoardInput {
+    tiles: Vec<Vec<Tile>>,
 }
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq, Copy)]
 pub struct Tile {
-    color: Option<Color>,
-    graphic_option: Option<u8>,
+    pub color: Option<Color>,
+    pub graphic_option: Option<u8>,
 }
 
 #[hdk_entry_helper]
@@ -49,6 +54,31 @@ impl Board {
         Board {
             tiles: [[Tile { color: None, graphic_option: None }; BOARD_SIZE]; BOARD_SIZE],
         }
+    }
+
+    pub fn from_board_input(board_input: BoardInput) -> Result<Self, String> {
+        // Check that all rows have the correct length
+        if board_input.tiles.iter().any(|row| row.len() != BOARD_SIZE) {
+            return Err(format!("Invalid board: row length is not equal to {:?}", BOARD_SIZE));
+        }
+
+        // Check that all columns have the correct length
+        if board_input.tiles.len() != BOARD_SIZE || board_input.tiles.iter().any(|row| row.len() != BOARD_SIZE) {
+            return Err(format!("Invalid board: column length is not equal to {:?}", BOARD_SIZE));
+        }
+
+        let mut tiles = [[Tile { color: None, graphic_option: None }; BOARD_SIZE]; BOARD_SIZE];
+        for (i, row) in board_input.tiles.iter().enumerate() {
+            for (j, tile_input) in row.iter().enumerate() {
+                let tile = Tile {
+                    color: tile_input.color,
+                    graphic_option: tile_input.graphic_option,
+                };
+                tiles[i][j] = tile;
+            }
+        }
+
+        Ok(Board { tiles })
     }
 
     fn apply_game_move(&mut self, game_move_: &GameMove) {
@@ -165,7 +195,7 @@ impl Board {
         format!("data:image/svg+xml;base64,{}", base64::encode(svg_string.clone()))
     }
 
-    pub fn generate_png_pattern_mask(option: u8) -> String {
+    pub fn generate_pattern_mask(option: u8) -> String {
         let mut document = Document::new()
         .set("viewBox", (0, 0, BOARD_SIZE * 100, BOARD_SIZE * 100));
 
@@ -187,7 +217,7 @@ impl Board {
 
         let document_string = document.to_string();
 
-        format!("data:image/svg+xml;base64,{}", base64::encode(document_string))
+        return document_string
     }
 
 }

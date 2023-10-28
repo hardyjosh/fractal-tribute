@@ -1,10 +1,11 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
   import type { Board, Brush } from "$lib/types";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { BOARD_SIZE } from "$lib/helpers";
   import type { BoardWithMetadata, GameMove } from "$lib/types";
   import ShapeSvgAlt from "$lib/components/ShapeSvgAlt.svelte";
+  import CanvasBoard from "$lib/components/CanvasBoard.svelte";
   import { happ } from "$lib/stores";
 
   const dispatch = createEventDispatcher();
@@ -16,10 +17,15 @@
 
   export let move: GameMove;
 
-  let canvas: HTMLCanvasElement;
-  let base64patterns: string[];
   let overlay: HTMLDivElement;
   let rect: DOMRectReadOnly;
+
+  let png: string | null = null;
+  $: if (board) {
+    $happ.boardToPng(board.board, 1).then((p) => {
+      png = p;
+    });
+  }
 
   let hoveredTile: { x: number; y: number } | null = null;
 
@@ -55,78 +61,6 @@
   const handleLeave = (e) => {
     hoveredTile = null;
   };
-
-  onMount(async () => {
-    base64patterns = await Promise.all(
-      [...Array(32).keys()].map((i) => $happ.getPngPatternMask(i))
-    );
-  });
-
-  $: if (canvas && board && base64patterns) {
-    drawBoard(canvas, board.board, base64patterns);
-  }
-
-  // Constants
-  const TILE_SIZE = 10; // Size of each tile in pixels (can be adjusted)
-
-  function drawBoard(
-    canvas: HTMLCanvasElement,
-    board: Board,
-    base64Patterns: string[]
-  ) {
-    console.log("drawing board");
-    console.log(base64Patterns[0].slice(0, 100));
-    const ctx = canvas.getContext("2d");
-
-    // Convert base64 patterns to Image objects for drawing
-    const patternImages = base64Patterns.map((base64) => {
-      const img = new Image();
-      img.src = base64;
-      return img;
-    });
-
-    board.forEach((row, y) => {
-      row.forEach((tile, x) => {
-        if (!tile.changed) return; // Skip unchanged tiles
-
-        const color = `rgb(${tile.color.r}, ${tile.color.g}, ${tile.color.b})`;
-        const patternIndex =
-          tile.graphic_option <= 16
-            ? tile.graphic_option - 1
-            : tile.graphic_option - 17;
-        const isInverted = tile.graphic_option > 16;
-
-        if (isInverted) {
-          // Draw pattern first, then color
-          ctx.drawImage(
-            patternImages[patternIndex],
-            x * TILE_SIZE,
-            y * TILE_SIZE,
-            TILE_SIZE,
-            TILE_SIZE
-          );
-          ctx.globalCompositeOperation = "source-atop";
-          ctx.fillStyle = color;
-          ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        } else {
-          // Draw color first, then pattern atop
-          ctx.fillStyle = color;
-          ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-          ctx.globalCompositeOperation = "source-atop";
-          ctx.drawImage(
-            patternImages[patternIndex],
-            x * TILE_SIZE,
-            y * TILE_SIZE,
-            TILE_SIZE,
-            TILE_SIZE
-          );
-        }
-
-        // Reset composite operation for the next tile
-        ctx.globalCompositeOperation = "source-over";
-      });
-    });
-  }
 </script>
 
 <div
@@ -148,9 +82,11 @@
     class="absolute inset-0 will-change-auto"
     style="transform: translateZ(0);"
   >
-    <canvas bind:this={canvas} class="absolute inset-0 will-change-auto" />
+    <!-- {#if board?.board} -->
+    <!-- <CanvasBoard board={board.board} /> -->
+    <!-- {/if} -->
     <!-- {@html board.svg} -->
-    <!-- <img class="absolute inset-0" src={png} /> -->
+    <img class="absolute inset-0 w-full h-full" src={png} />
   </div>
   <!-- {/if} -->
   <svg
