@@ -1,7 +1,7 @@
 use hdi::prelude::*;
 use svg::node::Text;
 use crate::*;
-use svg::node::element::{Rectangle, Circle, Polygon, Use, Definitions, Group};
+use svg::node::element::{Rectangle, Group};
 use svg::{Document, Node};
 use serde::{Deserialize, Deserializer};
 
@@ -13,12 +13,13 @@ pub struct Board {
 }
 
 #[hdk_entry_helper]
+#[derive(Hash, Clone)]
 pub struct BoardInput {
     tiles: Vec<Vec<Tile>>,
 }
 
 #[hdk_entry_helper]
-#[derive(Clone, PartialEq, Copy)]
+#[derive(Clone, PartialEq, Copy, Hash)]
 pub struct Tile {
     pub color: Option<Color>,
     pub graphic_option: Option<u8>,

@@ -787,6 +787,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "cli_tools"
+version = "0.1.0"
+dependencies = [
+ "fractal_tribute",
+ "fractal_tribute_integrity",
+]
+
+[[package]]
 name = "cloudabi"
 version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"

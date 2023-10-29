@@ -374,7 +374,7 @@ export class DnaInterface {
         }
     }
 
-    async svgToPng(svg: string, scale: number): Promise<string> {
+    async svgToPng(svg: string, scale: number): Promise<Uint8Array> {
         try {
             return await this.client.callZome({
                 cap_secret: null,
@@ -382,7 +382,7 @@ export class DnaInterface {
                 zome_name,
                 fn_name: 'svg_to_png',
                 payload: { svg_data: svg, scale },
-            }) as string
+            }) as Uint8Array
         } catch (e) {
             console.log(e?.data?.data || e)
         }
@@ -402,38 +402,15 @@ export class DnaInterface {
         }
     }
 
-    private waitingForBoardToPng = false;
-
-    async boardToPng(board: Board, boardSize: number = 1): Promise<string> {
-
-        // try {
-        //     const rawBytes = await this.client.callZome({
-        //         cap_secret: null,
-        //         role_name,
-        //         zome_name,
-        //         fn_name: 'board_to_png',
-        //         payload: { board: { tiles: board }, board_size: "Large" },
-        //     }) as Uint8Array
-        //     // Convert bytes to Blob
-        //     const blob = new Blob([new Uint8Array(rawBytes)], { type: 'image/jpeg' });
-
-        //     // Create a URL for the Blob
-        //     const blobUrl = URL.createObjectURL(blob);
-        //     return blobUrl
-        // } catch (e) {
-        //     console.log(e?.data?.data || e)
-        // }
-        if (this.waitingForBoardToPng) return
-        this.waitingForBoardToPng = true;
+    async boardToPng(board: Board, boardSize: "Small" | "Large" = "Large"): Promise<string> {
         try {
             const img = await this.client.callZome({
                 cap_secret: null,
                 role_name,
                 zome_name,
                 fn_name: 'board_to_png',
-                payload: { board: { tiles: board }, board_size: "Large" },
+                payload: { board: { tiles: board }, board_size: boardSize },
             }) as string
-            this.waitingForBoardToPng = false;
             return img
         } catch (e) {
             console.log(e?.data?.data || e)

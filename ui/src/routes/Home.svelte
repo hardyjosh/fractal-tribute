@@ -13,7 +13,7 @@
 </script>
 
 <div class="flex flex-col w-full gap-y-10 will-change-auto">
-  <!-- <PlayableBoard
+  <PlayableBoard
     on:moveSaved={allMyMoves.updateMyBoards}
     on:snapshotMinted={({ detail: hash }) => {
       waitForTransaction({ hash, confirmations: 3 }).then(() => {
@@ -21,14 +21,13 @@
         nfts.fetch();
       });
     }}
-  /> -->
-  <PlayableBoard />
+  />
   <div class="flex flex-col gap-y-2">
     <Heading tag="h3">Latest snapshots</Heading>
     <p class="text-lg">Vote for your favourite snapshots by minting them</p>
   </div>
 
-  <!-- <AllNfts /> -->
+  <AllNfts />
   <AllMyMovesAlt bind:this={allMyMoves} />
   <RandomGameMoves />
 </div>

@@ -5,7 +5,6 @@
   import { BOARD_SIZE } from "$lib/helpers";
   import type { BoardWithMetadata, GameMove } from "$lib/types";
   import ShapeSvgAlt from "$lib/components/ShapeSvgAlt.svelte";
-  import CanvasBoard from "$lib/components/CanvasBoard.svelte";
   import { happ } from "$lib/stores";
 
   const dispatch = createEventDispatcher();
@@ -22,7 +21,7 @@
 
   let png: string | null = null;
   $: if (board) {
-    $happ.boardToPng(board.board, 1).then((p) => {
+    $happ.boardToPng(board.board, "Large").then((p) => {
       png = p;
     });
   }
@@ -76,19 +75,13 @@
     bind:this={overlay}
     class="absolute inset-0 z-50"
   />
-  <!-- {#if png} -->
   <div
     in:fade
     class="absolute inset-0 will-change-auto"
     style="transform: translateZ(0);"
   >
-    <!-- {#if board?.board} -->
-    <!-- <CanvasBoard board={board.board} /> -->
-    <!-- {/if} -->
-    <!-- {@html board.svg} -->
     <img class="absolute inset-0 w-full h-full" src={png} />
   </div>
-  <!-- {/if} -->
   <svg
     style="transform: translateZ(1);"
     class="absolute inset-0 will-change-auto"

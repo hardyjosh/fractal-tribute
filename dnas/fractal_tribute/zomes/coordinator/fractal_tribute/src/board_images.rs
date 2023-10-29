@@ -1,15 +1,61 @@
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
 use image::{ImageBuffer, Rgba};
-use image::bmp::BmpEncoder;
-use image::png::PngEncoder;
 use image::jpeg::JpegEncoder;
-use serde::de;
 use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::Once;
 use std::str::FromStr;
-use image::ImageEncoder;
+use std::collections::VecDeque;
+use std::hash::{Hash, Hasher};
+use std::collections::hash_map::DefaultHasher;
+use std::sync::Mutex;
+
+struct RenderCache {
+    map: HashMap<u64, String>,  // hash of BoardToPngInput to rendered PNG data URI
+    order: VecDeque<u64>,       // to keep track of order for LRU eviction
+    capacity: usize,
+}
+
+impl RenderCache {
+    fn new(capacity: usize) -> Self {
+        Self {
+            map: HashMap::new(),
+            order: VecDeque::with_capacity(capacity),
+            capacity,
+        }
+    }
+
+    fn get(&mut self, key: &BoardToPngInput) -> Option<String> {
+        let hash = self.hash_key(key);
+        if let Some(val) = self.map.get(&hash) {
+            // Move the accessed key to the end for LRU
+            self.order.retain(|&k| k != hash);
+            self.order.push_back(hash);
+            Some(val.clone())
+        } else {
+            None
+        }
+    }
+
+    fn insert(&mut self, key: BoardToPngInput, value: String) {
+        let hash = self.hash_key(&key);
+        if self.map.len() >= self.capacity {
+            if let Some(least_used) = self.order.pop_front() {
+                self.map.remove(&least_used);
+            }
+        }
+        self.order.push_back(hash);
+        self.map.insert(hash, value);
+    }
+
+    fn hash_key(&self, key: &BoardToPngInput) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        key.board.hash(&mut hasher);
+        key.board_size.hash(&mut hasher);
+        hasher.finish()
+    }
+}
 
 #[derive (Clone, Copy)]
 struct Position {
@@ -18,43 +64,43 @@ struct Position {
 }
 
 const SMALL_MASKS: [&'static [u8]; GRAPHIC_OPTIONS] = [
-    include_bytes!("./patterns/small/1.png"),
-    include_bytes!("./patterns/small/2.png"),
-    include_bytes!("./patterns/small/3.png"),
-    include_bytes!("./patterns/small/4.png"),
-    include_bytes!("./patterns/small/5.png"),
-    include_bytes!("./patterns/small/6.png"),
-    include_bytes!("./patterns/small/7.png"),
-    include_bytes!("./patterns/small/8.png"),
-    include_bytes!("./patterns/small/9.png"),
-    include_bytes!("./patterns/small/10.png"),
-    include_bytes!("./patterns/small/11.png"),
-    include_bytes!("./patterns/small/12.png"),
-    include_bytes!("./patterns/small/13.png"),
-    include_bytes!("./patterns/small/14.png"),
-    include_bytes!("./patterns/small/15.png"),
-    include_bytes!("./patterns/small/16.png"),
-    include_bytes!("./patterns/small/17.png"),
+    include_bytes!("../../../../../../pattern-masks/small/1.png"),
+    include_bytes!("../../../../../../pattern-masks/small/2.png"),
+    include_bytes!("../../../../../../pattern-masks/small/3.png"),
+    include_bytes!("../../../../../../pattern-masks/small/4.png"),
+    include_bytes!("../../../../../../pattern-masks/small/5.png"),
+    include_bytes!("../../../../../../pattern-masks/small/6.png"),
+    include_bytes!("../../../../../../pattern-masks/small/7.png"),
+    include_bytes!("../../../../../../pattern-masks/small/8.png"),
+    include_bytes!("../../../../../../pattern-masks/small/9.png"),
+    include_bytes!("../../../../../../pattern-masks/small/10.png"),
+    include_bytes!("../../../../../../pattern-masks/small/11.png"),
+    include_bytes!("../../../../../../pattern-masks/small/12.png"),
+    include_bytes!("../../../../../../pattern-masks/small/13.png"),
+    include_bytes!("../../../../../../pattern-masks/small/14.png"),
+    include_bytes!("../../../../../../pattern-masks/small/15.png"),
+    include_bytes!("../../../../../../pattern-masks/small/16.png"),
+    include_bytes!("../../../../../../pattern-masks/small/17.png"),
 ];
 
 const LARGE_MASKS: [&'static [u8]; GRAPHIC_OPTIONS] = [
-    include_bytes!("./patterns/large/1.png"),
-    include_bytes!("./patterns/large/2.png"),
-    include_bytes!("./patterns/large/3.png"),
-    include_bytes!("./patterns/large/4.png"),
-    include_bytes!("./patterns/large/5.png"),
-    include_bytes!("./patterns/large/6.png"),
-    include_bytes!("./patterns/large/7.png"),
-    include_bytes!("./patterns/large/8.png"),
-    include_bytes!("./patterns/large/9.png"),
-    include_bytes!("./patterns/large/10.png"),
-    include_bytes!("./patterns/large/11.png"),
-    include_bytes!("./patterns/large/12.png"),
-    include_bytes!("./patterns/large/13.png"),
-    include_bytes!("./patterns/large/14.png"),
-    include_bytes!("./patterns/large/15.png"),
-    include_bytes!("./patterns/large/16.png"),
-    include_bytes!("./patterns/large/17.png"),
+    include_bytes!("../../../../../../pattern-masks/large/1.png"),
+    include_bytes!("../../../../../../pattern-masks/large/2.png"),
+    include_bytes!("../../../../../../pattern-masks/large/3.png"),
+    include_bytes!("../../../../../../pattern-masks/large/4.png"),
+    include_bytes!("../../../../../../pattern-masks/large/5.png"),
+    include_bytes!("../../../../../../pattern-masks/large/6.png"),
+    include_bytes!("../../../../../../pattern-masks/large/7.png"),
+    include_bytes!("../../../../../../pattern-masks/large/8.png"),
+    include_bytes!("../../../../../../pattern-masks/large/9.png"),
+    include_bytes!("../../../../../../pattern-masks/large/10.png"),
+    include_bytes!("../../../../../../pattern-masks/large/11.png"),
+    include_bytes!("../../../../../../pattern-masks/large/12.png"),
+    include_bytes!("../../../../../../pattern-masks/large/13.png"),
+    include_bytes!("../../../../../../pattern-masks/large/14.png"),
+    include_bytes!("../../../../../../pattern-masks/large/15.png"),
+    include_bytes!("../../../../../../pattern-masks/large/16.png"),
+    include_bytes!("../../../../../../pattern-masks/large/17.png"),
 ];
 
 trait ImageBufferExt {
@@ -69,16 +115,27 @@ impl ImageBufferExt for ImageBuffer<Rgba<u8>, Vec<u8>> {
     }
 }
 
+static INIT_CACHE: Once = Once::new();
+static mut RENDER_CACHE: Option<Mutex<RenderCache>> = None;
+
+fn get_render_cache() -> &'static Mutex<RenderCache> {
+    unsafe {
+        INIT_CACHE.call_once(|| {
+            RENDER_CACHE = Some(Mutex::new(RenderCache::new(100))); // cache capacity of 100
+        });
+        RENDER_CACHE.as_ref().unwrap()
+    }
+}
+
 static INIT: Once = Once::new();
 static mut LARGE_MASK_IMAGES: Option<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = None;
 static mut SMALL_MASK_IMAGES: Option<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = None;
 
+
 fn initialize_masks() {
     INIT.call_once(|| {
-        debug!("initializing masks");
         let mut small_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in SMALL_MASKS.iter() {
-            debug!("loading small mask");
             small_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
         }
         unsafe {
@@ -87,21 +144,18 @@ fn initialize_masks() {
 
         let mut large_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in LARGE_MASKS.iter() {
-            debug!("loading large mask");
             large_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
         }
-        debug!("masks loaded");
         unsafe {
             LARGE_MASK_IMAGES = Some(large_images);
         }
-        debug!("masks initialized");
     });
 }
 
 #[hdk_entry_helper]
 #[derive(PartialEq)]
 pub enum BoardSize {
-    Small = 400,
+    Small = 600,
     Large = 2000,
 }
 
@@ -118,6 +172,7 @@ impl FromStr for BoardSize {
 }
 
 #[hdk_entry_helper]
+#[derive(Hash, Clone)]
 pub struct BoardToPngInput {
     board: BoardInput,
     board_size: String,
@@ -125,12 +180,25 @@ pub struct BoardToPngInput {
 
 #[hdk_extern]
 pub fn board_to_png(input: BoardToPngInput) -> ExternResult<String> {
+    let input_for_cache = input.clone();
+    
+    // First, get the cache
+    let mut cache = get_render_cache().lock().unwrap();
+
+    // Check if image is in cache
+    if let Some(data_uri) = cache.get(&input) {
+        return Ok(data_uri);
+    }
+
+    // Try to get the result from the cache first.
+    if let Some(cached_result) = cache.get(&input) {
+        return Ok(cached_result);
+    }
+
     let board_size = input.board_size.parse::<BoardSize>().map_err(|_| {
         wasm_error!("Invalid board size provided")
     })?;
-    debug!("board_to_png");
     let board = Board::from_board_input(input.board).map_err(|e| wasm_error!(e))?;
-    debug!("reading masks into buffers");
 
     // Ensure masks are initialized
     initialize_masks();
@@ -142,14 +210,10 @@ pub fn board_to_png(input: BoardToPngInput) -> ExternResult<String> {
         unsafe { LARGE_MASK_IMAGES.as_ref().unwrap() }
     };
     
-    // let mask_images = unsafe { MASK_IMAGES.as_ref().unwrap() };
-
     let tile_size = board_size as u32 / BOARD_SIZE as u32;
  
-    debug!("draw_board");
     let img_buffer = draw_board(board, &mask_images[..], tile_size as u32);
 
-    debug!("encode_bmp");
     let mut buffer = Cursor::new(Vec::new());
     let mut encoder = JpegEncoder::new(&mut buffer);
     encoder.encode(&img_buffer, img_buffer.width(), img_buffer.height(), image::ColorType::Rgba8).unwrap();
@@ -157,8 +221,10 @@ pub fn board_to_png(input: BoardToPngInput) -> ExternResult<String> {
     // base64 encode the buffer into a datauri for bmp
     let bytes = buffer.into_inner();
     let data_uri = format!("data:image/jpg;base64,{}", base64::encode(bytes));
-    // let bytes = buffer.into_inner();
-    debug!("complete");
+
+    // Insert the result into the cache before returning.
+    cache.insert(input_for_cache, data_uri.clone());
+
     Ok(data_uri)
 }
 
@@ -169,9 +235,6 @@ fn draw_board(board: Board, mask_images: &[ImageBuffer<Rgba<u8>, Vec<u8>>], tile
 
     for (x, row) in board.tiles.iter().enumerate() {
         for (y, tile) in row.iter().enumerate() {
-            debug!("drawing tile at {}, {}", x, y);
-            // debug out the tile innfo
-            debug!("tile: {:?}", tile);
             if let Some(color) = &tile.color {
                 if let Some(graphic_option) = tile.graphic_option {
                     match graphic_option {
@@ -225,31 +288,4 @@ fn draw_board(board: Board, mask_images: &[ImageBuffer<Rgba<u8>, Vec<u8>>], tile
         }
     }
     canvas
-}
-fn draw_tile(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, pos: Position, fill: Rgba<u8>, tile_size: u32) {
-    for i in 0..tile_size {
-        for j in 0..tile_size {
-            let x = pos.x * tile_size + i;
-            let y = pos.y * tile_size + j;
-            img.put_pixel(x, y, fill);
-        }
-    }
-}
-
-fn apply_mask(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, mask: &ImageBuffer<Rgba<u8>, Vec<u8>>) {
-    for (pixel, mask_pixel) in img.pixels_mut().zip(mask.pixels()) {
-        let alpha = pixel[3] as f32 * mask_pixel[3] as f32 / 255.0;
-        pixel[3] = alpha.round() as u8;
-    }
-}
-
-fn apply_overlay_mask(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, mask: &ImageBuffer<Rgba<u8>, Vec<u8>>) {
-    for (pixel, mask_pixel) in img.pixels_mut().zip(mask.pixels()) {
-        if pixel[3] != 0 {
-            pixel[0] = mask_pixel[0];
-            pixel[1] = mask_pixel[1];
-            pixel[2] = mask_pixel[2];
-            pixel[3] = mask_pixel[3];
-        }
-    }
 }
