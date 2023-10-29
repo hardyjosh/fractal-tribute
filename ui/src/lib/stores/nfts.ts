@@ -5,9 +5,15 @@ import addresses from "$lib/addresses.json";
 
 const POLLING_INTERVAL = 60000;
 
-export const fetchNftIds = async (): Promise<NFT[]> => {
+export const fetchNftIds = async (chainId): Promise<NFT[]> => {
+    let baseUrl: string;
+    if (chainId == 137)
+        baseUrl = "https://polygon-mainnet.g.alchemy.com"
+    else
+        baseUrl = "https://polygon-mumbai.g.alchemy.com"
+
     const alchemyKey = import.meta.env.VITE_ALCHEMY_KEY;
-    const url = `https://polygon-mumbai.g.alchemy.com/nft/v2/${alchemyKey}/getNFTsForCollection?contractAddress=${addresses.instance}&withMetadata=false&limit=1000`;
+    const url = `${baseUrl}/nft/v2/${alchemyKey}/getNFTsForCollection?contractAddress=${addresses.instance}&withMetadata=false&limit=1000`;
 
     let nfts: NFT[] = []
 
@@ -33,7 +39,7 @@ export const fetchNftIds = async (): Promise<NFT[]> => {
         console.log("There was an error fetching the data", error);
     }
 
-    const balanceUrl = `https://polygon-mainnet.g.alchemy.com/nft/v2/${alchemyKey}/getOwnersForCollection?contractAddress=${addresses.instance}&withTokenBalances=true`;
+    const balanceUrl = `${baseUrl}/nft/v2/${alchemyKey}/getOwnersForCollection?contractAddress=${addresses.instance}&withTokenBalances=true`;
 
     try {
         const response = await fetch(balanceUrl, {
@@ -66,13 +72,13 @@ export const fetchNftIds = async (): Promise<NFT[]> => {
 
 }
 
-const createNftStore = () => {
+const createNftStore = (chainId: number) => {
     const { subscribe, set } = writable<NFT[]>([]);
     let intervalId: NodeJS.Timeout;
     let subscriberCount = 0;
 
     const fetch = async () => {
-        const ids = await fetchNftIds();
+        const ids = await fetchNftIds(chainId);
         set(ids);
     };
 
@@ -107,4 +113,8 @@ const createNftStore = () => {
     };
 };
 
-export const nfts = createNftStore();
+export let nfts: ReturnType<typeof createNftStore> = null;
+
+export const initNftStore = async (chainId: number) => {
+    nfts = createNftStore(chainId);
+}

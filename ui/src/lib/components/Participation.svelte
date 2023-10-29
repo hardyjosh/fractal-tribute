@@ -74,7 +74,7 @@
         value={`${(
           myParticipation?.percentage_of_total_pixels_changed *
             Number(poolsizeFormatted) || 0
-        ).toPrecision(2)} MATIC`}
+        ).toPrecision(4)} MATIC`}
       />
       {#if !$snapshotEndCountdown?.timeRemaining && participations && myParticipation?.percentage_of_total_pixels_changed > 0}
         <Claim {participations} />

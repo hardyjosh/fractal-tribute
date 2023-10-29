@@ -128,29 +128,39 @@ fn get_render_cache() -> &'static Mutex<RenderCache> {
     }
 }
 
-static INIT: Once = Once::new();
+static INIT_LOCK: Mutex<()> = Mutex::new(());
 static mut LARGE_MASK_IMAGES: Option<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = None;
 static mut SMALL_MASK_IMAGES: Option<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = None;
 
-
 fn initialize_masks() {
-    INIT.call_once(|| {
+    // First check (outside the lock)
+    unsafe {
+        if LARGE_MASK_IMAGES.is_some() && SMALL_MASK_IMAGES.is_some() {
+            return;
+        }
+    }
+    
+    // Acquire the lock
+    let _guard = INIT_LOCK.lock().unwrap();
+    
+    // Second check (inside the lock)
+    unsafe {
+        if LARGE_MASK_IMAGES.is_some() && SMALL_MASK_IMAGES.is_some() {
+            return;
+        }
+        
         let mut small_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in SMALL_MASKS.iter() {
             small_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
         }
-        unsafe {
-            SMALL_MASK_IMAGES = Some(small_images);
-        }
+        SMALL_MASK_IMAGES = Some(small_images);
 
         let mut large_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in LARGE_MASKS.iter() {
             large_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
         }
-        unsafe {
-            LARGE_MASK_IMAGES = Some(large_images);
-        }
-    });
+        LARGE_MASK_IMAGES = Some(large_images);
+    }
 }
 
 #[hdk_entry_helper]
@@ -247,7 +257,7 @@ fn draw_board(board: Board, mask_images: &[ImageBuffer<Rgba<u8>, Vec<u8>>], tile
                                     let py = y as u32 * tile_size + j;
                                     let mask_pixel = mask.get_pixel(px, py);
                                     if mask_pixel[3] != 0 {  // non-alpha
-                                        let fill = Rgba([color.r, color.g, color.b, 255]);
+                                        let fill = Rgba([color.r, color.g, color.b, mask_pixel[3]]);
                                         canvas.put_pixel(px, py, fill);
                                     }
                                 }
@@ -262,11 +272,18 @@ fn draw_board(board: Board, mask_images: &[ImageBuffer<Rgba<u8>, Vec<u8>>], tile
 
                                     let mask_pixel = mask.get_pixel(px, py);
                                     if mask_pixel[3] != 0 {  // non-alpha
-                                        canvas.put_pixel(px, py, mask_pixel.clone());
+                                        let fill = Rgba([color.r, color.g, color.b, 255]);
+                                        
+                                        // Blend the mask pixel with the fill color
+                                        let blended_r = (mask_pixel[0] as f32 * mask_pixel[3] as f32 / 255.0 + fill[0] as f32 * (1.0 - mask_pixel[3] as f32 / 255.0)) as u8;
+                                        let blended_g = (mask_pixel[1] as f32 * mask_pixel[3] as f32 / 255.0 + fill[1] as f32 * (1.0 - mask_pixel[3] as f32 / 255.0)) as u8;
+                                        let blended_b = (mask_pixel[2] as f32 * mask_pixel[3] as f32 / 255.0 + fill[2] as f32 * (1.0 - mask_pixel[3] as f32 / 255.0)) as u8;
+                                        let blended_pixel = Rgba([blended_r, blended_g, blended_b, 255]);
+                                        
+                                        canvas.put_pixel(px, py, blended_pixel);
                                     } else {
                                         let fill = Rgba([color.r, color.g, color.b, 255]);
                                         canvas.put_pixel(px, py, fill);
-    
                                     }
                                 }
                             }

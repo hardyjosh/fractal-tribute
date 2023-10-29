@@ -13,6 +13,7 @@
   import AdminModal from "$lib/components/AdminModal.svelte";
   import HostedRoutes from "$routes/HostedRoutes.svelte";
   import logo from "$lib/assets/logo.svg";
+  import { initNftStore } from "$lib/stores/nfts";
 
   let ready = false;
 
@@ -23,6 +24,7 @@
     await initHapp();
     await initWeb3Modal($happ.dnaProperties.chainId);
     await tick();
+    await initNftStore(await $happ.dnaProperties.chainId);
     ready = true;
     const appInfo = await $happ.client.appInfo();
     const dnaHash = encodeHashToBase64(
