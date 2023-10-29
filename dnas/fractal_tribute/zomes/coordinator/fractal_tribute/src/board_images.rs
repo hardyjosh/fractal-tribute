@@ -2,6 +2,7 @@ use hdk::prelude::*;
 use fractal_tribute_integrity::*;
 use image::{ImageBuffer, Rgba};
 use image::jpeg::JpegEncoder;
+use image::png::PngEncoder;
 use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::Once;
@@ -215,12 +216,12 @@ pub fn board_to_png(input: BoardToPngInput) -> ExternResult<String> {
     let img_buffer = draw_board(board, &mask_images[..], tile_size as u32);
 
     let mut buffer = Cursor::new(Vec::new());
-    let mut encoder = JpegEncoder::new(&mut buffer);
+    let mut encoder = PngEncoder::new(&mut buffer);
     encoder.encode(&img_buffer, img_buffer.width(), img_buffer.height(), image::ColorType::Rgba8).unwrap();
     
     // base64 encode the buffer into a datauri for bmp
     let bytes = buffer.into_inner();
-    let data_uri = format!("data:image/jpg;base64,{}", base64::encode(bytes));
+    let data_uri = format!("data:image/png;base64,{}", base64::encode(bytes));
 
     // Insert the result into the cache before returning.
     cache.insert(input_for_cache, data_uri.clone());

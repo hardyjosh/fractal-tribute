@@ -7,7 +7,11 @@
   import eyeDropperImg from "$lib/assets/eyedropper.png";
   import eraserImg from "$lib/assets/eraser.png";
   import type { BrushTool, Color } from "$lib/types";
-  import { EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
+  import {
+    EyeOutline,
+    EyeSlashOutline,
+    ArrowsRepeatOutline,
+  } from "flowbite-svelte-icons";
 
   const colorsArr = [
     [0, 18, 25],
@@ -35,6 +39,9 @@
   export let brushTool: BrushTool = "none";
   export let hideGrid: boolean = false;
 
+  export let refreshBoard: () => void;
+  export let refreshingBoard: boolean;
+
   export const setColor = (_color) => {
     // if for some reason the new colour isn't in our list, just ignore this
     if (!colors.find((c) => colorsEqual(c, _color))) return;
@@ -42,6 +49,12 @@
     rgb = rgb;
     color = _color;
     pickedColor = _color;
+  };
+
+  export const setGraphicOption = (option) => {
+    console.log("setting graphic option");
+    graphic_option = option;
+    brushTool = "none";
   };
 
   let pickedColor: Color = color;
@@ -57,39 +70,55 @@
 <div
   class="flex flex-col justify-center items-stretch rounded-lg border-2 border-black bg-primary-25 grow p-4 gap-y-2"
 >
-  <div class="flex flex-row gap-x-2 w-full">
-    <button
-      on:click={() => {
-        brushTool = "eye-dropper";
-      }}
-      color="none"
-      class={twMerge(
-        "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
-        brushTool == "eye-dropper" && " border-black"
-      )}><img alt="eye dropper icon" class="w-8" src={eyeDropperImg} /></button
-    >
-    <button
-      on:click={() => {
-        brushTool = "eraser";
-      }}
-      color="none"
-      class={twMerge(
-        "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
-        brushTool == "eraser" && " border-black"
-      )}><img alt="eye dropper icon" class="w-8" src={eraserImg} /></button
-    >
-    <button
-      class="ml-auto flex gap-x-2 items-center p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content justify-self-end"
-      on:click={() => (hideGrid = !hideGrid)}
-    >
-      {#if !hideGrid}
-        <EyeSlashOutline class="w-8" />
-        Hide grid
-      {:else}
-        <EyeOutline class="w-8" />
-        Show grid
-      {/if}
-    </button>
+  <div class="flex flex-row gap-x-2 w-full justify-between">
+    <div class="flex gap-x-2">
+      <button
+        on:click={() => {
+          brushTool = "eye-dropper";
+        }}
+        color="none"
+        class={twMerge(
+          "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
+          brushTool == "eye-dropper" && " border-black"
+        )}
+        ><img alt="eye dropper icon" class="w-8" src={eyeDropperImg} /></button
+      >
+      <button
+        on:click={() => {
+          brushTool = "eraser";
+        }}
+        color="none"
+        class={twMerge(
+          "p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content",
+          brushTool == "eraser" && " border-black"
+        )}><img alt="eye dropper icon" class="w-8" src={eraserImg} /></button
+      >
+    </div>
+    <div class="flex gap-x-2">
+      <button
+        class="w-32 ml-auto flex gap-x-2 items-center p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content justify-self-end"
+        on:click={() => (hideGrid = !hideGrid)}
+      >
+        {#if !hideGrid}
+          <EyeSlashOutline class="w-8" />
+          Hide grid
+        {:else}
+          <EyeOutline class="w-8" />
+          Show grid
+        {/if}
+      </button>
+      <button
+        class="w-40 ml-auto flex gap-x-2 items-center p-2 rounded-md border-gray-400 border-2 hover:border-gray-800 cursor-pointer box-content justify-self-end"
+        on:click={refreshBoard}
+      >
+        <ArrowsRepeatOutline class="w-8" />
+        {#if refreshingBoard}
+          Refreshing...
+        {:else}
+          Refresh board
+        {/if}
+      </button>
+    </div>
   </div>
   <div class="bg-primary-50 font-semibold p-2 border border-black rounded-md">
     Colour

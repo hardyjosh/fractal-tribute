@@ -19,12 +19,7 @@
   let overlay: HTMLDivElement;
   let rect: DOMRectReadOnly;
 
-  let png: string | null = null;
-  $: if (board) {
-    $happ.boardToPng(board.board, "Large").then((p) => {
-      png = p;
-    });
-  }
+  export let png: string | null = null;
 
   let hoveredTile: { x: number; y: number } | null = null;
 
