@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { paymentTokenAddress } from "$lib/stores";
+  import { happ, paymentTokenAddress } from "$lib/stores";
   import { fetchToken } from "@wagmi/core";
   import { getAddress, bytesToHex, formatUnits } from "viem";
   import { account } from "svelte-wagmi-stores";
@@ -40,7 +40,10 @@
     );
     const totalSnapshots = $nfts.length;
     poolSize = (BigInt(totalCollected) - BigInt(totalSnapshots)) * price;
-    const token = await fetchToken({ address: $paymentTokenAddress });
+    const token = await fetchToken({
+      address: $paymentTokenAddress,
+      chainId: $happ.dnaProperties.chainId,
+    });
     poolsizeFormatted = formatUnits(poolSize, token.decimals);
     ready = true;
   };

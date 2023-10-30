@@ -6,22 +6,29 @@
   import type { BoardWithMetadataAndId } from "$lib/types";
   import { encodeHashToBase64 } from "@holochain/client";
   import { Button, Modal } from "flowbite-svelte";
+  import { onMount } from "svelte";
   import { hexToBigInt, type Hex } from "viem";
 
   export let board: BoardWithMetadataAndId & { supply: number };
   export let mintDisabled: boolean = false;
+
   let mintMoveModal = false;
   let tokenId: bigint;
+  let png: string;
 
   const mintMove = (id: Hex) => {
     mintMoveModal = true;
     tokenId = hexToBigInt(id);
   };
+
+  onMount(async () => {
+    png = await $happ.boardToPng(board.boardWithMetadata.board, "Small");
+  });
 </script>
 
 <div class="aspect-square border-2 border-black rounded-lg relaive">
-  <!-- <img src={board.boardWithMeåtadata.pngSmall} alt="board" /> -->
-  {@html board.boardWithMetadata.svg}
+  <img src={png} alt="board" />
+  <!-- {@html board.boardWithMetadata.svg} -->
 </div>
 <div
   class="rounded-lg border-black border-2 flex gap-x-2 p-4 justify-between items-center w-full"

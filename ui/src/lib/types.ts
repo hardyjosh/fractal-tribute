@@ -42,6 +42,14 @@ export type PixelChange = {
   graphic_option: number
 };
 
+export type Tile = {
+  color?: Color,
+  graphic_option?: number
+  changed?: boolean
+};
+
+export type Board = Tile[][];
+
 export type GameMove = {
   changes: PixelChange[]
 };
@@ -51,12 +59,6 @@ export type GameMoveWithActionHash = {
   actionHash: ActionHash
 }
 
-export type Tile = {
-  color?: Color,
-  graphic_option?: number
-  changed?: boolean
-};
-
 export type BrushTool = 'eye-dropper' | 'eraser' | 'none';
 
 export type Brush = {
@@ -64,8 +66,6 @@ export type Brush = {
   color: Color,
   graphic_option: number
 }
-
-export type Board = Tile[][];
 
 export type IncomingBoardWithMetadata = {
   complete_svg: string,

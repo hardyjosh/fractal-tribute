@@ -37,7 +37,11 @@
     const totalSnapshots = $nfts.length;
     poolSize = (BigInt(totalCollected) - BigInt(totalSnapshots)) * price;
 
-    token = await fetchToken({ address: $paymentTokenAddress });
+    token = await fetchToken({
+      address: $paymentTokenAddress,
+      chainId: $happ.dnaProperties.chainId,
+    });
+
     poolsizeFormatted = formatUnits(poolSize, token.decimals);
     ready = true;
   };
@@ -74,7 +78,7 @@
         value={`${(
           myParticipation?.percentage_of_total_pixels_changed *
             Number(poolsizeFormatted) || 0
-        ).toPrecision(2)} MATIC`}
+        ).toPrecision(4)} MATIC`}
       />
       {#if !$snapshotEndCountdown?.timeRemaining && participations && myParticipation?.percentage_of_total_pixels_changed > 0}
         <Claim {participations} />

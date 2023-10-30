@@ -66,24 +66,25 @@
   </div>
 </div>
 
-{#if !open}
-  <svelte:component this={$currentRoute.component} />
-{/if}
+<!-- {#if !open} -->
+<svelte:component this={$currentRoute.component} />
+<!-- {/if} -->
 
-<div
+<!-- <div
   class:visible={open}
   class:invisible={!open}
   class="will-change-auto modal-wrapper inset-0 fixed"
+> -->
+<Modal permanent={!evm_address} bind:open defaultClass="rounded-2xl">
+  <HowToPlay
+    hasEvmAddress={!!evm_address}
+    on:onboarding-complete={() => {
+      open = false;
+    }}
+  /></Modal
 >
-  <Modal permanent={!evm_address} bind:open defaultClass="rounded-2xl">
-    <HowToPlay
-      hasEvmAddress={!!evm_address}
-      on:onboarding-complete={() => {
-        open = false;
-      }}
-    /></Modal
-  >
-</div>
+
+<!-- </div> -->
 
 <style lang="postcss">
   .modal-wrapper {

@@ -1,10 +1,11 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
-  import type { Brush } from "$lib/types";
+  import type { Board, Brush } from "$lib/types";
   import { createEventDispatcher } from "svelte";
   import { BOARD_SIZE } from "$lib/helpers";
   import type { BoardWithMetadata, GameMove } from "$lib/types";
   import ShapeSvgAlt from "$lib/components/ShapeSvgAlt.svelte";
+  import { happ } from "$lib/stores";
 
   const dispatch = createEventDispatcher();
 
@@ -17,6 +18,8 @@
 
   let overlay: HTMLDivElement;
   let rect: DOMRectReadOnly;
+
+  export let png: string | null = null;
 
   let hoveredTile: { x: number; y: number } | null = null;
 
@@ -52,8 +55,6 @@
   const handleLeave = (e) => {
     hoveredTile = null;
   };
-
-  $: console.log(board);
 </script>
 
 <div
@@ -69,16 +70,13 @@
     bind:this={overlay}
     class="absolute inset-0 z-50"
   />
-  {#if board}
-    <div
-      in:fade
-      class="absolute inset-0 will-change-auto"
-      style="transform: translateZ(0);"
-    >
-      {@html board.svg}
-      <!-- <img class="absolute inset-0" src={board.png} /> -->
-    </div>
-  {/if}
+  <div
+    in:fade
+    class="absolute inset-0 will-change-auto"
+    style="transform: translateZ(0);"
+  >
+    <img class="absolute inset-0 w-full h-full" src={png} />
+  </div>
   <svg
     style="transform: translateZ(1);"
     class="absolute inset-0 will-change-auto"

@@ -18,7 +18,11 @@
   import { mergeGameMoveIntoBoard } from "$lib/helpers";
   import Palette from "$lib/components/Palette.svelte";
   import { Button, Modal, Spinner, Heading } from "flowbite-svelte";
-  import { UndoOutline, RedoOutline } from "flowbite-svelte-icons";
+  import {
+    UndoOutline,
+    RedoOutline,
+    ArrowsRepeatOutline,
+  } from "flowbite-svelte-icons";
   import { addToast } from "$lib/components/toasts";
   import type { ActionHash } from "@holochain/client";
   import SnapshotMove from "$lib/components/SnapshotMove.svelte";
@@ -48,6 +52,7 @@
 
   let board: BoardWithMetadata;
   let mergedBoard: Board;
+  let png: string;
 
   let wrapper: HTMLDivElement;
 
@@ -60,6 +65,7 @@
   let hideGrid: boolean;
 
   let saving;
+  let saved;
 
   $: brush = { color, graphic_option, brushTool };
   $: if (board) mergedBoard = mergeGameMoveIntoBoard(board.board, move);
@@ -77,8 +83,11 @@
     // if we're just picking a colour, update the palette and don't do anything else
     if (brushTool == "eye-dropper") {
       const color = mergedBoard[event.detail.x][event.detail.y]?.color;
+      const graphic_option =
+        mergedBoard[event.detail.x][event.detail.y]?.graphic_option;
       if (!color) return;
       palette.setColor(color);
+      palette.setGraphicOption(graphic_option);
       return;
     }
 
@@ -155,13 +164,14 @@
       saving = true;
       await getBoard();
       dispatch("moveSaved");
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 200));
       saving = false;
       if (promptSnapshot) snapshotMove = true;
       move = {
         changes: [],
       };
       undoneChanges = [];
+      saved = true;
     } catch (e) {
       addToast(
         "error",
@@ -172,6 +182,17 @@
 
   const getBoard = async () => {
     board = await $happ.getLatestBoard();
+    png = await $happ.boardToPng(board.board, "Large");
+  };
+
+  let refreshingBoard = false;
+
+  const refreshBoard = async () => {
+    if (refreshingBoard) return;
+    refreshingBoard = true;
+    const delay = new Promise((resolve) => setTimeout(resolve, 500));
+    await Promise.all([getBoard, delay]);
+    refreshingBoard = false;
   };
 
   let pollingInterval;
@@ -193,6 +214,7 @@
 <div class="gap-x-4 items-stretch grid grid-cols-5">
   <div bind:this={wrapper} class="col-span-3 relative">
     <BoardNew
+      {png}
       {allMovesMade}
       {board}
       {brush}
@@ -223,11 +245,20 @@
             on:click={redo}><UndoOutline class="mr-2 w-4" />Redo</Button
           >
           <Button
-            class="bg-fractalorange border-2 border-black grow"
+            class="bg-fractalorange border-2 border-black grow w-1/4"
             size="lg"
             disabled={!move.changes.length || saving}
-            on:click={() => saveMove(false)}>Save Move</Button
+            on:click={() => saveMove(false)}
           >
+            {#if saving}
+              <Spinner size="5" class="mr-2" />
+              Saving
+            {:else if saved && !move.changes.length}
+              Saved
+            {:else}
+              Save Move
+            {/if}
+          </Button>
           <Button
             class="bg-fractalorange border-2 border-black grow"
             size="lg"
@@ -241,6 +272,8 @@
           bind:brushTool
           bind:this={palette}
           bind:hideGrid
+          {refreshBoard}
+          {refreshingBoard}
         />
       {/if}
     </div>

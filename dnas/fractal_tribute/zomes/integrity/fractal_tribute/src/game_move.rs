@@ -9,7 +9,7 @@ pub struct GameMove {
 }
 
 #[hdk_entry_helper]
-#[derive(Clone, PartialEq, Copy)]
+#[derive(Clone, PartialEq, Copy, Hash)]
 pub struct Color {
     pub r: u8,
     pub g: u8,

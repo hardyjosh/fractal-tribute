@@ -29,5 +29,5 @@
 
   <AllNfts />
   <AllMyMovesAlt bind:this={allMyMoves} />
-  <!-- <RandomGameMoves /> -->
+  <RandomGameMoves />
 </div>

@@ -1,5 +1,5 @@
 import { Button } from "flowbite-svelte";
-import { configureChains } from "@wagmi/core";
+import { configureChains, mainnet } from "@wagmi/core";
 import { polygonMumbai, polygon } from "@wagmi/core/chains";
 import { createConfig, account } from "svelte-wagmi-stores";
 import { alchemyProvider } from '@wagmi/core/providers/alchemy'
@@ -24,7 +24,7 @@ export const initWeb3Modal = async (chainId: number) => {
                 : polygonMumbai;
 
     // all this boilerplate is from the web3modal docs
-    const chains = [chain];
+    const chains = [chain, mainnet];
     const projectId = import.meta.env.VITE_PROJECT_ID;
 
     const { publicClient } = configureChains(chains, [

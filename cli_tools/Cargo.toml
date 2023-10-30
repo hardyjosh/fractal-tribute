@@ -1,0 +1,9 @@
+[package]
+name = "cli_tools"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+fractal_tribute = { path = "../dnas/fractal_tribute/zomes/coordinator/fractal_tribute" }
+fractal_tribute_integrity = { path = "../dnas/fractal_tribute/zomes/integrity/fractal_tribute" }
+

@@ -16,8 +16,7 @@ pub struct SvgToPngArgs {
     pub scale: f32,
 }
 
-#[hdk_extern]
-pub fn svg_to_png(args: SvgToPngArgs) -> ExternResult<String> {
+pub fn svg_to_png(args: SvgToPngArgs) -> ExternResult<Pixmap> {
     // Parse the SVG string
     let opts = resvg::usvg::Options::default();
     let utree = usvg::Tree::from_str(&args.svg_data, &opts)
@@ -35,12 +34,22 @@ pub fn svg_to_png(args: SvgToPngArgs) -> ExternResult<String> {
 
     let pixmap = pixmap.to_owned();
 
+    Ok(pixmap)
+}
+
+#[hdk_extern]
+pub fn get_png_pattern_mask(option: u8) -> ExternResult<String> {
+    let svg = Board::generate_pattern_mask(option);
+    let pixmap = svg_to_png(SvgToPngArgs {
+        svg_data: svg,
+        scale: 1.0,
+    }).unwrap();
     // Encode the pixmap as a PNG image
     let png_bytes = pixmap.encode_png()
-        .map_err(|e| wasm_error!(format!("Could not encode PNG: {:?}", e)))?;
+    .map_err(|e| wasm_error!(format!("Could not encode PNG: {:?}", e)))?;
     let base64_encoded = general_purpose::URL_SAFE_NO_PAD.encode(png_bytes);
     let data_uri = format!("data:image/png;base64,{}", base64_encoded);
-    Ok(data_uri)
+    return Ok(data_uri);
 }
 
 #[hdk_extern]
