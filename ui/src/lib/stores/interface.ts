@@ -1,5 +1,5 @@
 import type { Board, BoardWithMetadataAndId, EvmKeyBinding, GameMove, GameMoveWithActionHash, IncomingBoardWithMetadataAndId, ParticipationProof, BoardWithMetadata, IncomingBoardWithMetadata, DnaProperties, TransformedDnaProperties, Profile, AgentParticipation } from '$lib/types';
-import type { AppAgentClient, Record, ActionHash } from '@holochain/client';
+import type { AppAgentClient, Record, ActionHash, AgentPubKey } from '@holochain/client';
 import { writable } from 'svelte/store';
 import { type Address, getAddress, bytesToHex, concat, hexToBytes } from 'viem'
 import { decode } from "@msgpack/msgpack";
@@ -8,6 +8,7 @@ import { transformDnaProperties } from '$lib/helpers/dna-properties';
 import type WebSdkApi from '@holo-host/web-sdk';
 import WebSdk from "@holo-host/web-sdk";
 import { AppAgentWebsocket } from "@holochain/client";
+import { setIsHotHolder } from '$lib/stores/hotHolder';
 
 
 export const happ = writable<DnaInterface>()
@@ -62,7 +63,6 @@ export class DnaInterface {
 
     myPubKey(): Uint8Array {
         return this.client.myPubKey;
-
     }
 
     async init() {
@@ -93,13 +93,15 @@ export class DnaInterface {
         _evmKeyBinding.evm_key = Array.from(evmKeyBindingEntry.evm_key)
         _evmKeyBinding.signature_bytes = Array.from(evmKeyBindingEntry.signature_bytes)
         try {
-            return await this.client.callZome({
+            const record = await this.client.callZome({
                 cap_secret: null,
                 role_name,
                 zome_name,
                 fn_name: 'create_evm_key_binding',
                 payload: _evmKeyBinding,
             }) as Record
+            setIsHotHolder(bytesToHex(evmKeyBindingEntry.evm_key));
+            return record;
         } catch (e) {
             console.log(e?.data?.data)
             console.log(e)
@@ -119,6 +121,33 @@ export class DnaInterface {
                 return null
             }
             return getAddress(bytesToHex(addressBytes))
+        } catch (e) {
+            console.log(e?.data?.data || e)
+            // console.log(e?.message.toString().includes('Record not found'))
+        }
+    }
+
+    private agentEvmKeys: Map<string, Address> = new Map();
+
+    async getAgentEvmAddress(agent: AgentPubKey): Promise<Address> {
+        // if we already have the address, return it
+        if (this.agentEvmKeys.has(agent.toString())) {
+            return this.agentEvmKeys.get(agent.toString());
+        }
+        try {
+            let addressBytes = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_agent_evm_address',
+                payload: agent,
+            })
+            if (!addressBytes) {
+                return null
+            }
+            const address = getAddress(bytesToHex(addressBytes))
+            this.agentEvmKeys.set(agent.toString(), address);
+            return address
         } catch (e) {
             console.log(e?.data?.data || e)
             // console.log(e?.message.toString().includes('Record not found'))

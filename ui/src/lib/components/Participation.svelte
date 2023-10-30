@@ -37,7 +37,11 @@
     const totalSnapshots = $nfts.length;
     poolSize = (BigInt(totalCollected) - BigInt(totalSnapshots)) * price;
 
-    token = await fetchToken({ address: $paymentTokenAddress });
+    token = await fetchToken({
+      address: $paymentTokenAddress,
+      chainId: $happ.dnaProperties.chainId,
+    });
+
     poolsizeFormatted = formatUnits(poolSize, token.decimals);
     ready = true;
   };

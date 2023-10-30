@@ -12,6 +12,8 @@
     EyeSlashOutline,
     ArrowsRepeatOutline,
   } from "flowbite-svelte-icons";
+  import { onMount } from "svelte";
+  import { isHotHolder } from "$lib/stores/hotHolder";
 
   // const colorsArr = [
   //   [0, 18, 25],
@@ -26,7 +28,7 @@
   //   [155, 34, 38],
   // ];
 
-  const colorsArr = [
+  const baseColors = [
     [84, 71, 140],
     [44, 105, 154],
     [4, 139, 168],
@@ -39,15 +41,30 @@
     [242, 158, 76],
   ];
 
-  const colors: Color[] = colorsArr.map((c) => ({
+  const bonusColors = [
+    [25, 166, 173],
+    [92, 77, 166],
+  ];
+
+  let colorsArr = baseColors;
+
+  let colors = colorsArr.map((c) => ({
     r: c[0],
     g: c[1],
     b: c[2],
-  }));
+  })) as Color[];
+
+  $: colorsArr = $isHotHolder ? baseColors.concat(bonusColors) : baseColors;
+  $: colors = colorsArr.map((c) => ({
+    r: c[0],
+    g: c[1],
+    b: c[2],
+  })) as Color[];
 
   export let color: Color = colors[0];
 
   let rgb;
+
   export let graphic_option: ShapeOptions = 0;
   export let brushTool: BrushTool = "none";
   export let hideGrid: boolean = false;

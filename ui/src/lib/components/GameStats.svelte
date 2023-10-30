@@ -2,7 +2,7 @@
   import type { Writable } from "svelte/store";
   import { Heading } from "flowbite-svelte";
   import { formatUnits } from "viem";
-  import { paymentTokenAddress } from "$lib/stores";
+  import { happ, paymentTokenAddress } from "$lib/stores";
   import { fetchToken } from "@wagmi/core";
   import { nfts } from "$lib/stores/nfts";
   import { price } from "$lib/constants";
@@ -28,7 +28,10 @@
     );
     const totalSnapshots = $nfts.length;
     const poolSize = (BigInt(totalCollected) - BigInt(totalSnapshots)) * price;
-    const token = await fetchToken({ address: $paymentTokenAddress });
+    const token = await fetchToken({
+      address: $paymentTokenAddress,
+      chainId: $happ.dnaProperties.chainId,
+    });
     poolsizeFormatted = formatUnits(poolSize, token.decimals);
     ready = true;
   };
