@@ -42,7 +42,9 @@
   });
 
   const initRenderMemory = async () => {
-    $happ.intializeMasks();
+    $happ.intializeMasks().then(() => {
+      renderInitProgress = 34;
+    });
     $happ.client.on("signal", (signal) => {
       if (
         typeof signal.payload == "string" &&
