@@ -1,7 +1,6 @@
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
 use image::{ImageBuffer, Rgba};
-use image::jpeg::JpegEncoder;
 use image::png::PngEncoder;
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -12,6 +11,7 @@ use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicU32, Ordering};
+use once_cell::sync::OnceCell;
 
 struct RenderCache {
     map: HashMap<u64, String>,  // hash of BoardToPngInput to rendered PNG data URI
@@ -129,53 +129,38 @@ fn get_render_cache() -> &'static Mutex<RenderCache> {
     }
 }
 
-static INIT_LOCK: Mutex<()> = Mutex::new(());
-
-static mut LARGE_MASK_IMAGES: Option<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = None;
-static mut SMALL_MASK_IMAGES: Option<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = None;
+static SMALL_MASK_IMAGES: OnceCell<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = OnceCell::new();
+static LARGE_MASK_IMAGES: OnceCell<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = OnceCell::new();
 
 #[hdk_extern]
 fn initialize_masks(_: ()) -> ExternResult<()> {
-    // First check (outside the lock)
-    unsafe {
-        if LARGE_MASK_IMAGES.is_some() && SMALL_MASK_IMAGES.is_some() {
-            emit_signal(format!("progress: {}", 34));
-            return Ok(());
-        }
-    }
-    
-    // Acquire the lock
-    let _guard = INIT_LOCK.lock().unwrap();
-    
-    // Second check (inside the lock)
-    unsafe {
-        let mut progress = 0;
-        if LARGE_MASK_IMAGES.is_some() && SMALL_MASK_IMAGES.is_some() {
-            return Ok(());
-        }
-        
+    // You can use get_or_init to safely initialize OnceCell
+    let mut progress = 0;
+    let _ = SMALL_MASK_IMAGES.get_or_init(|| {
         let mut small_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in SMALL_MASKS.iter() {
             small_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
             debug!("loaded small mask image");
             progress += 1;
             emit_signal(format!("progress: {}", progress));
-        }    
-        SMALL_MASK_IMAGES = Some(small_images);
+        }
+        small_images
+    });
 
+    let _ = LARGE_MASK_IMAGES.get_or_init(|| {
         let mut large_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in LARGE_MASKS.iter() {
-            debug!("loaded large mask image");
             large_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
+            debug!("loaded large mask image");
             progress += 1;
             emit_signal(format!("progress: {}", progress));
         }
-        LARGE_MASK_IMAGES = Some(large_images);
+        large_images
+    });
 
-        emit_signal(format!("progress: {}", 34));
-    }
     Ok(())
 }
+
 
 #[hdk_entry_helper]
 #[derive(PartialEq)]
@@ -230,9 +215,9 @@ pub fn board_to_png(input: BoardToPngInput) -> ExternResult<String> {
 
     // Use the preloaded images
     let mask_images = if board_size == BoardSize::Small {
-        unsafe { SMALL_MASK_IMAGES.as_ref().unwrap() }
+        SMALL_MASK_IMAGES.get().expect("Masks not initialized")
     } else {
-        unsafe { LARGE_MASK_IMAGES.as_ref().unwrap() }
+        LARGE_MASK_IMAGES.get().expect("Masks not initialized")
     };
     
     let tile_size = board_size as u32 / BOARD_SIZE as u32;

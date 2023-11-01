@@ -1940,6 +1940,7 @@ dependencies = [
  "fractal_tribute_integrity",
  "hdk",
  "image",
+ "once_cell",
  "resvg",
  "serde",
  "serde_json",

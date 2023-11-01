@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ready } from "$lib/stores/ready";
   import { Progressbar, Spinner } from "flowbite-svelte";
   import { isHolo } from "$lib/stores";
   import "./app.postcss";
@@ -15,7 +16,6 @@
   import { initNftStore } from "$lib/stores/nfts";
   import { setIsHotHolder } from "$lib/stores/hotHolder";
 
-  let ready = false;
   let feInitProgress = 0;
   let renderInitProgress = 0;
 
@@ -55,7 +55,8 @@
   };
 
   $: initProgress = feInitProgress + renderInitProgress;
-  $: if (initProgress == 38) ready = true;
+  $: if (initProgress == 38) $ready = true;
+  $: console.log(renderInitProgress);
 </script>
 
 <svg class="h-0 w-0" viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg">
@@ -63,7 +64,7 @@
 </svg>
 
 <div class="min-w-screen min-h-screen p-4 container mx-auto">
-  {#if $happ && ready && initProgress == 38}
+  {#if $happ && $ready}
     {#if $isHolo}
       <HostedRoutes />
     {:else}
