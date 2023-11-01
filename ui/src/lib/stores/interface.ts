@@ -445,4 +445,18 @@ export class DnaInterface {
             console.log(e?.data?.data || e)
         }
     }
+
+    async intializeMasks(): Promise<void> {
+        try {
+            await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'initialize_masks',
+                payload: null,
+            })
+        } catch (e) {
+            console.log(e?.data?.data || e)
+        }
+    }
 }

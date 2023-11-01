@@ -11,6 +11,7 @@ use std::collections::VecDeque;
 use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 struct RenderCache {
     map: HashMap<u64, String>,  // hash of BoardToPngInput to rendered PNG data URI
@@ -129,14 +130,17 @@ fn get_render_cache() -> &'static Mutex<RenderCache> {
 }
 
 static INIT_LOCK: Mutex<()> = Mutex::new(());
+
 static mut LARGE_MASK_IMAGES: Option<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = None;
 static mut SMALL_MASK_IMAGES: Option<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>> = None;
 
-fn initialize_masks() {
+#[hdk_extern]
+fn initialize_masks(_: ()) -> ExternResult<()> {
     // First check (outside the lock)
     unsafe {
         if LARGE_MASK_IMAGES.is_some() && SMALL_MASK_IMAGES.is_some() {
-            return;
+            emit_signal(format!("progress: {}", 34));
+            return Ok(());
         }
     }
     
@@ -145,22 +149,32 @@ fn initialize_masks() {
     
     // Second check (inside the lock)
     unsafe {
+        let mut progress = 0;
         if LARGE_MASK_IMAGES.is_some() && SMALL_MASK_IMAGES.is_some() {
-            return;
+            return Ok(());
         }
         
         let mut small_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in SMALL_MASKS.iter() {
             small_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
-        }
+            debug!("loaded small mask image");
+            progress += 1;
+            emit_signal(format!("progress: {}", progress));
+        }    
         SMALL_MASK_IMAGES = Some(small_images);
 
         let mut large_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in LARGE_MASKS.iter() {
+            debug!("loaded large mask image");
             large_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
+            progress += 1;
+            emit_signal(format!("progress: {}", progress));
         }
         LARGE_MASK_IMAGES = Some(large_images);
+
+        emit_signal(format!("progress: {}", 34));
     }
+    Ok(())
 }
 
 #[hdk_entry_helper]
@@ -212,7 +226,7 @@ pub fn board_to_png(input: BoardToPngInput) -> ExternResult<String> {
     let board = Board::from_board_input(input.board).map_err(|e| wasm_error!(e))?;
 
     // Ensure masks are initialized
-    initialize_masks();
+    initialize_masks(());
 
     // Use the preloaded images
     let mask_images = if board_size == BoardSize::Small {

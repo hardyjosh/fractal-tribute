@@ -35,7 +35,7 @@
         class="tab-button"
         class:tab-button-active={tabOption === "highest-allocation"}
         on:click={() => (tabOption = "highest-allocation")}
-        >Highest Allocation</button
+        disabled={!participations}>Highest Allocation</button
       >
     </div>
     {#if tabOption == "most-minted"}

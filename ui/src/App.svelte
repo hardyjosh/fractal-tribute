@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Spinner } from "flowbite-svelte";
+  import { Progressbar, Spinner } from "flowbite-svelte";
   import { isHolo } from "$lib/stores";
   import "./app.postcss";
   import Routes from "$routes/Routes.svelte";
@@ -16,17 +16,23 @@
   import { setIsHotHolder } from "$lib/stores/hotHolder";
 
   let ready = false;
+  let feInitProgress = 0;
+  let renderInitProgress = 0;
 
   onMount(async () => {
     $isHolo = ["true", "1", "t"].includes(
       import.meta.env.VITE_APP_IS_HOLO?.toLowerCase()
     );
     await initHapp();
+    feInitProgress++;
+    await initRenderMemory();
     await initWeb3Modal($happ.dnaProperties.chainId);
+    feInitProgress++;
     setIsHotHolder(await $happ.getEvmAddress());
+    feInitProgress++;
     await tick();
     await initNftStore(await $happ.dnaProperties.chainId);
-    ready = true;
+    feInitProgress++;
     const appInfo = await $happ.client.appInfo();
     const dnaHash = encodeHashToBase64(
       appInfo.cell_info.fractal_tribute[0]?.provisioned.cell_id[0]
@@ -34,6 +40,22 @@
 
     console.log("🚀 dnaHash", dnaHash);
   });
+
+  const initRenderMemory = async () => {
+    $happ.intializeMasks();
+    $happ.client.on("signal", (signal) => {
+      if (
+        typeof signal.payload == "string" &&
+        signal.payload.includes("progress: ")
+      ) {
+        const progress = signal.payload.split("progress: ")[1];
+        renderInitProgress = parseInt(progress);
+      }
+    });
+  };
+
+  $: initProgress = feInitProgress + renderInitProgress;
+  $: if (initProgress == 38) ready = true;
 </script>
 
 <svg class="h-0 w-0" viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg">
@@ -41,18 +63,22 @@
 </svg>
 
 <div class="min-w-screen min-h-screen p-4 container mx-auto">
-  {#if $happ && ready}
+  {#if $happ && ready && initProgress == 38}
     {#if $isHolo}
       <HostedRoutes />
     {:else}
       <Routes />
     {/if}
-  {:else if $isHolo}
+  {:else}
     <div
-      class="w-screen h-screen flex flex-col gap-y-4 items-center justify-center fixed inset-0"
+      class="w-screen h-screen flex flex-col gap-y-6 items-center justify-center fixed inset-0"
     >
       <img class="w-96" src={logo} />
-      <Spinner />
+      <span class="font-semibold text-xl mt-8">Loading game...</span>
+      <Progressbar
+        class="w-96"
+        progress={((initProgress / 38) * 100).toString()}
+      />
     </div>
   {/if}
 </div>

@@ -25,18 +25,31 @@ pub fn create_participation_proof(proof: ParticipationProof) -> ExternResult<Rec
 
 #[hdk_extern]
 pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
+    // debug!("build_agent_participation");
     let all_moves = get_all_game_moves(())?;
     let mut agent_pixels_changed: HashMap<AgentPubKey, u32> = HashMap::new();
     let mut total_pixels_changed: u32 = 0;
 
+    let mut agents_with_evm_binding: HashSet<AgentPubKey> = HashSet::new();
+    // debug!("retrieved all game moves");
+    let mut move_count = 0;
     for record in all_moves {
+        move_count += 1;
+        if move_count % 50 == 0 {
+            // debug!("move_count: {:?}", move_count);
+        }
         match &record.entry {
             RecordEntry::Present(Entry::App(app_entry_bytes)) => {
                 match std::convert::TryInto::<GameMove>::try_into(app_entry_bytes.clone().into_sb()) {
                     Ok(game_move) => {
                         let agent = record.action().author();
-                        let result = get_agent_evm_address(agent.clone());
-                        if let Ok(_) = result {
+                        if !agents_with_evm_binding.contains(&agent) {
+                            let result = get_agent_evm_address(agent.clone());
+                            if result.is_ok() {
+                                agents_with_evm_binding.insert(agent.clone());
+                            }
+                        }
+                        if agents_with_evm_binding.contains(&agent) {
                             let pixels_changed = game_move.count_changes();
                             *agent_pixels_changed.entry(agent.clone()).or_insert(0) += pixels_changed as u32;
                             total_pixels_changed += pixels_changed as u32;
@@ -48,7 +61,7 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
             _ => {} // Other cases
         }
     }
-
+    // debug!("sorted into agents)");
     let DnaProperties { nft_contract_address, payment_token_address, ..} = _get_dna_properties(())?;
 
     let agent_participations_result: ExternResult<Vec<AgentParticipation>> = agent_pixels_changed
@@ -102,17 +115,17 @@ pub fn build_agent_participation(_: ()) -> ExternResult<ParticipationProof> {
             })
         })
         .collect();
-
+    // debug!("built agent participations");
     let mut agent_participations = agent_participations_result?;
 
     // Sort by the number of pixels changed
     agent_participations.sort_by(|a, b| b.pixels_changed.cmp(&a.pixels_changed));
-
+    // debug!("sorted agent participations");
     // Update rank based on the sorted order
     for (index, participation) in agent_participations.iter_mut().enumerate() {
         participation.rank = (index + 1) as u16;
     }
-
+    // debug!("updated ranks");
     Ok(ParticipationProof {
         total_pixels_changed,
         agent_participations,

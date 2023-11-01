@@ -35,11 +35,11 @@ const getRandomColor = (): Color => {
 };
 
 export const generateRandomGameMove = (): GameMove => {
-    const numOfChanges = getRandomInt(10);
+    const numOfChanges = getRandomInt(10) + 1;
     const changes: PixelChange[] = [];
     for (let i = 0; i < numOfChanges; i++) {
         changes.push({
-            x: getRandomInt(BOARD_SIZE + 1),
+            x: getRandomInt(BOARD_SIZE),
             y: getRandomInt(BOARD_SIZE),
             color: getRandomColor(),
             graphic_option: getRandomInt(32)  // Assuming 16 graphic options

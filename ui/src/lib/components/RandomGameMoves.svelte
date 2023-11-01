@@ -11,7 +11,7 @@
   const startMakingRandomMoves = () => {
     interval = setInterval(() => {
       $happ.createGameMove(generateRandomGameMove());
-    }, 100);
+    }, 150);
   };
 
   const stopMakingRandomMoves = () => {
@@ -20,7 +20,9 @@
   };
 
   const getMoves = async () => {
+    console.log("getting moves");
     numOfMoves = await $happ.getNumberOfMoves();
+    console.log("got moves");
   };
 
   onMount(() => {
@@ -43,6 +45,6 @@
 
   <span
     >Number of moves found: {numOfMoves}
-    <a class="underline cursor-pointer">refresh</a></span
+    <a on:click={getMoves} class="underline cursor-pointer">refresh</a></span
   >
 </div>
