@@ -15,7 +15,7 @@
 /* #payment-token 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889 - mumbai*/
 #snapshot-price 0
 #mint-price 2e16 /* 0.02 */
-#snapshot-end-time 1699030800
+#snapshot-end-time 1699380000
 #additional-mint-period 86400 /* time in seconds for how long minting should be active after the snapshot time ends */
 
 #pool-amount 0x7dcc3e0b65d87abfb19508b671b26139dbe32871289b025ab4df45ad2f5481dd /* keccack256('pool-amount') */ 

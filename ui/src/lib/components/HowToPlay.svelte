@@ -43,7 +43,7 @@
       >
       <p>
         This game began at 10am PDT on Thursday, November 2nd and ends at 10am
-        PDT on Friday November 3rd.
+        PDT on Tuesday November 7th.
       </p>
       <p>
         Note: If you are joining after the game starts you may want to wait
