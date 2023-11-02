@@ -42,8 +42,8 @@
         >A peer-to-peer fully distributed, collaborative artistic NFT game.</Heading
       >
       <p>
-        This game began at 12 noon UTC on Wednesday, October 4th and ends at 4pm
-        UTC on Friday October 6th.
+        This game began at 10am PDT on Thursday, November 2nd and ends at 10am
+        PDT on Friday November 3rd.
       </p>
       <p>
         Note: If you are joining after the game starts you may want to wait

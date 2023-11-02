@@ -65,12 +65,12 @@
 
     <Button
       size="lg"
-      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.1.0/fractal-tribute_0.1.0_universal.dmg"
+      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.1.1/fractal-tribute_0.1.1_universal.dmg"
       class="bg-fractalorange border-2 border-black">Download for Mac</Button
     >
     <Button
       size="lg"
-      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.1.0/fractal-tribute_0.1.0_x64-setup.exe"
+      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.1.1/fractal-tribute_0.1.1_x64-setup.exe"
       class="bg-fractalorange border-2 border-black"
       >Download for Windows</Button
     >
