@@ -42,7 +42,9 @@
 </script>
 
 <div class="flex flex-col gap-y-4 grow">
-  <div class="flex justify-between gap-4 rounded-xl bg-gray-50 p-8">
+  <div
+    class="flex flex-col md:flex-row justify-between gap-4 rounded-xl bg-gray-50 p-8"
+  >
     <ParticipationStat
       {ready}
       name="Total pool size"
