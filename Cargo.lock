@@ -792,6 +792,8 @@ version = "0.1.0"
 dependencies = [
  "fractal_tribute",
  "fractal_tribute_integrity",
+ "image",
+ "resvg",
 ]
 
 [[package]]

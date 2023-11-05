@@ -12,6 +12,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicU32, Ordering};
 use once_cell::sync::OnceCell;
+use image::buffer::ConvertBuffer;
 
 struct RenderCache {
     map: HashMap<u64, String>,  // hash of BoardToPngInput to rendered PNG data URI
@@ -66,43 +67,43 @@ struct Position {
 }
 
 const SMALL_MASKS: [&'static [u8]; GRAPHIC_OPTIONS] = [
-    include_bytes!("../../../../../../pattern-masks/small/1.png"),
-    include_bytes!("../../../../../../pattern-masks/small/2.png"),
-    include_bytes!("../../../../../../pattern-masks/small/3.png"),
-    include_bytes!("../../../../../../pattern-masks/small/4.png"),
-    include_bytes!("../../../../../../pattern-masks/small/5.png"),
-    include_bytes!("../../../../../../pattern-masks/small/6.png"),
-    include_bytes!("../../../../../../pattern-masks/small/7.png"),
-    include_bytes!("../../../../../../pattern-masks/small/8.png"),
-    include_bytes!("../../../../../../pattern-masks/small/9.png"),
-    include_bytes!("../../../../../../pattern-masks/small/10.png"),
-    include_bytes!("../../../../../../pattern-masks/small/11.png"),
-    include_bytes!("../../../../../../pattern-masks/small/12.png"),
-    include_bytes!("../../../../../../pattern-masks/small/13.png"),
-    include_bytes!("../../../../../../pattern-masks/small/14.png"),
-    include_bytes!("../../../../../../pattern-masks/small/15.png"),
-    include_bytes!("../../../../../../pattern-masks/small/16.png"),
-    include_bytes!("../../../../../../pattern-masks/small/17.png"),
+    include_bytes!("../../../../../../pattern-masks/small/1.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/2.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/3.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/4.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/5.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/6.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/7.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/8.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/9.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/10.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/11.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/12.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/13.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/14.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/15.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/16.cache"),
+    include_bytes!("../../../../../../pattern-masks/small/17.cache"),
 ];
 
 const LARGE_MASKS: [&'static [u8]; GRAPHIC_OPTIONS] = [
-    include_bytes!("../../../../../../pattern-masks/large/1.png"),
-    include_bytes!("../../../../../../pattern-masks/large/2.png"),
-    include_bytes!("../../../../../../pattern-masks/large/3.png"),
-    include_bytes!("../../../../../../pattern-masks/large/4.png"),
-    include_bytes!("../../../../../../pattern-masks/large/5.png"),
-    include_bytes!("../../../../../../pattern-masks/large/6.png"),
-    include_bytes!("../../../../../../pattern-masks/large/7.png"),
-    include_bytes!("../../../../../../pattern-masks/large/8.png"),
-    include_bytes!("../../../../../../pattern-masks/large/9.png"),
-    include_bytes!("../../../../../../pattern-masks/large/10.png"),
-    include_bytes!("../../../../../../pattern-masks/large/11.png"),
-    include_bytes!("../../../../../../pattern-masks/large/12.png"),
-    include_bytes!("../../../../../../pattern-masks/large/13.png"),
-    include_bytes!("../../../../../../pattern-masks/large/14.png"),
-    include_bytes!("../../../../../../pattern-masks/large/15.png"),
-    include_bytes!("../../../../../../pattern-masks/large/16.png"),
-    include_bytes!("../../../../../../pattern-masks/large/17.png"),
+    include_bytes!("../../../../../../pattern-masks/large/1.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/2.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/3.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/4.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/5.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/6.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/7.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/8.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/9.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/10.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/11.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/12.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/13.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/14.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/15.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/16.cache"),
+    include_bytes!("../../../../../../pattern-masks/large/17.cache"),
 ];
 
 trait ImageBufferExt {
@@ -139,7 +140,9 @@ fn initialize_masks(_: ()) -> ExternResult<()> {
     let _ = SMALL_MASK_IMAGES.get_or_init(|| {
         let mut small_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in SMALL_MASKS.iter() {
-            small_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
+            // small_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
+            let buf = image::ImageBuffer::<Rgba<u8>, Vec<u8>>::from_raw(600, 600, mask_data.to_vec()).unwrap().convert();
+            small_images.push(buf);
             debug!("loaded small mask image");
             progress += 1;
             emit_signal(format!("progress: {}", progress));
@@ -150,7 +153,9 @@ fn initialize_masks(_: ()) -> ExternResult<()> {
     let _ = LARGE_MASK_IMAGES.get_or_init(|| {
         let mut large_images = Vec::with_capacity(GRAPHIC_OPTIONS);
         for &mask_data in LARGE_MASKS.iter() {
-            large_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
+            // large_images.push(image::load_from_memory(mask_data).unwrap().to_rgba8());
+            let buf = image::ImageBuffer::<Rgba<u8>, Vec<u8>>::from_raw(2000, 2000, mask_data.to_vec()).unwrap().convert();
+            large_images.push(buf);
             debug!("loaded large mask image");
             progress += 1;
             emit_signal(format!("progress: {}", progress));

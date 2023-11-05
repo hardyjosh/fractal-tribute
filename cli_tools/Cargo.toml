@@ -6,4 +6,7 @@ edition = "2018"
 [dependencies]
 fractal_tribute = { path = "../dnas/fractal_tribute/zomes/coordinator/fractal_tribute" }
 fractal_tribute_integrity = { path = "../dnas/fractal_tribute/zomes/integrity/fractal_tribute" }
+image = "0.23"
+resvg = "0.35.0"
+
 
