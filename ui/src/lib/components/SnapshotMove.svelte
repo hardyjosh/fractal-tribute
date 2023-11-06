@@ -3,12 +3,7 @@
   import { onMount, createEventDispatcher } from "svelte";
   import { account, network } from "svelte-wagmi-stores";
   import { type ActionHash } from "@holochain/client";
-  import {
-    happ,
-    nftContract,
-    paymentTokenAddress,
-    web3modal,
-  } from "$lib/stores";
+  import { happ, nftContract, web3modal } from "$lib/stores";
   import { Button, Spinner, Heading, Alert } from "flowbite-svelte";
   import {
     hexToBigInt,
@@ -18,8 +13,9 @@
     type Hex,
   } from "viem";
   import { snapshotEvaluable } from "$lib/helpers";
-  import { waitForTransaction } from "@wagmi/core";
   import { Confetti } from "svelte-confetti";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -64,19 +60,44 @@
     {#if isPostMove}
       <Heading tag="h4">Nice move!</Heading>
     {:else}
-      <Heading tag="h4">Create snapshot</Heading>
+      <Heading tag="h4"
+        ><En>Create snapshot</En><Tr>Anlık görüntü al</Tr></Heading
+      >
     {/if}
-    <p>Creating a snapshot is free, you'll just need to pay the gas fee.</p>
     <p>
-      One you have created your snapshot, other players (and the public) will be
-      able to mint your snapshot to push it up the leaderboard.
+      <En>Creating a snapshot is free, you'll just need to pay the gas fee.</En
+      ><Tr
+        >Anlık görüntü almak ücretsizdir, sadece aktarım ücreti (gas fee) ödemen
+        yeterli.
+      </Tr>
     </p>
     <p>
-      The MATIC collected will be sent to the game pool to be redistributed to
-      players at the end of the game
+      <En>
+        One you have created your snapshot, other players (and the public) will
+        be able to mint your snapshot to push it up the leaderboard.</En
+      ><Tr
+        >Anlık görüntü aldığında, diğer oyuncular (ve herkes) aldığın görüntüyü
+        basabilir (mintleyebilir) ve böylece görüntünün liderlik panosunda yer
+        almasını sağlayabilir.</Tr
+      >
     </p>
     <p>
-      Your wallet must be connected to the Polygon network to create a snapshot.
+      <En>
+        The MATIC collected will be sent to the game pool to be redistributed to
+        players at the end of the game</En
+      ><Tr
+        >Elde edilen MATIC, oyunun sonunda oyunculara tekrar dağıtılmak üzere
+        oyun havuzuna gönderilecek.
+      </Tr>
+    </p>
+    <p>
+      <En>
+        Your wallet must be connected to the Polygon network to create a
+        snapshot.</En
+      ><Tr
+        >Anlık görüntü alabilmek için cüzdanının Polygon ağına bağlı olması
+        gerekmektedir.</Tr
+      >
     </p>
     <div class="flex gap-x-2">
       <Button
@@ -84,7 +105,7 @@
         color="none"
         on:click={() => {
           open = false;
-        }}>Maybe later</Button
+        }}><En>Maybe later</En><Tr>Belki daha sonra</Tr></Button
       >
       {#if $account?.isConnected}
         <Button
@@ -92,14 +113,14 @@
           disabled={mismatchingKey || wrongNetwork}
           on:click={snapshotMove}
         >
-          Mint snapshot
+          <En>Mint snapshot</En><Tr>Görüntüyü bas (mintle)</Tr>
         </Button>
       {:else}
         <Button
           class="bg-fractalorange border-2 border-black self-start"
           on:click={() => {
             $web3modal.openModal();
-          }}>Connect wallet</Button
+          }}><En>Connect wallet</En><Tr>Cüzdan bağla</Tr></Button
         >
       {/if}
     </div>
@@ -131,8 +152,14 @@
 {:else if $status === "loading"}
   <div in:fade class="flex flex-col items-center gap-y-4 my-12">
     <Spinner size="10" class="mr-2" />
-    <Heading tag="h4" class="text-center">Minting snapshot</Heading>
-    <span>Please check your wallet to confirm</span>
+    <Heading tag="h4" class="text-center"
+      ><En>Minting snapshot</En><Tr>Görüntüyü basıyor (mintliyor)</Tr></Heading
+    >
+    <span
+      ><En>Please check your wallet to confirm</En><Tr
+        >Teyit etmek için lütfen cüzdanını kontrol et</Tr
+      ></span
+    >
   </div>
 {:else if $status === "success" || hash}
   <div class="fixed inset-0 translate-x-1/2 pointer-events-none">
@@ -147,22 +174,25 @@
   </div>
   <div in:fade class="flex flex-col items-center gap-y-4 my-12">
     <div class="rounded-full bg-gray-100 p-6 text-4xl">🎉</div>
-    <Heading class="text-center" tag="h4">Minting successful!</Heading>
+    <Heading class="text-center" tag="h4"
+      ><En>Minting successful!</En><Tr>Basma (mintleme) işlemi başarılı!</Tr
+      ></Heading
+    >
     <p>
-      Snapshot minted!
+      <En>Snapshot minted!</En><Tr>Görüntü basıldı!</Tr>
       <a
         href={`${$network.chain.blockExplorers.default.url}/tx/${hash}`}
         target="_blank"
         class="underline"
       >
-        View on explorer</a
+        <En>View on explorer</En><Tr>Kaşif (Explorer) üzerinde görüntüle</Tr></a
       >
     </p>
     <Button
       class="bg-fractalorange border-2 border-black"
       on:click={() => {
         open = false;
-      }}>Done</Button
+      }}><En>Done</En><Tr>Tamam</Tr></Button
     >
   </div>
 {/if}

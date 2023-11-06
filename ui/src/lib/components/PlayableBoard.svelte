@@ -30,6 +30,8 @@
   import { CHANGES_PER_MOVE } from "$lib/constants";
   import { countdownContext, type CountdownContextType } from "$lib/contexts";
   import { formatCountdown } from "$lib/stores/countdown";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   const dispatch = createEventDispatcher();
   const { countdown, snapshotEndCountdown } = getContext(
@@ -227,7 +229,12 @@
     <div class="col-span-2">
       {#if moveStatus == MoveStatus.Ready}
         <div class="p-4 border-2 border-black rounded-lg mb-4">
-          You've made {move.changes.length}/{CHANGES_PER_MOVE} changes.
+          <En>
+            You've made {move.changes.length}/{CHANGES_PER_MOVE} changes.
+          </En>
+          <Tr>
+            Şu ana kadar {move.changes.length}/{CHANGES_PER_MOVE} değişiklik yaptın.
+          </Tr>
         </div>
         <div class="flex gap-x-2 mb-4">
           <Button
@@ -235,14 +242,19 @@
             class="border-2 border-black grow"
             size="lg"
             disabled={!move.changes.length}
-            on:click={undo}><RedoOutline class="mr-2 w-4" />Undo</Button
+            on:click={undo}
+            ><RedoOutline class="mr-2 w-4" /><En>Undo</En><Tr
+              >Geri al
+            </Tr></Button
           >
           <Button
             color="none"
             class="border-2 border-black grow"
             size="lg"
             disabled={!undoneChanges?.length}
-            on:click={redo}><UndoOutline class="mr-2 w-4" />Redo</Button
+            on:click={redo}
+            ><UndoOutline class="mr-2 w-4" /><En>Redo</En><Tr>Yinele</Tr
+            ></Button
           >
           <Button
             class="bg-fractalorange border-2 border-black grow w-1/4"
@@ -254,16 +266,19 @@
               <Spinner size="5" class="mr-2" />
               Saving
             {:else if saved && !move.changes.length}
-              Saved
+              <En>Saved</En><Tr>Kaydedildi</Tr>
             {:else}
-              Save Move
+              <En>Save Move</En><Tr>Hamleyi Kaydet</Tr>
             {/if}
           </Button>
           <Button
             class="bg-fractalorange border-2 border-black grow"
             size="lg"
             disabled={!move.changes.length || saving}
-            on:click={() => saveMove(true)}>Save & Mint Snapshot</Button
+            on:click={() => saveMove(true)}
+            ><En>Save & Mint Snapshot</En><Tr
+              >Görüntüyü Kaydet & Bas (Mintle)
+            </Tr></Button
           >
         </div>
         <Palette

@@ -14,6 +14,8 @@
   import { countdownContext, type CountdownContextType } from "$lib/contexts";
   import IntersectionObserver from "svelte-intersection-observer";
   import NftCard from "$lib/components/NftCard.svelte";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   const { countdown, snapshotEndCountdown } = getContext(
     countdownContext
@@ -51,10 +53,17 @@
       class="w-full rounded-lg border-2 border-black flex flex-col gap-2 items-center justify-center h-80"
     >
       <img src={no_snapshots} alt="no snapshots" />
-      <p class="text-2xl font-semibold">No snapshots yet</p>
+      <p class="text-2xl font-semibold">
+        <En>No snapshots yet</En><Tr>Henüz hiçbir görüntü yok</Tr>
+      </p>
       <p>
-        Snapshots from you and other players will appear here once minted
-        onchain.
+        <En>
+          Snapshots from you and other players will appear here once minted
+          onchain.</En
+        ><Tr
+          >Senin ve diğer oyuncuların aldığı ekran görüntüleri, zincir üzerinde
+          basıldığında (mintlendiğinde) burada görünecek</Tr
+        >
       </p>
     </div>
   {:else}

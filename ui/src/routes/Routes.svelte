@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { happ } from "$lib/stores";
+  import { happ, language } from "$lib/stores";
   import { onMount, setContext } from "svelte";
   import { createCountdownStore, formatCountdown } from "$lib/stores/countdown";
   import logo from "$lib/assets/logo.svg";
@@ -9,6 +9,8 @@
   import { countdownContext } from "$lib/contexts";
   import HowToPlay from "$lib/components/HowToPlay.svelte";
   import { ADDITIONAL_MINT_PERIOD } from "$lib/constants";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   const countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
   const snapshotEndCountdown = createCountdownStore(
@@ -47,8 +49,10 @@
     {/each}
     <div class="border-2 rounded-lg p-3 self-stretch grow border-black">
       {#if $countdown?.timeRemaining}
-        <span>Game ends in: </span><span class="text-green-600 font-bold"
-          >{formatCountdown($countdown)}</span
+        <span
+          ><En>Game ends in:</En><Tr>Oyunun bitmesine kalan süre:</Tr>
+        </span><span class="text-green-600 font-bold"
+          >{formatCountdown($countdown, $language)}</span
         >
       {:else}
         <span>Game ended</span>
@@ -61,7 +65,7 @@
       class="border-2 border-black"
     >
       <QuestionCircleOutline class="mr-2" />
-      How to play
+      <En>How to play</En><Tr>Nasıl oynanır</Tr>
     </Button>
   </div>
 </div>

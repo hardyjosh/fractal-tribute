@@ -1,4 +1,5 @@
 // countdownStore.ts
+import type { Language } from '$lib/stores';
 import { derived, writable } from 'svelte/store';
 
 export type CountdownObject = {
@@ -45,11 +46,15 @@ export const createCountdownStore = (endTime: Date) => {
     return countdown;
 };
 
-export const formatCountdown = (countdown: CountdownObject): string => {
+export const formatCountdown = (countdown: CountdownObject, language: Language): string => {
     const days = `${countdown.days[0]}${countdown.days[1]}`.padStart(2, '0');
     const hours = `${countdown.hours[0]}${countdown.hours[1]}`.padStart(2, '0');
     const minutes = `${countdown.minutes[0]}${countdown.minutes[1]}`.padStart(2, '0');
     const seconds = `${countdown.seconds[0]}${countdown.seconds[1]}`.padStart(2, '0');
+
+    if (language === 'tr') {
+        return `${days}g : ${hours}s : ${minutes}d : ${seconds}s`;
+    }
 
     return `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
 };

@@ -1,15 +1,16 @@
 <script lang="ts">
   import { nfts } from "$lib/stores/nfts";
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { happ } from "$lib/stores";
   import SnapshotMove from "$lib/components/SnapshotMove.svelte";
   import { Heading, Modal, Spinner } from "flowbite-svelte";
   import no_moves from "$lib/assets/no_moves.svg";
   import type { ActionHash } from "@holochain/client";
-  import { actionHashAndAccountToTokenId } from "$lib/helpers";
   import { bytesToHex, type Hex } from "viem";
   import MyMoveCard from "$lib/components/MyMoveCard.svelte";
   import IntersectionObserver from "svelte-intersection-observer";
+  import Tr from "$lib/components/i18n/Tr.svelte";
+  import En from "$lib/components/i18n/En.svelte";
 
   let moveActions: ActionHash[] = [];
   let key: Hex;
@@ -40,9 +41,12 @@
 </script>
 
 <div class="flex flex-col gap-y-2">
-  <Heading tag="h3">Your moves</Heading>
+  <Heading tag="h3"><En>Your moves</En><Tr>Senin hamlelerin</Tr></Heading>
   <p class="text-lg">
-    Make a snapshot onchain for any of your moves by minting them
+    <En>Make a snapshot onchain for any of your moves by minting them</En><Tr
+      >Hamlelerinden herhangi birini basarak (mintleyerek) zincir üzerinde bir
+      anlık görüntü oluştur</Tr
+    >
   </p>
 </div>
 
@@ -77,8 +81,14 @@
       class="w-full rounded-lg border-2 border-black flex flex-col gap-y-2 items-center justify-center h-80"
     >
       <img src={no_moves} alt="no snapshots" />
-      <p class="text-2xl font-semibold">No moves yet</p>
-      <p>After you make your first move, it will appear here.</p>
+      <p class="text-2xl font-semibold">
+        <En>No moves yet</En><Tr>Henüz hiçbir hamle yok</Tr>
+      </p>
+      <p>
+        <En>After you make your first move, it will appear here.</En><Tr
+          >İlk hamleni yaptıktan sonra burada görünecek</Tr
+        >
+      </p>
     </div>
   {/if}
 {:else}

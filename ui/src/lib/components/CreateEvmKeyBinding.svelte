@@ -11,6 +11,8 @@
   import { addToast } from "$lib/components/toasts";
   import WalletSvg from "$lib/assets/wallet.svg";
   import binding from "$lib/assets/binding.svg";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -63,8 +65,10 @@
         in:fade|global={{ duration: 200 }}
         class="flex flex-col gap-y-2 items-start"
       >
-        <Heading tag="h4" class="text-center">You are binding</Heading>
-        <div>EVM Key</div>
+        <Heading tag="h4" class="text-center"
+          ><En>You are binding</En><Tr>Bunları bağlıyorsun</Tr></Heading
+        >
+        <div><En>EVM Key</En><Tr>EVM anahtarı</Tr></div>
         <div
           class="bg-white text-gray-800 border-black border-2 rounded-lg px-4 py-2 self-stretch"
         >
@@ -77,7 +81,7 @@
           <img src={binding} class="w-8" alt="binding icon" />
           <div class="border-t border-gray-300 w-full" />
         </div>
-        <div>Holochain Key</div>
+        <div><En>Holochain Key</En><Tr>Holochain anahtarı</Tr></div>
         <div
           class="bg-white text-gray-800 border-black border-2 rounded-lg px-4 py-2 self-stretch"
         >
@@ -89,7 +93,8 @@
       <Button
         class="bg-fractalorange border-2 border-black"
         disabled={!$account.isConnected}
-        on:click={() => createEvmKeyBinding()}>Bind wallet</Button
+        on:click={() => createEvmKeyBinding()}
+        ><En>Bind wallet</En><Tr>Cüzdanı bağla</Tr></Button
       >
     {:else if evmKeyBindingStatus === EvmKeyBindingStatus.AwaitingSignature}
       <div
@@ -106,21 +111,33 @@
     in:fade|global={{ duration: 200 }}
     class="gap-y-4 flex flex-col items-center justify-center grow h-full -mt-8 text-center"
   >
-    <Heading tag="h4" class="w-auto">Connect wallet</Heading>
+    <Heading tag="h4" class="w-auto"
+      ><En>Connect wallet</En><Tr>Cüzdan bağla</Tr></Heading
+    >
     <img src={WalletSvg} class="w-32" alt="wallet icon" />
-    <span
-      >To continue, please connect a wallet of your choice. Click the button
-      below and scan the the QR code with your wallet app</span
+    <span>
+      <En
+        >To continue, please connect a wallet of your choice. Click the button
+        below and scan the the QR code with your wallet app</En
+      ><Tr
+        >Devam etmek için, lütfen istediğin bir cüzdanı bağla. Aşağıdaki butona
+        tıkla ve cihazındaki cüzdan uygulamasını kullanarak karekodu tara</Tr
+      ></span
     >
     <span
-      >Your wallet will need to be connected to Polygon to create and collect
-      snapshots.</span
+      ><En
+        >Your wallet will need to be connected to Polygon to create and collect
+        snapshots.</En
+      ><Tr
+        >Görüntü oluşturmak ve toplamak için cüzdanının Polygon ağına bağlı
+        olması gerekir.</Tr
+      ></span
     >
     <Button
       class="bg-fractalorange border-2 border-black"
       on:click={() => {
         $web3modal.openModal();
-      }}>Connect wallet</Button
+      }}><En>Connect wallet</En><Tr>Cüzdan bağla</Tr></Button
     >
   </div>
 {/if}

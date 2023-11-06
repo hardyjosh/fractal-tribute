@@ -14,6 +14,8 @@
   } from "flowbite-svelte-icons";
   import { onMount } from "svelte";
   import { isHotHolder } from "$lib/stores/hotHolder";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   // const colorsArr = [
   //   [0, 18, 25],
@@ -131,7 +133,7 @@
       >
         {#if !hideGrid}
           <EyeSlashOutline class="w-8" />
-          Hide grid
+          <En>Hide grid</En><Tr>Izgarayı gizle</Tr>
         {:else}
           <EyeOutline class="w-8" />
           Show grid
@@ -145,13 +147,13 @@
         {#if refreshingBoard}
           Refreshing...
         {:else}
-          Refresh board
+          <En>Refresh board</En><Tr>Panoyu tazele</Tr>
         {/if}
       </button>
     </div>
   </div>
   <div class="bg-primary-50 font-semibold p-2 border border-black rounded-md">
-    Colour
+    <En>Colour</En><Tr>Renk</Tr>
   </div>
   <div class="w-full flex flex-row items-start justify-start">
     <div class="grid grid-cols-5 gap-4 w-full">
@@ -175,7 +177,7 @@
     </div>
   </div>
   <div class="bg-primary-50 font-semibold p-2 border border-black rounded-md">
-    Pattern
+    <En>Pattern</En><Tr>Desen</Tr>
   </div>
   <div class="grid grid-cols-5 gap-4">
     {#each new Array(35) as _, i}

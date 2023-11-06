@@ -8,6 +8,8 @@
   import { waitForTransaction } from "@wagmi/core";
   import { Heading } from "flowbite-svelte";
   import RandomGameMoves from "$lib/components/RandomGameMoves.svelte";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   let allMyMoves: AllMyMovesAlt;
 </script>
@@ -23,8 +25,14 @@
     }}
   />
   <div class="flex flex-col gap-y-2">
-    <Heading tag="h3">Latest snapshots</Heading>
-    <p class="text-lg">Vote for your favourite snapshots by minting them</p>
+    <Heading tag="h3"
+      ><En>Latest snapshots</En><Tr>En son görüntüler</Tr></Heading
+    >
+    <p class="text-lg">
+      <En>Vote for your favourite snapshots by minting them</En><Tr
+        >En beğendiğin görüntülere oy vermek için onları bas (mintle)</Tr
+      >
+    </p>
   </div>
 
   <AllNfts />
