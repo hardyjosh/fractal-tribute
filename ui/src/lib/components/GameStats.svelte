@@ -21,12 +21,12 @@
   let poolsizeFormatted: string;
   let ready: boolean;
 
-  const getStats = async () => {
-    const totalCollected = $nfts.reduce(
+  const getStats = async (nfts) => {
+    const totalCollected = nfts.reduce(
       (acc, nft) => acc + Number(nft.supply),
       0
     );
-    const totalSnapshots = $nfts.length;
+    const totalSnapshots = nfts.length;
     const poolSize = (BigInt(totalCollected) - BigInt(totalSnapshots)) * price;
     const token = await fetchToken({
       address: $paymentTokenAddress,
@@ -36,9 +36,7 @@
     ready = true;
   };
 
-  onMount(() => {
-    getStats();
-  });
+  $: getStats($nfts);
 </script>
 
 <div class="flex flex-col gap-y-4 grow">
@@ -51,12 +49,12 @@
       value={`${poolsizeFormatted} MATIC`}
     />
     <ParticipationStat
-      {ready}
+      ready={!!$participations?.agent_participations.length}
       name="Number of creators"
       value={$participations?.agent_participations.length.toString()}
     />
     <ParticipationStat
-      {ready}
+      ready={!!$participations?.total_pixels_changed}
       name="Total pixels changed"
       value={$participations?.total_pixels_changed.toString()}
     />

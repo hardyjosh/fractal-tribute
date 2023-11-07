@@ -25,18 +25,41 @@
   let wrappers: HTMLElement[] = [];
 
   let boards: BoardWithMetadataAndId[] = [];
-  let boardsWithSupply: (BoardWithMetadataAndId & { supply: number })[];
+  let boardsWithSupply: (BoardWithMetadataAndId & { supply: number })[] = [];
 
-  const prepareHappNfts = async () => {
-    boards = await $happ.getBoardsFromTokenIds($nfts.map((nft) => nft.id));
-    boardsWithSupply = boards.map((board) => {
-      const nft = $nfts.find((nft) => bytesToHex(nft.id) == board.id);
-      return { ...board, supply: nft.supply };
+  const prepareHappNfts = async (nfts) => {
+    // Filter out any NFTs that are already represented in boardsWithSupply
+    nfts = nfts.filter(
+      (nft) => !boardsWithSupply.find((board) => board.id === nft.id)
+    );
+    const tokenIds = nfts.map((nft) => nft.id);
+
+    // Batch out the async requests for getBoardsFromTokenIds to 5 each
+    const boardPromises = tokenIds.reduce((promiseArray, _, i) => {
+      if (i % 5 === 0) {
+        const batch = tokenIds.slice(i, i + 5);
+        promiseArray.push($happ.getBoardsFromTokenIds(batch));
+      }
+      return promiseArray;
+    }, []);
+
+    // Process each promise as it resolves
+    boardPromises.forEach((boardPromise) => {
+      boardPromise.then((boards) => {
+        const _boardsWithSupply = boards.map((board) => {
+          const nft = nfts.find((nft) => bytesToHex(nft.id) === board.id);
+          return { ...board, supply: nft.supply };
+        });
+
+        // push the new boards to the array and then sort by supply
+        boardsWithSupply.push(..._boardsWithSupply);
+        boardsWithSupply.sort((a, b) => b.supply - a.supply);
+        boardsWithSupply = [...boardsWithSupply];
+      });
     });
-    boardsWithSupply.sort((a, b) => b.supply - a.supply);
   };
 
-  $: if ($nfts) prepareHappNfts();
+  $: if ($nfts) prepareHappNfts($nfts);
 
   let mintMoveModal = false;
   let tokenId: bigint;
@@ -50,7 +73,7 @@
 {#if boardsWithSupply}
   {#if boardsWithSupply?.length == 0}
     <div
-      class="w-full rounded-lg border-2 border-black flex flex-col gap-2 items-center justify-center h-80"
+      class="w-full rounded-lg border-2 border-black flex flex-col gap-2 items-center justify-center h-80 text-center"
     >
       <img src={no_snapshots} alt="no snapshots" />
       <p class="text-2xl font-semibold">
@@ -79,7 +102,7 @@
         >
           <div
             bind:this={wrappers[board.id]}
-            class="relative flex flex-col gap-y-2 flex-none snap-start basis-1/5-gap-4"
+            class="relative flex flex-col gap-y-2 flex-none snap-start md:basis-1/5-gap-4 w-full"
           >
             {#if intersecting}
               <NftCard

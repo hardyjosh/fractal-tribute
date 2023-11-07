@@ -2,7 +2,7 @@
   import Identicon from "$lib/components/Identicon.svelte";
   import MintMove from "$lib/components/MintMove.svelte";
   import { formatAddress } from "$lib/helpers";
-  import { happ } from "$lib/stores";
+  import { happ, isHolo } from "$lib/stores";
   import type { BoardWithMetadataAndId } from "$lib/types";
   import { encodeHashToBase64 } from "@holochain/client";
   import { Button, Modal, Spinner } from "flowbite-svelte";
@@ -22,6 +22,7 @@
   };
 
   onMount(async () => {
+    if ($isHolo) return;
     png = await $happ.boardToPng(board.boardWithMetadata.board, "Small");
   });
 </script>
@@ -29,7 +30,13 @@
 <div
   class="aspect-square border-2 border-black rounded-lg relative flex flex-col justify-center items-center"
 >
-  {#if png}
+  {#if $isHolo}
+    {#if board?.boardWithMetadata?.svg}
+      {@html board.boardWithMetadata.svg}
+    {:else}
+      <Spinner />
+    {/if}
+  {:else if png}
     <img src={png} alt="board" />
   {:else}
     <Spinner />
