@@ -36,8 +36,8 @@
 
     // Batch out the async requests for getBoardsFromTokenIds to 5 each
     const boardPromises = tokenIds.reduce((promiseArray, _, i) => {
-      if (i % 5 === 0) {
-        const batch = tokenIds.slice(i, i + 5);
+      if (i % 25 === 0) {
+        const batch = tokenIds.slice(i, i + 25);
         promiseArray.push($happ.getBoardsFromTokenIds(batch));
       }
       return promiseArray;
