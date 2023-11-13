@@ -55,7 +55,7 @@
           >{formatCountdown($countdown, $language)}</span
         >
       {:else}
-        <span>Game ended</span>
+        <span><En>Game ended</En><Tr>Oyun sona erdi</Tr></span>
       {/if}
     </div>
     <Button

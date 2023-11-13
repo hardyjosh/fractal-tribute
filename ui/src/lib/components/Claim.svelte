@@ -8,6 +8,8 @@
   import { walletClient, network } from "svelte-wagmi-stores";
   import type { Address, Hex } from "viem";
   import { Confetti } from "svelte-confetti";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   let open: boolean = false;
   export let participations: ParticipationProof;
@@ -50,14 +52,19 @@
 <Button
   size="xs"
   class="bg-fractalorange border-2 border-black"
-  on:click={() => (open = true)}>Claim</Button
+  on:click={() => (open = true)}><En>Claim</En><Tr>Talep Et</Tr></Button
 >
 
 <Modal bind:open>
   {#if ($status == "idle" || $status == "error") && !hash}
     <div in:fade class="flex flex-col items-center gap-y-4 my-12">
       <Heading tag="h4" class="text-center">Claim</Heading>
-      <p>Claim your share of the pool. You can only claim once.</p>
+      <p>
+        <En>Claim your share of the pool. You can only claim once.</En><Tr
+          >Havuzdaki payınızı talep edin. Sadece bir kez talepte
+          bulunabilirsiniz.
+        </Tr>
+      </p>
       {#if $walletClient}
         <Button class="bg-fractalorange border-2 border-black" on:click={claim}
           >Claim</Button
@@ -71,7 +78,9 @@
       {#if $error}
         {#if $error?.message?.includes("0x160f9f14")}
           <p class="text-red-500">
-            Something went wrong. Have you already claimed?
+            <En>Something went wrong. Have you already claimed?</En><Tr
+              >Bir şeyler ters gitti. Zaten talep etmiş miydiniz?</Tr
+            >
           </p>
         {:else}
           <p class="text-red-500">
@@ -99,22 +108,26 @@
     </div>
     <div in:fade class="flex flex-col items-center gap-y-4 my-12">
       <div class="rounded-full bg-gray-100 p-6 text-4xl">🎉</div>
-      <Heading class="text-center" tag="h4">Claim successful!</Heading>
+      <Heading class="text-center" tag="h4"
+        ><En>Claim successful!</En><Tr>Talep başarılı!</Tr></Heading
+      >
       <p>
-        Thank you for playing Fractal Tribute!
+        <En>Thank you for playing Fractal Tribute!</En><Tr
+          >Fractal Tribute oynadığınız için teşekkürler!
+        </Tr>
         <a
           href={`${$network.chain.blockExplorers.default.url}/tx/${hash}`}
           target="_blank"
           class="underline"
         >
-          View on explorer</a
+          <En>View on explorer</En><Tr>Kaşifte (explorer) görüntüle</Tr></a
         >
       </p>
       <Button
         class="bg-fractalorange border-2 border-black"
         on:click={() => {
           open = false;
-        }}>Done</Button
+        }}><En>Done</En><Tr>Tamam</Tr></Button
       >
     </div>
   {/if}

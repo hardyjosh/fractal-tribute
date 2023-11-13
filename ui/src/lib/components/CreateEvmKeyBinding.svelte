@@ -102,7 +102,11 @@
         class="flex flex-col items-center gap-y-6"
       >
         <Spinner size="10" />
-        <p>Please check your wallet and sign your Holochain agent key</p>
+        <p>
+          <En>Please check your wallet and sign your Holochain agent key</En><Tr
+            >Lütfen cüzdanınızı kontrol edin ve Holochain anahtarınızı imzalayın</Tr
+          >
+        </p>
       </div>
     {/if}
   </div>

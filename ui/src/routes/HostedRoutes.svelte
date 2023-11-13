@@ -12,6 +12,8 @@
   import type { ParticipationProof } from "$lib/types";
   import Marketplace from "$routes/hosted/Marketplace.svelte";
   import Claims from "$routes/hosted/Claims.svelte";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   const countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
   const snapshotEndCountdown = createCountdownStore(
@@ -76,13 +78,13 @@
       size="lg"
       href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.2.0/fractal-tribute_0.2.0_universal.dmg"
       class="bg-fractalorange border-2 border-black whitespace-nowrap"
-      >Download for Mac</Button
+      ><En>Download for Mac</En><Tr>Mac için indir</Tr></Button
     >
     <Button
       size="lg"
       href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.2.0/fractal-tribute_0.2.0_x64-setup.exe"
       class="bg-fractalorange border-2 border-black whitespace-nowrap"
-      >Download for Windows</Button
+      ><En>Download for Windows</En><Tr>Windows için indir</Tr></Button
     >
     <!-- <Button
       on:click={() => {

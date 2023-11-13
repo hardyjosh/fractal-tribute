@@ -136,7 +136,7 @@
           <En>Hide grid</En><Tr>Izgarayı gizle</Tr>
         {:else}
           <EyeOutline class="w-8" />
-          Show grid
+          <En>Show grid</En><Tr>Izgarayı göster</Tr>
         {/if}
       </button>
       <button
@@ -145,7 +145,7 @@
       >
         <ArrowsRepeatOutline class="w-8" />
         {#if refreshingBoard}
-          Refreshing...
+          <En>Refreshing...</En><Tr>Tazeleniyor…</Tr>
         {:else}
           <En>Refresh board</En><Tr>Panoyu tazele</Tr>
         {/if}

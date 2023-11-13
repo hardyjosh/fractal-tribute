@@ -76,7 +76,7 @@
       </p>
     </div>
     <Button class="bg-fractalorange border-2 border-black" on:click={inc}
-      >Next: How to Play</Button
+      ><En>Next: How to Play</En><Tr>Sıradaki: Nasıl Oynanır</Tr></Button
     >
   {:else if howToPlayStep === 1}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">
@@ -103,7 +103,7 @@
       </p>
     </div>
     <Button class="bg-fractalorange border-2 border-black" on:click={inc}
-      >Next: About the NFTs</Button
+      ><En>Next: About the NFTs</En><Tr>Sıradaki: NFT’ler Hakkinda</Tr></Button
     >
   {:else if howToPlayStep === 2}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">
@@ -137,7 +137,8 @@
       </p>
     </div>
     <Button class="bg-fractalorange border-2 border-black" on:click={inc}
-      >Next: How Claims Work</Button
+      ><En>Next: How Claims Work</En><Tr>Sıradaki: Talepler Nasıl Çalışır</Tr
+      ></Button
     >
   {:else if howToPlayStep === 3}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">
@@ -170,7 +171,10 @@
     {:else}
       <Button
         class="bg-fractalorange border-2 border-black"
-        on:click={completeOnboarding}>Ok, I'm ready to play!</Button
+        on:click={completeOnboarding}
+        ><En>Ok, I'm ready to play!</En><Tr
+          >Tamam, şimdi oynamaya hazırım!
+        </Tr></Button
       >
     {/if}
   {:else if howToPlayStep === 4}
@@ -191,7 +195,8 @@
       <Input defaultClass="text-center" type="text" bind:value={name} />
       {#if badNameCharLength}
         <p transition:fade class="text-red-500">
-          Name must be between 2 and 15 characters
+          <En>Name must be between 2 and 15 characters</En>
+          <Tr>Adınız 2 ile 15 karakter arasında olmalıdır</Tr>
         </p>
       {/if}
     </div>
@@ -222,7 +227,7 @@
     </div>
     <Button
       class="bg-fractalorange border-2 border-black"
-      on:click={completeOnboarding}>I'm ready!</Button
+      on:click={completeOnboarding}><En>I'm ready!</En><Tr>Hazırım!</Tr></Button
     >
   {/if}
 </div>

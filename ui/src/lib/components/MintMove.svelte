@@ -11,6 +11,8 @@
   import { happ } from "$lib/stores";
   import { Confetti } from "svelte-confetti";
   import { price } from "$lib/constants";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   export let tokenId: bigint;
   export let open: boolean;
@@ -58,20 +60,42 @@
 
 <div class="flex flex-col justify-center gap-y-4">
   {#if $status == "idle" || $status == "error"}
-    <Heading tag="h4">Mint snapshot</Heading>
+    <Heading tag="h4"
+      ><En>Mint snapshot</En><Tr>Görüntüyü bas (mintle)</Tr></Heading
+    >
     <p>
-      Collecting another player's snapshot costs {formatEther(price)} MATIC.
+      <En>
+        Collecting another player's snapshot costs {formatEther(price)} MATIC.</En
+      ><Tr>
+        Başka bir oyuncunun oluşturduğu görüntüyü almak {formatEther(price)} MATIC'e
+        mâl olur.</Tr
+      >
     </p>
     <p>
-      By minting this snapshot you are helping push this version of the artwork
-      up the leaderboard.
+      <En>
+        By minting this snapshot you are helping push this version of the
+        artwork up the leaderboard.</En
+      ><Tr
+        >Bu görüntüyü basarak (mintleyerek) eserin bu versiyonunun liderlik
+        tablosunda yükselmesine yardımcı oluyorsunuz.</Tr
+      >
     </p>
     <p>
-      The MATIC collected will be sent to the game pool to be redistributed to
-      players at the end of the game
+      <En>
+        The MATIC collected will be sent to the game pool to be redistributed to
+        players at the end of the game</En
+      ><Tr
+        >Toplanan MATIC, oyun sonunda oyunculara yeniden dağıtılmak üzere oyun
+        havuzuna gönderilecektir.</Tr
+      >
     </p>
     <p>
-      Your wallet must be connected to the Polygon network to mint a snapshot.
+      <En>
+        Your wallet must be connected to the Polygon network to mint a snapshot.</En
+      ><Tr
+        >Bir görüntü basmak (mintlemek) için cüzdanınızın Polygon ağına bağlı
+        olması gerekir.
+      </Tr>
     </p>
     <div class="flex gap-x-2">
       <Button
@@ -87,7 +111,7 @@
           disabled={wrongNetwork || notEnoughBalance || mismatchingKey}
           on:click={mintMove}
         >
-          Mint snapshot
+          <En>Mint snapshot</En><Tr>Görüntüyü bas (mintle)</Tr>
         </Button>
       {:else}
         <Button
@@ -101,19 +125,36 @@
     {#if wrongNetwork}
       <Alert>
         <p>
-          You're connected to the wrong network. Please switch to the{" "}
-          {$happ.dnaProperties.chainId === 137 ? "Polygon" : "Mumbai"}{" "}
-          network.
+          <En>
+            You're connected to the wrong network. Please switch to the{" "}
+            {$happ.dnaProperties.chainId === 137 ? "Polygon" : "Mumbai"}{" "}
+            network.</En
+          ><Tr
+            >Yanlış ağa bağlandınız. Lütfen{" "}
+            {$happ.dnaProperties.chainId === 137
+              ? "Polygon"
+              : "Mumbai"}{" "}ağına bağlanınız.</Tr
+          >
         </p>
       </Alert>
     {:else if mismatchingKey}
       <Alert>
         <p>
-          You previously bound the Ethereum wallet {key} to your Holochain agent
-          key.
+          <En>
+            You previously bound the Ethereum wallet {key} to your Holochain agent
+            key.</En
+          ><Tr
+            >Daha önce Ethereum cüzdanını {key} Holochain anahtarınıza bağladınız.</Tr
+          >
         </p>
         <p>
-          You'll need switch to this account in your wallet before you can mint.
+          <En>
+            You'll need switch to this account in your wallet before you can
+            mint.</En
+          ><Tr
+            >Görüntüyü basabilmeniz (mintleyebilmeniz) için cüzdanınızda bu
+            hesaba geçiş yapmanız gerekir.</Tr
+          >
         </p>
       </Alert>
     {/if}
@@ -133,8 +174,15 @@
   {:else if $status === "loading"}
     <div in:fade class="flex flex-col items-center gap-y-4 my-12">
       <Spinner size="10" class="mr-2" />
-      <Heading tag="h4" class="text-center">Minting snapshot</Heading>
-      <span>Please check your wallet to confirm</span>
+      <Heading tag="h4" class="text-center"
+        ><En>Minting snapshot</En><Tr>Görüntüyü basıyor (mintliyor)</Tr
+        ></Heading
+      >
+      <span
+        ><En>Please check your wallet to confirm</En><Tr
+          >Teyit etmek için lütfen cüzdanını kontrol et</Tr
+        ></span
+      >
     </div>
   {:else if $status === "success"}
     <div class="fixed inset-0 translate-x-1/2 pointer-events-none">
@@ -149,22 +197,26 @@
     </div>
     <div in:fade class="flex flex-col items-center gap-y-4 my-12">
       <div class="rounded-full bg-gray-100 p-6 text-4xl">🎉</div>
-      <Heading class="text-center" tag="h4">Minting successful!</Heading>
+      <Heading class="text-center" tag="h4"
+        ><En>Minting successful!</En><Tr>Basma (mintleme) işlemi başarılı!</Tr
+        ></Heading
+      >
       <p>
-        Snapshot minted!
+        <En>Snapshot minted!</En><Tr>Görüntü basıldı!</Tr>
         <a
           href={`${$network.chain.blockExplorers.default.url}/tx/${hash}`}
           target="_blank"
           class="underline"
         >
-          View on explorer</a
+          <En>View on explorer</En><Tr>Kaşif (Explorer) üzerinde görüntüle</Tr
+          ></a
         >
       </p>
       <Button
         class="bg-fractalorange border-2 border-black"
         on:click={() => {
           open = false;
-        }}>Done</Button
+        }}><En>Done</En><Tr>Tamam</Tr></Button
       >
     </div>
   {/if}

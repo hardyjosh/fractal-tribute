@@ -132,19 +132,36 @@
     {#if wrongNetwork}
       <Alert>
         <p>
-          You're connected to the wrong network. Please switch to the{" "}
-          {$happ.dnaProperties.chainId === 137 ? "Polygon" : "Mumbai"}{" "}
-          network.
+          <En>
+            You're connected to the wrong network. Please switch to the{" "}
+            {$happ.dnaProperties.chainId === 137 ? "Polygon" : "Mumbai"}{" "}
+            network.</En
+          ><Tr
+            >Yanlış ağa bağlandınız. Lütfen{" "}
+            {$happ.dnaProperties.chainId === 137
+              ? "Polygon"
+              : "Mumbai"}{" "}ağına bağlanınız.</Tr
+          >
         </p>
       </Alert>
     {:else if mismatchingKey}
       <Alert>
         <p>
-          You previously bound the Ethereum wallet {key} to your Holochain agent
-          key.
+          <En>
+            You previously bound the Ethereum wallet {key} to your Holochain agent
+            key.</En
+          ><Tr
+            >Daha önce Ethereum cüzdanını {key} Holochain anahtarınıza bağladınız.</Tr
+          >
         </p>
         <p>
-          You'll need switch to this account in your wallet before you can mint.
+          <En>
+            You'll need switch to this account in your wallet before you can
+            mint.</En
+          ><Tr
+            >Görüntüyü basabilmeniz (mintleyebilmeniz) için cüzdanınızda bu
+            hesaba geçiş yapmanız gerekir.</Tr
+          >
         </p>
       </Alert>
     {/if}

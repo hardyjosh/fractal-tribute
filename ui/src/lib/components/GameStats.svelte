@@ -2,7 +2,7 @@
   import type { Writable } from "svelte/store";
   import { Heading } from "flowbite-svelte";
   import { formatUnits } from "viem";
-  import { happ, paymentTokenAddress } from "$lib/stores";
+  import { happ, paymentTokenAddress, language } from "$lib/stores";
   import { fetchToken } from "@wagmi/core";
   import { nfts } from "$lib/stores/nfts";
   import { price } from "$lib/constants";
@@ -45,33 +45,41 @@
   >
     <ParticipationStat
       {ready}
-      name="Total pool size"
+      name={$language == "en"
+        ? "Total pool size"
+        : "Toplam Fon Havuzu Büyüklüğü"}
       value={`${poolsizeFormatted} MATIC`}
     />
     <ParticipationStat
       ready={!!$participations?.agent_participations.length}
-      name="Number of creators"
+      name={$language == "en" ? "Number of creators" : "Yaratıcı Sayısı"}
       value={$participations?.agent_participations.length.toString()}
     />
     <ParticipationStat
       ready={!!$participations?.total_pixels_changed}
-      name="Total pixels changed"
+      name={$language == "en"
+        ? "Total pixels changed"
+        : "Değiştirilen Toplam Piksel"}
       value={$participations?.total_pixels_changed.toString()}
     />
     {#if $countdown.timeRemaining}
       <ParticipationStat
         {ready}
-        name="Game time remaining"
+        name={$language == "en" ? "Game time remaining" : "Kalan Oyun Süresi"}
         value={formatCountdown($countdown)}
       />
     {:else if $snapshotEndCountdown.timeRemaining}
       <ParticipationStat
         {ready}
-        name="Mint time remaining"
+        name={$language == "en" ? "Mint time remaining" : "Kalan Mint Süresi"}
         value={formatCountdown($snapshotEndCountdown)}
       />
     {:else}
-      <ParticipationStat {ready} name="Time remaining" value="Game ended" />
+      <ParticipationStat
+        {ready}
+        name={$language == "en" ? "Time remaining" : "Kalan Süre"}
+        value={$language == "en" ? "Game ended" : "Oyun Bitti"}
+      />
     {/if}
   </div>
 </div>
