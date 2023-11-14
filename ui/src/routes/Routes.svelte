@@ -11,6 +11,7 @@
   import { ADDITIONAL_MINT_PERIOD } from "$lib/constants";
   import En from "$lib/components/i18n/En.svelte";
   import Tr from "$lib/components/i18n/Tr.svelte";
+  import LanguageSwitcher from "$lib/components/LanguageSwitcher.svelte";
 
   const countdown = createCountdownStore($happ.dnaProperties.gameEndTime);
   const snapshotEndCountdown = createCountdownStore(
@@ -38,10 +39,10 @@
 <div class="flex gap-x-2 mb-4 items-center justify-between">
   <img src={logo} alt="fractal tribute logo" />
   <div class="flex items-center gap-x-6">
-    {#each routes as route, i}
+    {#each $routes as route, i}
       <button
         class="text-lg"
-        class:font-bold={$currentRoute.name === route.name}
+        class:font-bold={$currentRoute.id === route.id}
         on:click={() => {
           setRoute(route.name);
         }}>{route.name}</button
@@ -67,6 +68,7 @@
       <QuestionCircleOutline class="mr-2" />
       <En>How to play</En><Tr>Nasıl oynanır</Tr>
     </Button>
+    <LanguageSwitcher />
   </div>
 </div>
 

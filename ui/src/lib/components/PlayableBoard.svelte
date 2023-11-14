@@ -264,7 +264,7 @@
           >
             {#if saving}
               <Spinner size="5" class="mr-2" />
-              Saving
+              <En>Saving</En><Tr>Kaydediliyor...</Tr>
             {:else if saved && !move.changes.length}
               <En>Saved</En><Tr>Kaydedildi</Tr>
             {:else}
@@ -297,20 +297,40 @@
       <div
         class="p-4 border-2 border-black rounded-lg mb-4 flex flex-col items-center text-center text-xl gap-y-6 py-12"
       >
-        <Heading tag="h4">This game has ended!</Heading>
+        <Heading tag="h4"
+          ><En>This game has ended!</En><Tr>Bu oyun sona erdi!</Tr></Heading
+        >
         <p>
-          This means no new moves can be made and no new snapshots can be
-          created.
+          <En
+            >This means no new moves can be made and no new snapshots can be
+            created.</En
+          >
+          <Tr
+            >Bu, yeni hamlelerin yapılamayacağı ve yeni anlık görüntülerin
+            oluşturulamayacağı anlamına gelir.</Tr
+          >
         </p>
         {#if $snapshotEndCountdown.timeRemaining}
           <p class="font-bold">
-            However, you are free to collect existing snapshot NFTs until claims
-            open in {formatCountdown($snapshotEndCountdown)}
+            <En
+              >However, you are free to collect existing snapshot NFTs until
+              claims open in {formatCountdown($snapshotEndCountdown)}</En
+            >
+            <Tr
+              >Ancak, iddialar açılana kadar mevcut anlık görüntü NFT'lerini
+              toplamakta özgürsünüz {formatCountdown($snapshotEndCountdown)}
+            </Tr>
           </p>
         {:else}
           <p>
-            Claims are now open! Head over to the leaderboard to see what your
-            share of the pool is and claim.
+            <En
+              >Claims are now open! Head over to the leaderboard to see what
+              your share of the pool is and claim.</En
+            >
+            <Tr
+              >İddialar şimdi açık! Havuzunuzun payını görmek ve talep etmek
+              için liderlik tablosuna gidin.
+            </Tr>
           </p>
         {/if}
       </div>
@@ -321,7 +341,9 @@
 <Modal size="sm" bind:open={saving}>
   <div class="flex flex-col items-center justify-center p-4 gap-y-4">
     <Spinner size="10" />
-    <span class="text-lg">Saving move...</span>
+    <span class="text-lg"
+      ><En>Saving move...</En><Tr>Hamleyi kaydediyor</Tr></span
+    >
   </div>
 </Modal>
 

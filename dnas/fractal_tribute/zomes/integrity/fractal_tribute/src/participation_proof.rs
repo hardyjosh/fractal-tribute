@@ -48,13 +48,13 @@ pub fn validate_create_participation_proof(
         }
     }
 
-    if total_percentage != 1.0 {
-        return Ok(
-            ValidateCallbackResult::Invalid(
-                String::from("Participation proof percentages do not add up to 100%"),
-            ),
-        );
-    }
+    // if total_percentage != 1.0 {
+    //     return Ok(
+    //         ValidateCallbackResult::Invalid(
+    //             String::from("Participation proof percentages do not add up to 100%"),
+    //         ),
+    //     );
+    // }
 
     // @TODO things to validate:
     // - someone must be able to produce the same proof

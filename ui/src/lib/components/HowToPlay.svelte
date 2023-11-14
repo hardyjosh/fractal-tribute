@@ -10,6 +10,7 @@
   import howtoplay4 from "$lib/assets/how-to-play-4.svg";
   import En from "$lib/components/i18n/En.svelte";
   import Tr from "$lib/components/i18n/Tr.svelte";
+  import LanguageSwitcher from "$lib/components/LanguageSwitcher.svelte";
 
   export let hasEvmAddress: boolean;
 
@@ -78,6 +79,7 @@
     <Button class="bg-fractalorange border-2 border-black" on:click={inc}
       ><En>Next: How to Play</En><Tr>Sıradaki: Nasıl Oynanır</Tr></Button
     >
+    <LanguageSwitcher />
   {:else if howToPlayStep === 1}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">
       <img class="w-80" src={howtoplay1} alt="" />

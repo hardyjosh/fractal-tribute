@@ -10,6 +10,8 @@
   import { nfts } from "$lib/stores/nfts";
   import { countdownContext, type CountdownContextType } from "$lib/contexts";
   import CanvasBoard from "$lib/components/CanvasBoard.svelte";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   const dispatch = createEventDispatcher();
   const { countdown, snapshotEndCountdown } = getContext(
@@ -51,7 +53,8 @@
         // snapshotMove(board.creationHash);
       }}
       disabled
-      class="bg-fractalorange border-2 border-black">Snapshot created</Button
+      class="bg-fractalorange border-2 border-black"
+      ><En>Snapshot created</En><Tr>Anlık görüntü oluşturuldu</Tr></Button
     >
   {:else}
     <Button
@@ -60,7 +63,8 @@
         dispatch("snapshot");
         // snapshotMove(board.creationHash);
       }}
-      class="bg-fractalorange border-2 border-black">Create snapshot</Button
+      class="bg-fractalorange border-2 border-black"
+      ><En>Create snapshot</En><Tr>Anlık görüntü al</Tr></Button
     >
   {/if}
 </div>
