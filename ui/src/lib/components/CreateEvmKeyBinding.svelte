@@ -125,7 +125,7 @@
         below and scan the the QR code with your wallet app</En
       ><Tr
         >Devam etmek için, lütfen istediğin bir cüzdanı bağla. Aşağıdaki butona
-        tıkla ve cihazındaki cüzdan uygulamasını kullanarak karekodu tara</Tr
+        tıkla ve cihazındaki cüzdan uygulamasını kullanarak karekodu tara.</Tr
       ></span
     >
     <span

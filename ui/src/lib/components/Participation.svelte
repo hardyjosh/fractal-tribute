@@ -48,13 +48,15 @@
 </script>
 
 <div class="flex flex-col gap-y-4">
-  <Heading tag="h3" class="mt-14">My Stats</Heading>
+  <Heading tag="h3" class="mt-14"
+    ><En>My Stats</En><Tr>İstatistiklerim</Tr></Heading
+  >
   <div class="flex justify-between gap-4 rounded-xl bg-gray-50 p-8">
     <ParticipationStat
       {ready}
       name={$language == "en"
         ? "Your pixels changed"
-        : "Değiştirilen piksellerim"}
+        : "Değiştirdiğim piksel sayısı"}
       value={`${
         myParticipation?.pixels_changed?.toString() || 0
       } / ${participations?.total_pixels_changed?.toString()}`}

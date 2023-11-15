@@ -105,7 +105,7 @@
       </p>
     </div>
     <Button class="bg-fractalorange border-2 border-black" on:click={inc}
-      ><En>Next: About the NFTs</En><Tr>Sıradaki: NFT’ler Hakkinda</Tr></Button
+      ><En>Next: About the NFTs</En><Tr>Sıradaki: NFT’ler Hakkında</Tr></Button
     >
   {:else if howToPlayStep === 2}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">

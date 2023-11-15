@@ -6,6 +6,8 @@
   import { happ } from "$lib/stores";
   import { formatAddress } from "$lib/helpers";
   import { encodeHashToBase64 } from "@holochain/client";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   export let participations: ParticipationProof;
 
@@ -37,7 +39,7 @@
         <div class="border-r border-gray-300 pr-2 mr-2">
           {(agent.percentage_of_total_pixels_changed * 100).toPrecision(4)}%
         </div>
-        <div>{agent.pixels_changed} pixels</div>
+        <div>{agent.pixels_changed} <En>pixels</En><Tr>piksel</Tr></div>
       </div>
     </div>
   {/each}
