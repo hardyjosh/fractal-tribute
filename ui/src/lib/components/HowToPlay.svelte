@@ -54,12 +54,12 @@
       >
       <p>
         <En>
-          This game began at 10am PDT on Thursday, November 2nd and ends at 10am
-          PDT on Tuesday November 7th.</En
+          This game began at 8.00pm UTC+3 on Friday, 17th of November and ends
+          at 8.00pm UTC+3 on Sunday, 19th of November.</En
         >
         <Tr>
-          Bu oyun 2 Kasım Perşembe günü sabah 10'da (PDT) başladı ve 7 Kasım
-          Salı günü sabah 10'da (PDT) sona erecek.
+          Bu oyun 17 Kasım Cuma günü saat 20:00'da (UTC+3) başladı ve 19 Kasım
+          Pazar günü saat 20:00'da (UTC+3) sona erecek.
         </Tr>
       </p>
       <p>

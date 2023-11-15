@@ -314,11 +314,14 @@
           <p class="font-bold">
             <En
               >However, you are free to collect existing snapshot NFTs until
-              claims open in {formatCountdown($snapshotEndCountdown)}</En
+              claims open in {formatCountdown($snapshotEndCountdown, "tr")}</En
             >
             <Tr
-              >Ancak, iddialar açılana kadar mevcut anlık görüntü NFT'lerini
-              toplamakta özgürsünüz {formatCountdown($snapshotEndCountdown)}
+              >Ancak, talepte bulunabilme süreci başlayana kadar mevcut NFT'leri
+              toplamakta özgürsünüz. Talep başlangıcına {formatCountdown(
+                $snapshotEndCountdown,
+                "tr"
+              )} kaldı.
             </Tr>
           </p>
         {:else}
