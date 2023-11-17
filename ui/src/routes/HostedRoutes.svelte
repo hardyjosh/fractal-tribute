@@ -76,13 +76,13 @@
   <div class="flex gap-4 md:flex-row flex-col justify-end w-full md:w-auto">
     <Button
       size="lg"
-      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.2.0/fractal-tribute_0.2.0_universal.dmg"
+      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.3.0/fractal-tribute_0.3.0_universal.dmg"
       class="bg-fractalorange border-2 border-black whitespace-nowrap"
       ><En>Download for Mac</En><Tr>Mac için indir</Tr></Button
     >
     <Button
       size="lg"
-      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.2.0/fractal-tribute_0.2.0_x64-setup.exe"
+      href="https://github.com/holochain-apps/fractal-tribute-kangaroo/releases/download/v0.3.0/fractal-tribute_0.3.0_x64-setup.exe"
       class="bg-fractalorange border-2 border-black whitespace-nowrap"
       ><En>Download for Windows</En><Tr>Windows için indir</Tr></Button
     >
