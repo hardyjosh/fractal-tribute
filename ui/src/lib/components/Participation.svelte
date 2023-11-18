@@ -10,6 +10,8 @@
   import { countdownContext, type CountdownContextType } from "$lib/contexts";
   import Claim from "$lib/components/Claim.svelte";
   import { price } from "$lib/constants";
+  import En from "$lib/components/i18n/En.svelte";
+  import Tr from "$lib/components/i18n/Tr.svelte";
 
   const { countdown, snapshotEndCountdown } = getContext(
     countdownContext
