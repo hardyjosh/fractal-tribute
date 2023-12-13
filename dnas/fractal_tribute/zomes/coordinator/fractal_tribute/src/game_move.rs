@@ -1,6 +1,6 @@
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
-use crate::{evm_key_binding::_get_evm_address, dna_properties::get_dna_properties};
+use crate::{evm_key_binding::get_evm_address, dna_properties::get_dna_properties};
 
 #[hdk_extern]
 pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
@@ -45,22 +45,7 @@ pub fn create_game_move(game_move_bytes: Vec<u8>) -> ExternResult<Record> {
 #[hdk_extern]
 pub fn create_tokenid_for_game_move(game_move_hash: ActionHash) -> ExternResult<()> {
     // add the extra 12 empty bytes so it matches the Solidty uint256
-    let key_result = _get_evm_address();
-    let key_bytes = match key_result {
-        Ok(key) => {
-            match key {
-                Some(key) => 
-                    key
-                ,
-                None => {
-                    return Err(wasm_error!("No EVM key found"));
-                }
-            }
-        },
-        Err(e) => {
-            return Err(wasm_error!(e.to_string()));
-        }
-    };
+    let key_bytes = get_evm_address(())?;
 
     let content_bytes = game_move_hash.clone().get_raw_39().to_vec();
 

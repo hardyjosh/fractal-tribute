@@ -92,16 +92,6 @@ pub fn validate_create_game_move(
     _game_move: GameMove,
 ) -> ExternResult<ValidateCallbackResult> {
 
-    if *_action.action_seq() < 6u32 {
-        return Ok(
-            ValidateCallbackResult::Invalid(
-                String::from("EVM pubkey binding must be the first action after genesis"),
-            ),
-        )
-    }
-
-    
-    
     // check that all of the pixel changes are within the bounds of the board
     // we also only support 33 graphic options
     for change in _game_move.changes.iter() {

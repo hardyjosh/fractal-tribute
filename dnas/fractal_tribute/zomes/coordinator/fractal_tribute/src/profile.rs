@@ -15,7 +15,7 @@ pub fn create_profile(profile: Profile) -> ExternResult<Record> {
 
     // create a link from the agent to the profile
     let agent_address = agent_info()?.agent_latest_pubkey;
-    let agent_profile_link = create_link(
+    create_link(
         agent_address,
         profile_hash.clone(),
         LinkTypes::AgentToProfile,
