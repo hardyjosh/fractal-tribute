@@ -208,9 +208,9 @@
       on:click={inc}
       ><En>Create my Profile</En><Tr>Profilimi oluştur</Tr>
     </Button>
+    <!-- {:else if howToPlayStep === 5}
+    <CreateEvmKeyBinding on:evmKeyBindingCreated={inc} /> -->
   {:else if howToPlayStep === 5}
-    <CreateEvmKeyBinding on:evmKeyBindingCreated={inc} />
-  {:else if howToPlayStep === 6}
     <div in:fade class="flex flex-col gap-y-5 text-center">
       <Heading tag="h4"
         ><En>That's it! Be creative and have fun 💫</En><Tr

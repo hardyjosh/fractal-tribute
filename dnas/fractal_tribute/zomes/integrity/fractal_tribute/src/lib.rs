@@ -29,7 +29,8 @@ pub enum LinkTypes {
     AllGameMoves,
     AgentToEvmKeyBinding,
     AgentToProfile,
-    SignedParticipationProof
+    SignedParticipationProof,
+    AgentToGameMove
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -194,6 +195,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         target_address,
                         tag,
                     )
+                },
+                LinkTypes::AgentToGameMove => {
+                    validate_create_link_agent_to_game_move(action, base_address, target_address, tag)
                 }
             },
             OpType::RegisterDeleteLink {
@@ -240,6 +244,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         target_address,
                         tag,
                     )
+                },
+                LinkTypes::AgentToGameMove => {
+                    validate_delete_link_agent_to_game_move(action, original_action, base_address, target_address, tag)
                 }
             },
             OpType::StoreRecord(store_record) => match store_record {
@@ -525,6 +532,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             target_address,
                             tag,
                         )
+                    },
+                    LinkTypes::AgentToGameMove => {
+                        validate_create_link_agent_to_game_move(action, base_address, target_address, tag)
                     }
                 },
                 OpRecord::DeleteLink {
@@ -590,6 +600,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.target_address,
                                 create_link.tag,
                             )
+                        },
+                        LinkTypes::AgentToGameMove => {
+                            validate_delete_link_agent_to_game_move(action, create_link.clone(), base_address, create_link.target_address, create_link.tag)
                         }
                     }
                 }

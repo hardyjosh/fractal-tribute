@@ -259,6 +259,63 @@ export class DnaInterface {
         }
     }
 
+    // create_favourite_move
+    async createFavouriteMove(gameMoveHash: ActionHash): Promise<void> {
+        try {
+            await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'create_favourite_move',
+                payload: gameMoveHash,
+            });
+        } catch (e) {
+            console.log(e?.data?.data || e);
+        }
+    }
+
+    // get_favourite_moves_for_agent
+    async getFavouriteMovesForAgent(agentPubkey: AgentPubKey): Promise<GameMoveWithActionHash[]> {
+        try {
+            const records = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_favourite_moves_for_agent',
+                payload: agentPubkey,
+            }) as Record[];
+            return records.map(record => {
+                const gameMove = decode(record.entry as any) as GameMove;
+                const actionHash = record.signed_action.hashed.hash;
+                return { gameMove, actionHash };
+            });
+        } catch (e) {
+            console.log(e?.data?.data || e);
+            return [];
+        }
+    }
+
+    // get_favourite_moves_for_current_agent
+    async getFavouriteMovesForCurrentAgent(): Promise<GameMoveWithActionHash[]> {
+        try {
+            const records = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_favourite_moves_for_current_agent',
+                payload: null,
+            }) as Record[];
+            return records.map(record => {
+                const gameMove = decode(record.entry as any) as GameMove;
+                const actionHash = record.signed_action.hashed.hash;
+                return { gameMove, actionHash };
+            });
+        } catch (e) {
+            console.log(e?.data?.data || e);
+            return [];
+        }
+    }
+
     // board
     async getLatestBoard(): Promise<BoardWithMetadata> {
         try {

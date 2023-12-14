@@ -6,6 +6,7 @@ pub mod participation_proof;
 pub mod dna_properties;
 pub mod profile;
 pub mod board_images;
+pub mod favourite_moves;
 
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;

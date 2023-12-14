@@ -269,6 +269,43 @@ pub fn validate_delete_link_all_game_moves(
     Ok(ValidateCallbackResult::Invalid(String::from("All game moves links cannot be deleted")))
 }
 
+pub fn validate_create_link_agent_to_game_move(
+    _action: CreateLink,
+    _base_address: AnyLinkableHash,
+    target_address: AnyLinkableHash,
+    _tag: LinkTag,
+) -> ExternResult<ValidateCallbackResult> {
+    // The creator of the link must be the agent themselves
+    if _action.author.as_hash().get_raw_36() != _base_address.as_hash().get_raw_36() {
+        return Ok(ValidateCallbackResult::Invalid(String::from("Agent can only link to their own game moves")));
+    }
+    // Check the entry type for the given action hash
+    let action_hash = ActionHash::from(target_address);
+    let record = must_get_valid_record(action_hash)?;
+    let _game_move: crate::GameMove = record
+        .entry()
+        .to_app_option()
+        .map_err(|e| wasm_error!(e))?
+        .ok_or(
+            wasm_error!(
+                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
+            ),
+        )?;
+    Ok(ValidateCallbackResult::Valid)
+}
+
+pub fn validate_delete_link_agent_to_game_move(
+    _action: DeleteLink,
+    _original_action: CreateLink,
+    _base: AnyLinkableHash,
+    _target: AnyLinkableHash,
+    _tag: LinkTag,
+) -> ExternResult<ValidateCallbackResult> {
+    Ok(ValidateCallbackResult::Invalid(String::from("Agent to game move links cannot be deleted")))
+}
+
+
+
 // #[cfg(test)]
 // pub mod tests {
 //     use super::*;
