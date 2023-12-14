@@ -30,7 +30,6 @@
         class:tab-button-active={tabOption === "most-minted"}
         on:click={() => {
           tabOption = "most-minted";
-          console.log("clicked", tabOption);
         }}><En>Most Minted</En><Tr>En fazla basılanlar (mintlenen)</Tr></button
       >
       <button

@@ -16,10 +16,6 @@
   let key: Hex;
   let wrappers: HTMLElement[] = [];
 
-  // onMount(async () => {
-  //   key = await $happ.getEvmAddress();
-  // });
-
   export const updateMyBoards = async () => {
     const moves = await $happ.getFavouriteMovesForCurrentAgent();
     const _moveActions = moves.map((move) => move.actionHash);
@@ -84,12 +80,12 @@
     >
       <img src={no_moves} alt="no snapshots" />
       <p class="text-2xl font-semibold">
-        <En>No moves yet</En><Tr>Henüz hiçbir hamle yok</Tr>
+        <En>No favourite moves yet</En>
+        <Tr>Henüz favori hamlen yok</Tr>
       </p>
       <p>
-        <En>After you make your first move, it will appear here.</En><Tr
-          >İlk hamleni yaptıktan sonra burada görünecek</Tr
-        >
+        <En>After you favourite a move, it will appear here.</En>
+        <Tr>Bir hamleyi favorilere ekledikten sonra burada görünecek</Tr>
       </p>
     </div>
   {/if}
