@@ -20,7 +20,7 @@ pub fn get_favourite_moves_for_agent(agent_pubkey: AgentPubKey) -> ExternResult<
         .into_iter()
         .map(|link| GetInput::new(
             ActionHash::from(link.target).into(),
-            GetOptions::default(),
+            GetOptions::content(),
         ))
         .collect();
     let records: Vec<Record> = HDK

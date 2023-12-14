@@ -16,6 +16,7 @@
   import { Confetti } from "svelte-confetti";
   import En from "$lib/components/i18n/En.svelte";
   import Tr from "$lib/components/i18n/Tr.svelte";
+  import CreateEvmKeyBinding from "$lib/components/CreateEvmKeyBinding.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -25,7 +26,7 @@
   export let move: ActionHash;
   $: _move = hexToBigInt(keccak256(move));
 
-  const price = parseEther("0");
+  let createEvmKeyBinding: boolean = false;
 
   let key: Address;
   $: mismatchingKey = $account?.address && key && $account?.address !== key;
@@ -51,11 +52,16 @@
     await $happ.createTokenIdForGameMove(move);
     await write();
   };
-
-  $: console.log($error);
 </script>
 
-{#if ($status == "idle" || $status == "error") && !hash}
+{#if createEvmKeyBinding}
+  <CreateEvmKeyBinding
+    on:evmKeyBindingCreated={async () => {
+      createEvmKeyBinding = false;
+      key = await $happ.getEvmAddress();
+    }}
+  />
+{:else if ($status == "idle" || $status == "error") && !hash}
   <div in:fade class="flex flex-col justify-center gap-y-4">
     {#if isPostMove}
       <Heading tag="h4">Nice move!</Heading>
@@ -70,6 +76,16 @@
         >Anlık görüntü almak ücretsizdir, sadece aktarım ücreti (gas fee) ödemen
         yeterli.
       </Tr>
+    </p>
+    <p>
+      <En
+        >Before you can mint a snapshot, you must bind your Holochain key to
+        your Ethereum wallet.</En
+      >
+      <Tr
+        >Anlık görüntüyü basabilmek için önce Holochain anahtarını Ethereum
+        cüzdanına bağlamanız gerekir.</Tr
+      >
     </p>
     <p>
       <En>
@@ -107,7 +123,16 @@
           open = false;
         }}><En>Maybe later</En><Tr>Belki daha sonra</Tr></Button
       >
-      {#if $account?.isConnected}
+      {#if !key}
+        <Button
+          class="bg-fractalorange border-2 border-black"
+          on:click={() => {
+            createEvmKeyBinding = true;
+          }}
+        >
+          <En>Create binding</En><Tr>Bağlantı oluştur</Tr>
+        </Button>
+      {:else if $account?.isConnected}
         <Button
           class="bg-fractalorange border-2 border-black"
           disabled={mismatchingKey || wrongNetwork}

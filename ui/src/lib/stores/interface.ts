@@ -277,18 +277,19 @@ export class DnaInterface {
     // get_favourite_moves_for_agent
     async getFavouriteMovesForAgent(agentPubkey: AgentPubKey): Promise<GameMoveWithActionHash[]> {
         try {
-            const records = await this.client.callZome({
+            const request = await this.client.callZome({
                 cap_secret: null,
                 role_name,
                 zome_name,
                 fn_name: 'get_favourite_moves_for_agent',
                 payload: agentPubkey,
             }) as Record[];
-            return records.map(record => {
-                const gameMove = decode(record.entry as any) as GameMove;
-                const actionHash = record.signed_action.hashed.hash;
-                return { gameMove, actionHash };
-            });
+            const records: GameMoveWithActionHash[] = request.map((r: Record) => {
+                const gameMove = decode((r.entry as any).Present.entry) as GameMove
+                const actionHash = r.signed_action.hashed.hash
+                return { gameMove, actionHash }
+            })
+            return records
         } catch (e) {
             console.log(e?.data?.data || e);
             return [];
@@ -298,18 +299,19 @@ export class DnaInterface {
     // get_favourite_moves_for_current_agent
     async getFavouriteMovesForCurrentAgent(): Promise<GameMoveWithActionHash[]> {
         try {
-            const records = await this.client.callZome({
+            const request = await this.client.callZome({
                 cap_secret: null,
                 role_name,
                 zome_name,
                 fn_name: 'get_favourite_moves_for_current_agent',
                 payload: null,
             }) as Record[];
-            return records.map(record => {
-                const gameMove = decode(record.entry as any) as GameMove;
-                const actionHash = record.signed_action.hashed.hash;
-                return { gameMove, actionHash };
-            });
+            const records: GameMoveWithActionHash[] = request.map((r: Record) => {
+                const gameMove = decode((r.entry as any).Present.entry) as GameMove
+                const actionHash = r.signed_action.hashed.hash
+                return { gameMove, actionHash }
+            })
+            return records
         } catch (e) {
             console.log(e?.data?.data || e);
             return [];

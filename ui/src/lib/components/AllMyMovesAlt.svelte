@@ -16,12 +16,12 @@
   let key: Hex;
   let wrappers: HTMLElement[] = [];
 
-  onMount(async () => {
-    key = await $happ.getEvmAddress();
-  });
+  // onMount(async () => {
+  //   key = await $happ.getEvmAddress();
+  // });
 
   export const updateMyBoards = async () => {
-    const moves = await $happ.getAllMyGameMoves();
+    const moves = await $happ.getFavouriteMovesForCurrentAgent();
     const _moveActions = moves.map((move) => move.actionHash);
     _moveActions.reverse();
     moveActions = _moveActions;
@@ -41,9 +41,11 @@
 </script>
 
 <div class="flex flex-col gap-y-2">
-  <Heading tag="h3"><En>Your moves</En><Tr>Senin hamlelerin</Tr></Heading>
+  <Heading tag="h3"><En>Favourite moves</En><Tr>Senin hamlelerin</Tr></Heading>
   <p class="text-lg">
-    <En>Make a snapshot onchain for any of your moves by minting them</En><Tr
+    <En
+      >Make a snapshot onchain for any of your favourite moves by minting them</En
+    ><Tr
       >Hamlelerinden herhangi birini basarak (mintleyerek) zincir üzerinde bir
       anlık görüntü oluştur</Tr
     >
