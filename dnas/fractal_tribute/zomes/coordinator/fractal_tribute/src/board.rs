@@ -1,56 +1,7 @@
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
 use crate::all_game_moves::*;
-use serde::de;
-use resvg::*;
-use resvg::usvg::TreeParsing;
-use resvg::usvg::TreeWriting;
-use usvg::XmlOptions;
-use tiny_skia::*;
-use base64::{Engine as _, engine::general_purpose};
 use ethers_core::types::U256;
-
-#[hdk_entry_helper]
-pub struct SvgToPngArgs {
-    pub svg_data: String,
-    pub scale: f32,
-}
-
-pub fn svg_to_png(args: SvgToPngArgs) -> ExternResult<Pixmap> {
-    // Parse the SVG string
-    let opts = resvg::usvg::Options::default();
-    let utree = usvg::Tree::from_str(&args.svg_data, &opts)
-        .map_err(|e| wasm_error!(format!("Could not parse SVG: {:?} {}", e, args.svg_data)))?;
-    
-    let rtree = resvg::Tree::from_usvg(&utree);
-    wasm_error!("{:?}", utree.to_string(&XmlOptions::default()));
-
-    // Create a pixmap for rendering
-    let mut binding = Pixmap::new((rtree.size.width() * args.scale) as u32, (rtree.size.height() * args.scale) as u32)
-        .ok_or_else(|| wasm_error!("Could not create Pixmap"))?;
-    let mut pixmap = binding.as_mut();
-    
-    rtree.render(Transform::from_scale(args.scale, args.scale), &mut pixmap);
-
-    let pixmap = pixmap.to_owned();
-
-    Ok(pixmap)
-}
-
-#[hdk_extern]
-pub fn get_png_pattern_mask(option: u8) -> ExternResult<String> {
-    let svg = Board::generate_pattern_mask(option);
-    let pixmap = svg_to_png(SvgToPngArgs {
-        svg_data: svg,
-        scale: 1.0,
-    }).unwrap();
-    // Encode the pixmap as a PNG image
-    let png_bytes = pixmap.encode_png()
-    .map_err(|e| wasm_error!(format!("Could not encode PNG: {:?}", e)))?;
-    let base64_encoded = general_purpose::URL_SAFE_NO_PAD.encode(png_bytes);
-    let data_uri = format!("data:image/png;base64,{}", base64_encoded);
-    return Ok(data_uri);
-}
 
 #[hdk_extern]
 pub fn get_latest_board(_: ()) -> ExternResult<BoardWithMetadata> {
@@ -198,7 +149,5 @@ fn token_id_to_metadata(str: String) -> ExternResult<String> {
         image: svg,
     };
     let json = serde_json::to_string(&metadata).map_err(|_| wasm_error!("Could not serialize metadata"))?;
-    // debug!("json: {:?}", json);
-    // let base64_str = format!("data:application/json;base64,{}", base64::encode(json));
     Ok(json)
 }

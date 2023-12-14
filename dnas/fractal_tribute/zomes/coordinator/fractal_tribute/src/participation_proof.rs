@@ -147,7 +147,7 @@ pub fn get_signed_participation(evm_key: Vec<u8>) -> ExternResult<AgentParticipa
         .into_iter()
         .filter_map(|r| r)
         .collect();
-    if (records.len() == 0) {
+    if records.len() == 0 {
         return Err(wasm_error!("No signed participation proof found"));
     }
     let record = records[0].clone();

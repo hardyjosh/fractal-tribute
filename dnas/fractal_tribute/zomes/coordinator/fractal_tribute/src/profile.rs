@@ -39,7 +39,7 @@ pub fn get_profile(_agent_pub_key: AgentPubKey) -> ExternResult<Profile> {
         .into_iter()
         .filter_map(|r| r)
         .collect();
-    if (records.len() == 0) {
+    if records.len() == 0 {
         return Err(wasm_error!("No profile found for this agent"));
     }
     let profile: Profile = records[0].entry().to_app_option().map_err(|e| wasm_error!(e))?

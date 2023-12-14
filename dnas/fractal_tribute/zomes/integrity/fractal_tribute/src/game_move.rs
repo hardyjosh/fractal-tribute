@@ -254,9 +254,9 @@ pub fn validate_create_link_all_game_moves(
     let game_move_bytes = _game_move.to_bytes();
     // debug!("game_move_bytes: {:?}", game_move_bytes);
     // debug!("bytes: {:?}", bytes);
-    // if game_move_bytes != bytes {
-    //     return Ok(ValidateCallbackResult::Invalid(String::from("GameMove bytes do not match the link tag")));
-    // }
+    if game_move_bytes != bytes {
+        return Ok(ValidateCallbackResult::Invalid(String::from("GameMove bytes do not match the link tag")));
+    }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_all_game_moves(

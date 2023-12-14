@@ -15,7 +15,6 @@ pub fn set_cap_tokens() -> ExternResult<()> {
     let mut fns = BTreeSet::new();
 
     fns.insert((zome_info()?.name, "initialize_masks".into()));
-    fns.insert((zome_info()?.name, "get_png_pattern_mask".into()));
     fns.insert((zome_info()?.name, "svg_to_png".into()));
     fns.insert((zome_info()?.name, "get_evm_address".into()));
     fns.insert((zome_info()?.name, "get_agent_evm_address".into()));

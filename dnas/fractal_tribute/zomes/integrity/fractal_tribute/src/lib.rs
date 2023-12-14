@@ -638,7 +638,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 _ => Ok(ValidateCallbackResult::Valid),
             },
         },
-        Err(e) => Ok(ValidateCallbackResult::Valid),
+        Err(_) => Ok(ValidateCallbackResult::Valid),
     }
 }
 

@@ -3,7 +3,7 @@ use svg::node::Text;
 use crate::*;
 use svg::node::element::{Rectangle, Group};
 use svg::{Document, Node};
-use serde::{Deserialize, Deserializer};
+use serde::Deserialize;
 
 pub const BOARD_SIZE: usize = 40;
 pub const GRAPHIC_OPTIONS: usize = 17;

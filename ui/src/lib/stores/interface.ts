@@ -462,34 +462,6 @@ export class DnaInterface {
         }
     }
 
-    async svgToPng(svg: string, scale: number): Promise<Uint8Array> {
-        try {
-            return await this.client.callZome({
-                cap_secret: null,
-                role_name,
-                zome_name,
-                fn_name: 'svg_to_png',
-                payload: { svg_data: svg, scale },
-            }) as Uint8Array
-        } catch (e) {
-            console.log(e?.data?.data || e)
-        }
-    }
-
-    async getPngPatternMask(option: number): Promise<string> {
-        try {
-            return await this.client.callZome({
-                cap_secret: null,
-                role_name,
-                zome_name,
-                fn_name: 'get_png_pattern_mask',
-                payload: option,
-            }) as string
-        } catch (e) {
-            console.log(e?.data?.data || e)
-        }
-    }
-
     async boardToPng(board: Board, boardSize: "Small" | "Large" = "Large"): Promise<string> {
         try {
             const img = await this.client.callZome({

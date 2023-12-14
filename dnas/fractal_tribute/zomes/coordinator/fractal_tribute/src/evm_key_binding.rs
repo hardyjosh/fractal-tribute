@@ -1,7 +1,5 @@
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
-use std::convert::TryInto;
-use std::fmt;
 
 #[hdk_extern]
 pub fn create_evm_key_binding(evm_key_binding: EvmKeyBinding) -> ExternResult<Record> {
@@ -52,7 +50,7 @@ pub fn get_agent_evm_address(base: AgentPubKey) -> ExternResult<Vec<u8>> {
         .into_iter()
         .filter_map(|r| r)
         .collect();
-    if (records.len() == 0) {
+    if records.len() == 0 {
         return Err(wasm_error!("No EvmKeyBinding found for this agent"));
     }
     let evm_key_binding: EvmKeyBinding = records[0].entry().to_app_option().map_err(|e| wasm_error!(e))?
