@@ -122,6 +122,7 @@ export class DnaInterface {
             }
             return getAddress(bytesToHex(addressBytes))
         } catch (e) {
+            if (e?.message.toString().includes('No EvmKeyBinding found for this agent')) return null
             console.log(e?.data?.data || e)
             // console.log(e?.message.toString().includes('Record not found'))
         }
@@ -181,6 +182,7 @@ export class DnaInterface {
             }) as Profile
             return profile
         } catch (e) {
+            if (e?.message.toString().includes('No profile found for this agent')) return null
             console.log(e?.data?.data)
             console.log(e)
         }

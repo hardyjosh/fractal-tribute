@@ -6,7 +6,7 @@
   import { Heading, Modal, Spinner } from "flowbite-svelte";
   import no_moves from "$lib/assets/no_moves.svg";
   import type { ActionHash } from "@holochain/client";
-  import { bytesToHex, type Hex } from "viem";
+  import { bytesToBigint, bytesToHex, type Hex } from "viem";
   import MyMoveCard from "$lib/components/MyMoveCard.svelte";
   import IntersectionObserver from "svelte-intersection-observer";
   import Tr from "$lib/components/i18n/Tr.svelte";
@@ -15,6 +15,10 @@
   let moveActions: ActionHash[] = [];
   let key: Hex;
   let wrappers: HTMLElement[] = [];
+
+  onMount(async () => {
+    key = await $happ.getEvmAddress();
+  });
 
   export const updateMyBoards = async () => {
     const moves = await $happ.getFavouriteMovesForCurrentAgent();
