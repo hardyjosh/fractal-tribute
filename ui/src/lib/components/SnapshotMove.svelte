@@ -55,12 +55,14 @@
 </script>
 
 {#if createEvmKeyBinding}
-  <CreateEvmKeyBinding
-    on:evmKeyBindingCreated={async () => {
-      createEvmKeyBinding = false;
-      key = await $happ.getEvmAddress();
-    }}
-  />
+  <div class="w-full min-h-[400px] flex flex-col items-center justify-center">
+    <CreateEvmKeyBinding
+      on:evmKeyBindingCreated={async () => {
+        createEvmKeyBinding = false;
+        key = await $happ.getEvmAddress();
+      }}
+    />
+  </div>
 {:else if ($status == "idle" || $status == "error") && !hash}
   <div in:fade class="flex flex-col justify-center gap-y-4">
     {#if isPostMove}

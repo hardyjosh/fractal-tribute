@@ -38,7 +38,7 @@
 >
   {#if howToPlayStep === 0}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">
-      <img class="w-32" src={singlelogo} alt="fractal tribute logo" />
+      <img class="w-32 h-32" src={singlelogo} alt="fractal tribute logo" />
       <Heading tag="h2">
         <En>Welcome to Fractal Tribute!</En>
         <Tr>Fractal Tribute'e hoş geldin!</Tr>
@@ -82,7 +82,7 @@
     <LanguageSwitcher />
   {:else if howToPlayStep === 1}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">
-      <img class="w-80" src={howtoplay1} alt="" />
+      <img class="w-80 h-80" src={howtoplay1} alt="" />
       <p>
         <En>
           Creators make moves by placing pixels with colors and patterns… 20
@@ -109,7 +109,7 @@
     >
   {:else if howToPlayStep === 2}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">
-      <img class="w-80" src={mintsnapshot} alt="mint snapshot" />
+      <img class="w-80 h-80" src={mintsnapshot} alt="mint snapshot" />
       <p>
         <En>
           After a creator mints a snapshot, others can mint them as well,
@@ -144,7 +144,7 @@
     >
   {:else if howToPlayStep === 3}
     <div in:fade class="flex flex-col gap-y-5 text-center items-center">
-      <img class="w-80" src={howtoplay4} alt="" />
+      <img class="w-80 h-80" src={howtoplay4} alt="" />
       <p>
         <En>Sale of game NFTs will close 24 hours after the game ending.</En><Tr
           >Oyun NFT'lerinin satışı, oyun sona erdikten 24 saat sonra
