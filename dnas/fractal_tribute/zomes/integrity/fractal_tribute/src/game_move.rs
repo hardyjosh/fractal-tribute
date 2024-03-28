@@ -92,16 +92,6 @@ pub fn validate_create_game_move(
     _game_move: GameMove,
 ) -> ExternResult<ValidateCallbackResult> {
 
-    if *_action.action_seq() < 6u32 {
-        return Ok(
-            ValidateCallbackResult::Invalid(
-                String::from("EVM pubkey binding must be the first action after genesis"),
-            ),
-        )
-    }
-
-    
-    
     // check that all of the pixel changes are within the bounds of the board
     // we also only support 33 graphic options
     for change in _game_move.changes.iter() {
@@ -264,9 +254,9 @@ pub fn validate_create_link_all_game_moves(
     let game_move_bytes = _game_move.to_bytes();
     // debug!("game_move_bytes: {:?}", game_move_bytes);
     // debug!("bytes: {:?}", bytes);
-    // if game_move_bytes != bytes {
-    //     return Ok(ValidateCallbackResult::Invalid(String::from("GameMove bytes do not match the link tag")));
-    // }
+    if game_move_bytes != bytes {
+        return Ok(ValidateCallbackResult::Invalid(String::from("GameMove bytes do not match the link tag")));
+    }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_all_game_moves(
@@ -278,6 +268,43 @@ pub fn validate_delete_link_all_game_moves(
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Invalid(String::from("All game moves links cannot be deleted")))
 }
+
+pub fn validate_create_link_agent_to_game_move(
+    _action: CreateLink,
+    _base_address: AnyLinkableHash,
+    target_address: AnyLinkableHash,
+    _tag: LinkTag,
+) -> ExternResult<ValidateCallbackResult> {
+    // The creator of the link must be the agent themselves
+    if _action.author.as_hash().get_raw_36() != _base_address.as_hash().get_raw_36() {
+        return Ok(ValidateCallbackResult::Invalid(String::from("Agent can only link to their own game moves")));
+    }
+    // Check the entry type for the given action hash
+    let action_hash = ActionHash::from(target_address);
+    let record = must_get_valid_record(action_hash)?;
+    let _game_move: crate::GameMove = record
+        .entry()
+        .to_app_option()
+        .map_err(|e| wasm_error!(e))?
+        .ok_or(
+            wasm_error!(
+                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
+            ),
+        )?;
+    Ok(ValidateCallbackResult::Valid)
+}
+
+pub fn validate_delete_link_agent_to_game_move(
+    _action: DeleteLink,
+    _original_action: CreateLink,
+    _base: AnyLinkableHash,
+    _target: AnyLinkableHash,
+    _tag: LinkTag,
+) -> ExternResult<ValidateCallbackResult> {
+    Ok(ValidateCallbackResult::Invalid(String::from("Agent to game move links cannot be deleted")))
+}
+
+
 
 // #[cfg(test)]
 // pub mod tests {

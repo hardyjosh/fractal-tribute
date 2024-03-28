@@ -10,7 +10,6 @@ use std::collections::VecDeque;
 use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
 use std::sync::Mutex;
-use std::sync::atomic::{AtomicU32, Ordering};
 use once_cell::sync::OnceCell;
 use image::buffer::ConvertBuffer;
 
@@ -58,12 +57,6 @@ impl RenderCache {
         key.board_size.hash(&mut hasher);
         hasher.finish()
     }
-}
-
-#[derive (Clone, Copy)]
-struct Position {
-    x: u32,
-    y: u32,
 }
 
 const SMALL_MASKS: [&'static [u8]; GRAPHIC_OPTIONS] = [
@@ -145,7 +138,7 @@ fn initialize_masks(_: ()) -> ExternResult<()> {
             small_images.push(buf);
             debug!("loaded small mask image");
             progress += 1;
-            emit_signal(format!("progress: {}", progress));
+            let _ = emit_signal(format!("progress: {}", progress));
         }
         small_images
     });
@@ -158,7 +151,7 @@ fn initialize_masks(_: ()) -> ExternResult<()> {
             large_images.push(buf);
             debug!("loaded large mask image");
             progress += 1;
-            emit_signal(format!("progress: {}", progress));
+            let _ = emit_signal(format!("progress: {}", progress));
         }
         large_images
     });
@@ -216,7 +209,7 @@ pub fn board_to_png(input: BoardToPngInput) -> ExternResult<String> {
     let board = Board::from_board_input(input.board).map_err(|e| wasm_error!(e))?;
 
     // Ensure masks are initialized
-    initialize_masks(());
+    let _ = initialize_masks(());
 
     // Use the preloaded images
     let mask_images = if board_size == BoardSize::Small {
@@ -230,7 +223,7 @@ pub fn board_to_png(input: BoardToPngInput) -> ExternResult<String> {
     let img_buffer = draw_board(board, &mask_images[..], tile_size as u32);
 
     let mut buffer = Cursor::new(Vec::new());
-    let mut encoder = PngEncoder::new(&mut buffer);
+    let encoder = PngEncoder::new(&mut buffer);
     encoder.encode(&img_buffer, img_buffer.width(), img_buffer.height(), image::ColorType::Rgba8).unwrap();
     
     // base64 encode the buffer into a datauri for bmp

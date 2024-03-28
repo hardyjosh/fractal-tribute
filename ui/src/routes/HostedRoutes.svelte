@@ -86,17 +86,6 @@
       class="bg-fractalorange border-2 border-black whitespace-nowrap"
       ><En>Download for Windows</En><Tr>Windows için indir</Tr></Button
     >
-    <!-- <Button
-      on:click={() => {
-        open = true;
-      }}
-      size="lg"
-      color="none"
-      class="border-2 border-black"
-    >
-      <QuestionCircleOutline class="mr-2" />
-      How to play
-    </Button> -->
   </div>
 </div>
 

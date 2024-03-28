@@ -18,13 +18,17 @@
     svgURI =
       "data:image/svg+xml;utf8," +
       encodeURIComponent(minidenticon(bytesToHex(agentHash), 100, 60));
-    const agentAccount = await $happ.getAgentEvmAddress(agentHash);
-    const agentHotBalance = await fetchBalance({
-      chainId: 1,
-      address: agentAccount,
-      token: HOT_ADDRESS,
-    });
-    hotBalance = agentHotBalance.value;
+    try {
+      const agentAccount = await $happ.getAgentEvmAddress(agentHash);
+      const agentHotBalance = await fetchBalance({
+        chainId: 1,
+        address: agentAccount,
+        token: HOT_ADDRESS,
+      });
+      hotBalance = agentHotBalance.value;
+    } catch {
+      hotBalance = 0n;
+    }
   });
 
   $: hotHolder = hotBalance > HOT_TOKEN_THRESHOLD;

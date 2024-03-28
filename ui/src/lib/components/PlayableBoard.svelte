@@ -159,16 +159,17 @@
     move = move;
   };
 
-  const saveMove = async (promptSnapshot: boolean) => {
+  const saveMove = async (promptFavourite: boolean) => {
     try {
+      saving = true;
       const record = await $happ.createGameMove(move);
       savedMoveActionHash = record.signed_action.hashed.hash;
-      saving = true;
+      if (promptFavourite) await $happ.createFavouriteMove(savedMoveActionHash);
       await getBoard();
-      dispatch("moveSaved");
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200)); // adding a minimum delay for improved UX
+      dispatch("moveSaved"); // tell the parent component that we've saved a move so "my moves"
       saving = false;
-      if (promptSnapshot) snapshotMove = true;
+      if (promptFavourite) favouriteMove = true;
       move = {
         changes: [],
       };
@@ -209,7 +210,7 @@
   });
 
   // modal
-  let snapshotMove = false;
+  let favouriteMove = false;
   let savedMoveActionHash: ActionHash;
 </script>
 
@@ -276,7 +277,7 @@
             size="lg"
             disabled={!move.changes.length || saving}
             on:click={() => saveMove(true)}
-            ><En>Save & Mint Snapshot</En><Tr
+            ><En>Save & Favourite</En><Tr
               >Görüntüyü Kaydet & Bas (Mintle)
             </Tr></Button
           >
@@ -350,11 +351,26 @@
   </div>
 </Modal>
 
-<Modal bind:open={snapshotMove}>
-  <SnapshotMove
-    move={savedMoveActionHash}
-    bind:open={snapshotMove}
-    on:snapshotMinted
-    isPostMove
-  />
+<Modal bind:open={favouriteMove}>
+  <Heading tag="h4">
+    <En>Move Favourited!</En>
+    <Tr>Hamle Favorilere Eklendi!</Tr>
+  </Heading>
+  <p>
+    <En
+      >This move has been saved to your favouries. Allow others to collect it by
+      minting it onchain.</En
+    >
+    <Tr>
+      Bu hamle favorilerinize kaydedildi. Başkalarının onu toplamasına izin
+      vermek için onu zincirde mintleyin.
+    </Tr>
+  </p>
+  <Button
+    class="bg-fractalorange border-2 border-black grow"
+    size="lg"
+    on:click={() => (favouriteMove = false)}
+  >
+    Close</Button
+  >
 </Modal>

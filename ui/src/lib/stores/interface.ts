@@ -122,6 +122,7 @@ export class DnaInterface {
             }
             return getAddress(bytesToHex(addressBytes))
         } catch (e) {
+            if (e?.message.toString().includes('No EvmKeyBinding found for this agent')) return null
             console.log(e?.data?.data || e)
             // console.log(e?.message.toString().includes('Record not found'))
         }
@@ -181,6 +182,7 @@ export class DnaInterface {
             }) as Profile
             return profile
         } catch (e) {
+            if (e?.message.toString().includes('No profile found for this agent')) return null
             console.log(e?.data?.data)
             console.log(e)
         }
@@ -256,6 +258,65 @@ export class DnaInterface {
         } catch (e) {
             console.log(e?.data?.data)
             console.log(e)
+        }
+    }
+
+    // create_favourite_move
+    async createFavouriteMove(gameMoveHash: ActionHash): Promise<void> {
+        try {
+            await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'create_favourite_move',
+                payload: gameMoveHash,
+            });
+        } catch (e) {
+            console.log(e?.data?.data || e);
+        }
+    }
+
+    // get_favourite_moves_for_agent
+    async getFavouriteMovesForAgent(agentPubkey: AgentPubKey): Promise<GameMoveWithActionHash[]> {
+        try {
+            const request = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_favourite_moves_for_agent',
+                payload: agentPubkey,
+            }) as Record[];
+            const records: GameMoveWithActionHash[] = request.map((r: Record) => {
+                const gameMove = decode((r.entry as any).Present.entry) as GameMove
+                const actionHash = r.signed_action.hashed.hash
+                return { gameMove, actionHash }
+            })
+            return records
+        } catch (e) {
+            console.log(e?.data?.data || e);
+            return [];
+        }
+    }
+
+    // get_favourite_moves_for_current_agent
+    async getFavouriteMovesForCurrentAgent(): Promise<GameMoveWithActionHash[]> {
+        try {
+            const request = await this.client.callZome({
+                cap_secret: null,
+                role_name,
+                zome_name,
+                fn_name: 'get_favourite_moves_for_current_agent',
+                payload: null,
+            }) as Record[];
+            const records: GameMoveWithActionHash[] = request.map((r: Record) => {
+                const gameMove = decode((r.entry as any).Present.entry) as GameMove
+                const actionHash = r.signed_action.hashed.hash
+                return { gameMove, actionHash }
+            })
+            return records
+        } catch (e) {
+            console.log(e?.data?.data || e);
+            return [];
         }
     }
 
@@ -398,34 +459,6 @@ export class DnaInterface {
                 payload: Array.from(hexToBytes(evmKey)),
             }) as AgentParticipation
             return participation
-        } catch (e) {
-            console.log(e?.data?.data || e)
-        }
-    }
-
-    async svgToPng(svg: string, scale: number): Promise<Uint8Array> {
-        try {
-            return await this.client.callZome({
-                cap_secret: null,
-                role_name,
-                zome_name,
-                fn_name: 'svg_to_png',
-                payload: { svg_data: svg, scale },
-            }) as Uint8Array
-        } catch (e) {
-            console.log(e?.data?.data || e)
-        }
-    }
-
-    async getPngPatternMask(option: number): Promise<string> {
-        try {
-            return await this.client.callZome({
-                cap_secret: null,
-                role_name,
-                zome_name,
-                fn_name: 'get_png_pattern_mask',
-                payload: option,
-            }) as string
         } catch (e) {
             console.log(e?.data?.data || e)
         }

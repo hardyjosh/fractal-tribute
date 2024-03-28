@@ -6,6 +6,7 @@ pub mod participation_proof;
 pub mod dna_properties;
 pub mod profile;
 pub mod board_images;
+pub mod favourite_moves;
 
 use hdk::prelude::*;
 use fractal_tribute_integrity::*;
@@ -14,7 +15,6 @@ pub fn set_cap_tokens() -> ExternResult<()> {
     let mut fns = BTreeSet::new();
 
     fns.insert((zome_info()?.name, "initialize_masks".into()));
-    fns.insert((zome_info()?.name, "get_png_pattern_mask".into()));
     fns.insert((zome_info()?.name, "svg_to_png".into()));
     fns.insert((zome_info()?.name, "get_evm_address".into()));
     fns.insert((zome_info()?.name, "get_agent_evm_address".into()));

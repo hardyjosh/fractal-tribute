@@ -21,17 +21,17 @@
   setContext(countdownContext, { countdown, snapshotEndCountdown });
 
   let open: boolean = false;
-  let evm_address = null;
+  let profile = null;
 
   onMount(async () => {
-    evm_address = await $happ.getEvmAddress();
-    if (!evm_address) {
+    profile = await $happ.getProfile($happ.myPubKey());
+    if (!profile) {
       open = true;
     }
   });
 
   const openModal = async () => {
-    evm_address = await $happ.getEvmAddress();
+    profile = await $happ.getProfile($happ.myPubKey());
     open = true;
   };
 </script>
@@ -72,25 +72,16 @@
   </div>
 </div>
 
-<!-- {#if !open} -->
 <svelte:component this={$currentRoute.component} />
-<!-- {/if} -->
 
-<!-- <div
-  class:visible={open}
-  class:invisible={!open}
-  class="will-change-auto modal-wrapper inset-0 fixed"
-> -->
-<Modal permanent={!evm_address} bind:open defaultClass="rounded-2xl">
+<Modal permanent={!profile} bind:open defaultClass="rounded-2xl">
   <HowToPlay
-    hasEvmAddress={!!evm_address}
+    hasEvmAddress={!!profile}
     on:onboarding-complete={() => {
       open = false;
     }}
   /></Modal
 >
-
-<!-- </div> -->
 
 <style lang="postcss">
   .modal-wrapper {

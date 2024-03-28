@@ -1,7 +1,7 @@
 use std::fs::write;
 use resvg::tiny_skia::*;
-
-use fractal_tribute::board::*;
+use resvg::usvg::TreeParsing;
+use resvg::*;
 use fractal_tribute_integrity::board::*;
 
 fn main() {
@@ -38,5 +38,29 @@ fn write_image_buf(pixmap: Pixmap, path: String) {
     let image_buf = image::load_from_memory(&png_bytes).unwrap();
     let raw = image_buf.into_rgba8().into_raw();
     let _res = write(path, raw);
+}
+pub struct SvgToPngArgs {
+    pub svg_data: String,
+    pub scale: f32,
+}
+
+pub fn svg_to_png(args: SvgToPngArgs) -> Result<Pixmap, Box<dyn std::error::Error>> {
+    // Parse the SVG string
+    let opts = resvg::usvg::Options::default();
+    let utree = usvg::Tree::from_str(&args.svg_data, &opts)
+        .map_err(|e| format!("Could not parse SVG: {:?} {}", e, args.svg_data))?;
+    
+    let rtree = resvg::Tree::from_usvg(&utree);
+
+    // Create a pixmap for rendering
+    let mut binding = Pixmap::new((rtree.size.width() * args.scale) as u32, (rtree.size.height() * args.scale) as u32)
+        .ok_or("Could not create Pixmap")?;
+    let mut pixmap = binding.as_mut();
+    
+    rtree.render(Transform::from_scale(args.scale, args.scale), &mut pixmap);
+
+    let pixmap = pixmap.to_owned();
+
+    Ok(pixmap)
 }
 

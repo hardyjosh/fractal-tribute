@@ -19,13 +19,9 @@ pub fn get_all_game_moves(_: ()) -> ExternResult<Vec<Record>> {
 
 #[hdk_extern]
 pub fn get_all_game_moves_from_link_tags(_:()) -> ExternResult<Vec<GameMove>> {
-    // debug!("Starting to get all game moves from link tags");
     let path = Path::from("all_game_moves");
-    // debug!("Got path {:?}", path);
     let path_entry_hash = path.path_entry_hash()?;
-    // debug!("Got path entry hash");
     let links = get_links(path_entry_hash, LinkTypes::AllGameMoves, None)?;
-    // debug!("Got links");
     // get the bytes from each link tag and make a vector of game moves
     let game_moves: Vec<GameMove> = links
         .into_iter()

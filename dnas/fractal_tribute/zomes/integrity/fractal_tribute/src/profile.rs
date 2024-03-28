@@ -1,5 +1,4 @@
 use hdi::prelude::*;
-use ethers_core::types::*;
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
@@ -11,14 +10,6 @@ pub fn validate_create_profile(
     _action: EntryCreationAction,
     _profile: Profile,
 ) -> ExternResult<ValidateCallbackResult> {
-
-    if *_action.action_seq() < 6u32 {
-        return Ok(
-            ValidateCallbackResult::Invalid(
-                String::from("EVM pubkey binding must be the first action after genesis"),
-            ),
-        )
-    }
 
     // check that the name string isn't empty
     if _profile.name.is_empty() {

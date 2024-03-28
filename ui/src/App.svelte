@@ -28,7 +28,7 @@
     await initRenderMemory();
     await initWeb3Modal($happ.dnaProperties.chainId);
     feInitProgress++;
-    setIsHotHolder(await $happ.getEvmAddress());
+    // setIsHotHolder(await $happ.getEvmAddress());
     feInitProgress++;
     await tick();
     await initNftStore(await $happ.dnaProperties.chainId);
@@ -58,7 +58,6 @@
 
   $: initProgress = feInitProgress + renderInitProgress;
   $: if (initProgress == 38) $ready = true;
-  $: console.log(renderInitProgress);
 </script>
 
 <svg class="h-0 w-0" viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg">

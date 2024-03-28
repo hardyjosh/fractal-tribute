@@ -30,14 +30,10 @@ pub fn validate_create_participation_proof(
     let DnaProperties { game_master_evm_key, ..} = _get_dna_properties(())?;
     let game_master_evm_address: H160 = game_master_evm_key.parse().unwrap();
 
-    let mut total_percentage: f32 = 0.0;
-
     for agent_participation in &_participation_proof.agent_participations {
         let signature: ethers_core::types::Signature = agent_participation.signature_bytes.as_slice().try_into().unwrap();
         let message: RecoveryMessage = agent_participation.message_bytes.as_slice().try_into().ok().unwrap();
         let verified = signature.verify(message, game_master_evm_address);
-
-        total_percentage += agent_participation.percentage_of_total_pixels_changed;
 
         if !verified.is_ok() {
             return Ok(
@@ -47,14 +43,6 @@ pub fn validate_create_participation_proof(
             );
         }
     }
-
-    // if total_percentage != 1.0 {
-    //     return Ok(
-    //         ValidateCallbackResult::Invalid(
-    //             String::from("Participation proof percentages do not add up to 100%"),
-    //         ),
-    //     );
-    // }
 
     // @TODO things to validate:
     // - someone must be able to produce the same proof
@@ -88,7 +76,7 @@ pub fn validate_delete_participation_proof(
 pub fn validate_create_link_signed_participation_proof(
     _action: CreateLink,
     _base_address: AnyLinkableHash,
-    target_address: AnyLinkableHash,
+    _target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)

@@ -63,11 +63,6 @@
 
   let mintMoveModal = false;
   let tokenId: bigint;
-
-  const mintMove = (id: Hex) => {
-    mintMoveModal = true;
-    tokenId = hexToBigInt(id);
-  };
 </script>
 
 {#if boardsWithSupply}
@@ -116,7 +111,3 @@
     </div>
   {/if}
 {/if}
-
-<Modal permanent bind:open={mintMoveModal}>
-  <MintMove bind:open={mintMoveModal} {tokenId} />
-</Modal>
